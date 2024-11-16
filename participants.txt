@@ -1,3 +1,0 @@
-{"name":"Valto","paid":false}
-{"name":"Eldo","paid":true}
-{"name":"Kenildo","paid":false}
