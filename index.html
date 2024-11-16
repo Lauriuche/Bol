@@ -1,114 +1,49 @@
+<script type="module">
+  import { loadParticipants, addParticipant, editParticipant, sortParticipants } from './database.js';
 
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Participantes do Bolão</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background-color: #f4f4f4;
-    }
-    h3 {
-      text-transform: uppercase;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-      width: 100%;
-      max-width: 400px;
-    }
-    li {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      background: #fff;
-      border: 1px solid #ddd;
-      margin-bottom: 10px;
-      font-size: 18px;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 18px;
-      border: none;
-      background-color: #007BFF;
-      color: #fff;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
-</head>
-<body>
+  // Renderiza a lista inicial
+  const participants = sortParticipants();
+  renderParticipants(participants);
 
-  <h3>Participantes do Bolão</h3>
-  <ul id="list"></ul>
-  <button onclick="addParticipant()">Adicionar Participante</button>
+  function renderParticipants(participants) {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+    participants.forEach((participant, index) => {
+      const listItem = document.createElement("li");
+      listItem.innerHTML = `
+        <span id="participant-${index}" onclick="startEdit(${index})">${index + 1}. ${participant.name}</span>
+        <span class="${participant.paid ? 'paid' : 'not-paid'}">
+          ${participant.paid ? "✓" : "X"}
+        </span>
+      `;
+      list.appendChild(listItem);
+    });
+  }
 
-  <script>
-    const passwordRequired = "0000"; // Senha para ações
-
-    // Função para carregar participantes do servidor
-    async function loadParticipants() {
-      const response = await fetch("backend.php?action=load");
-      const data = await response.json();
-      const list = document.getElementById("list");
-      list.innerHTML = "";
-
-      data.forEach(participant => {
-        const listItem = document.createElement("li");
-        listItem.innerHTML = `
-          <span>${participant.name}</span>
-          <span>${participant.paid ? "✓" : "X"}</span>
-        `;
-        list.appendChild(listItem);
-      });
+  function startEdit(index) {
+    const participants = loadParticipants();
+    const participant = participants[index];
+    const newName = prompt("Novo nome:", participant.name);
+    const newStatus = confirm("Marcar como pago?");
+    const password = prompt("Digite a senha para salvar:");
+    if (password === "0000") {
+      editParticipant(index, newName, newStatus);
+      renderParticipants(sortParticipants());
+    } else {
+      alert("Senha incorreta!");
     }
+  }
 
-    // Função para adicionar um participante
-    async function addParticipant() {
-      const name = prompt("Digite o nome do novo participante:").trim();
-      if (!name) {
-        alert("Nome inválido!");
-        return;
+  function startAdd() {
+    const name = prompt("Digite o nome:");
+    if (!name) return;
+    const password = prompt("Digite a senha para adicionar:");
+    if (password === "0000") {
+      if (addParticipant(name)) {
+        renderParticipants(sortParticipants());
       }
-
-      const password = prompt("Agora, digite a senha para confirmar a adição:");
-      if (password !== passwordRequired) {
-        alert("Senha inválida!");
-        return;
-      }
-
-      const response = await fetch("backend.php?action=add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, paid: false })
-      });
-
-      const result = await response.text();
-      if (result === "success") {
-        alert("Participante adicionado com sucesso!");
-        loadParticipants();
-      } else {
-        alert(result);
-      }
+    } else {
+      alert("Senha incorreta!");
     }
-
-    // Carrega a lista ao iniciar
-    loadParticipants();
-  </script>
-
-</body>
-</html>
+  }
+</script>
