@@ -106,40 +106,32 @@
   <h3>Pagamento do Bolão</h3>
   <br><br>
   <div class="list-header">
-    <span>Participantes</span>
+    <span>Nome dos participantes</span>
     <span>Pago</span>
   </div>
-  <ul id="list"></ul>
+  <ul id="list">
+    <!-- Lista será gerada dinamicamente -->
+  </ul>
   <button onclick="startAddingParticipant()">Adicionar Participante</button>
 </div>
 
 <script>
   const passwordRequired = "0000"; // Senha para ações
-  const participantsKey = "participantsData"; // Chave para localStorage
-  let currentStatus = "Não";
-
-  // Recupera os participantes do localStorage ou define um valor padrão
-  const participants = JSON.parse(localStorage.getItem(participantsKey)) || [
+  let database = [ // Base de dados simulada
     { name: "Valto", paid: false },
     { name: "Eldo", paid: false },
-    { name: "Kenildo", paid: false },
+    { name: "Kenildo", paid: false }
   ];
 
-  // Função para ordenar participantes por nome
-  function sortParticipants() {
-    participants.sort((a, b) => a.name.localeCompare(b.name, 'pt', { sensitivity: 'base' }));
-  }
-
-  // Renderiza a lista de participantes na tela
-  function renderParticipants() {
+  function renderList() {
     const list = document.getElementById("list");
-    list.innerHTML = "";
-    sortParticipants(); // Ordena antes de renderizar
-    participants.forEach((participant, index) => {
+    list.innerHTML = ""; // Limpa a lista antes de renderizar
+    database.forEach((participant, index) => {
       const listItem = document.createElement("li");
+      listItem.id = `participant-item-${index + 1}`;
       listItem.innerHTML = `
-        <span id="participant-${index}" onclick="editParticipant(${index})">${index + 1}. ${participant.name}</span>
-        <span id="status-${index}" class="status ${participant.paid ? "paid" : "not-paid"}">
+        <span id="participant-${index + 1}" onclick="editParticipant(${index})">${index + 1}. ${participant.name}</span>
+        <span id="status-${index + 1}" class="status ${participant.paid ? "paid" : "not-paid"}">
           ${participant.paid ? "✓" : "X"}
         </span>
       `;
@@ -147,16 +139,9 @@
     });
   }
 
-  // Salva a lista de participantes no localStorage
-  function saveParticipants() {
-    localStorage.setItem(participantsKey, JSON.stringify(participants));
-  }
-
-  // Função para editar participante
   function editParticipant(index) {
-    const participant = participants[index];
-    const listItem = document.getElementById(`participant-${index}`).parentElement;
-
+    const participant = database[index];
+    const listItem = document.getElementById(`participant-item-${index + 1}`);
     listItem.innerHTML = `
       <div class="edit-container">
         <input type="text" id="edit-name-${index}" value="${participant.name}" style="width: 90%; padding: 10px; font-size: 18px;">
@@ -164,19 +149,16 @@
           <button class="paid-btn" onclick="setStatus(${index}, true)">Sim</button>
           <button class="not-paid-btn" onclick="setStatus(${index}, false)">Não</button>
         </div>
-        <button onclick="saveEdit(${index})">Salvar</button>
+        <button onclick="saveParticipant(${index})">Salvar</button>
       </div>
     `;
-    currentStatus = participant.paid; // Define o status atual
   }
 
-  // Define o status do pagamento durante a edição
   function setStatus(index, status) {
-    currentStatus = status;
+    database[index].paid = status;
   }
 
-  // Salva alterações feitas durante a edição
-  function saveEdit(index) {
+  function saveParticipant(index) {
     const password = prompt("Digite a senha para salvar:");
     if (password !== passwordRequired) {
       alert("Senha inválida!");
@@ -184,41 +166,24 @@
     }
 
     const newName = document.getElementById(`edit-name-${index}`).value.trim();
-    if (!newName) {
-      alert("O nome não pode estar vazio!");
+    if (database.some((participant, i) => i !== index && participant.name.toLowerCase() === newName.toLowerCase())) {
+      alert("Este nome já foi adicionado. Por favor, insira um nome diferente.");
       return;
     }
 
-    if (
-      participants.some(
-        (participant, i) =>
-          participant.name.toLowerCase() === newName.toLowerCase() && i !== index
-      )
-    ) {
-      alert("Este nome já está na lista!");
-      return;
-    }
-
-    participants[index].name = newName;
-    participants[index].paid = currentStatus;
-    saveParticipants();
-    renderParticipants();
+    database[index].name = newName; // Atualiza o nome
+    renderList(); // Re-renderiza a lista
   }
 
-  // Adiciona um novo participante
   function startAddingParticipant() {
-    const name = prompt("Digite o nome do novo participante:").trim();
+    const name = prompt("Digite o nome do novo participante:");
     if (!name) {
       alert("Nome inválido!");
       return;
     }
 
-    if (
-      participants.some(
-        (participant) => participant.name.toLowerCase() === name.toLowerCase()
-      )
-    ) {
-      alert("Este nome já foi adicionado!");
+    if (database.some(participant => participant.name.toLowerCase() === name.toLowerCase())) {
+      alert("Este nome já foi adicionado. Por favor, insira um nome diferente.");
       return;
     }
 
@@ -228,13 +193,12 @@
       return;
     }
 
-    participants.push({ name, paid: false });
-    saveParticipants();
-    renderParticipants();
+    database.push({ name: name.trim(), paid: false }); // Adiciona à base de dados
+    renderList(); // Re-renderiza a lista
   }
 
-  // Inicializa a lista ao carregar a página
-  renderParticipants();
+  // Renderiza a lista inicial ao carregar a página
+  renderList();
 </script>
 
 </body>
