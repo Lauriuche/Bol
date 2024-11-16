@@ -3,26 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadastro de Participantes</title>
-  <script src="data.js" defer></script>
+  <title>Pagamento Bolão</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       background-color: #f4f4f4;
       font-size: 20px;
     }
-    h1 {
-      text-transform: uppercase;
+    #popup {
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      max-width: 400px;
+      width: 100%;
       text-align: center;
+    }
+    h3 {
+      margin-top: 0;
+      text-transform: uppercase;
+      font-size: 24px;
+    }
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 20px;
+      font-size: 22px;
     }
     ul {
       list-style: none;
       padding: 0;
+      margin: 0;
     }
     li {
-      margin: 10px 0;
+      margin-bottom: 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -36,89 +56,151 @@
     .not-paid {
       color: red;
     }
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
+    .edit-container {
+      text-align: center;
+    }
+    .edit-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 10px 0;
+    }
+    .edit-buttons button {
+      padding: 12px 25px;
       border: none;
       border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
     }
-    .add-btn {
+    .paid-btn {
+      background-color: green;
+      color: white;
+    }
+    .not-paid-btn {
+      background-color: red;
+      color: white;
+    }
+    button {
+      cursor: pointer;
+      padding: 15px 30px;
       background-color: #007BFF;
       color: white;
+      border: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      width: 100%;
+      font-size: 18px;
     }
-    .add-btn:hover {
+    button:hover {
       background-color: #0056b3;
     }
-    .edit-btn {
-      background-color: orange;
-      color: white;
-    }
-    .edit-btn:hover {
-      background-color: darkorange;
+    #list span {
+      font-size: 20px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>Cadastro de Participantes</h1>
-  <ul id="participant-list"></ul>
-  <button class="add-btn" onclick="startAddingParticipant()">Adicionar Participante</button>
 
-  <script>
-    // Carregando os dados do data.js
-    let participants = getParticipants();
+<div id="popup">
+  <h3>Pagamento do Bolão</h3>
+  <br><br>
+  <div class="list-header">
+    <span>Nome dos participantes</span>
+    <span>Pago</span>
+  </div>
+  <ul id="list">
+    <li id="participant-item-1">
+      <span id="participant-1" onclick="editParticipant(1)">1. Valto</span>
+      <span id="status-1" class="status not-paid">X</span>
+    </li>
+    <li id="participant-item-2">
+      <span id="participant-2" onclick="editParticipant(2)">2. Eldo</span>
+      <span id="status-2" class="status not-paid">X</span>
+    </li>
+    <li id="participant-item-3">
+      <span id="participant-3" onclick="editParticipant(3)">3. Kenildo</span>
+      <span id="status-3" class="status not-paid">X</span>
+    </li>
+  </ul>
+  <button onclick="startAddingParticipant()">Adicionar Participante</button>
+</div>
 
-    // Renderiza a lista de participantes
-    function renderParticipants() {
-      const list = document.getElementById("participant-list");
-      list.innerHTML = ""; // Limpa a lista atual
+<script>
+  const existingParticipants = ["Valto", "Eldo", "Kenildo"]; // Lista de participantes já existentes
 
-      participants.forEach(participant => {
-        const listItem = document.createElement("li");
-        listItem.innerHTML = `
-          <span>${participant.id}. ${participant.name}</span>
-          <span class="status ${participant.paid ? 'paid' : 'not-paid'}">
-            ${participant.paid ? "✓" : "X"}
-          </span>
-          <button class="edit-btn" onclick="startEditingParticipant(${participant.id})">Editar</button>
-        `;
-        list.appendChild(listItem);
-      });
+  let currentStatus = "Não"; // Variável global para armazenar o status escolhido
+  let newName = ""; // Variável para armazenar o nome do novo participante
+
+  // Função para editar participante
+  function editParticipant(id) {
+    const participantName = document.getElementById(`participant-${id}`);
+    const status = document.getElementById(`status-${id}`);
+    const currentName = participantName.textContent.split('. ')[1];
+    const currentStatusText = status.textContent === "✓" ? "Sim" : "Não";
+
+    const listItem = document.getElementById(`participant-item-${id}`);
+    listItem.innerHTML = `
+      <div class="edit-container">
+        <input type="text" id="edit-name-${id}" value="${currentName}" style="width: 90%; padding: 10px; font-size: 18px;">
+        <div class="edit-buttons">
+          <button class="paid-btn" onclick="setStatus(${id}, 'Sim')">Sim</button>
+          <button class="not-paid-btn" onclick="setStatus(${id}, 'Não')">Não</button>
+        </div>
+        <button onclick="saveParticipant(${id})">Salvar</button>
+      </div>
+    `;
+    currentStatus = currentStatusText; // Define o status atual
+  }
+
+  // Função para definir o status do pagamento
+  function setStatus(id, status) {
+    currentStatus = status; // Atualiza a variável global
+  }
+
+  // Função para salvar alterações
+  function saveParticipant(id) {
+    const newName = document.getElementById(`edit-name-${id}`).value;
+
+    const participantName = document.getElementById(`participant-item-${id}`);
+    participantName.innerHTML = `
+      <span id="participant-${id}" onclick="editParticipant(${id})">${id}. ${newName}</span>
+      <span id="status-${id}" class="status ${currentStatus === "Sim" ? "paid" : "not-paid"}">
+        ${currentStatus === "Sim" ? "✓" : "X"}
+      </span>
+    `;
+  }
+
+  // Função para iniciar o processo de adicionar participante
+  function startAddingParticipant() {
+    const name = prompt("Digite o nome do novo participante:");
+    if (!name) {
+      alert("Nome inválido!");
+      return;
     }
 
-    // Adiciona um novo participante
-    function startAddingParticipant() {
-      const name = prompt("Digite o nome do novo participante:");
-      if (!name) {
-        alert("Nome inválido!");
-        return;
-      }
-
-      addParticipant(name);
-      participants = getParticipants(); // Atualiza a lista local
-      renderParticipants();
+    // Verificar se o nome já existe (sem diferenciar maiúsculas de minúsculas)
+    if (existingParticipants.some(participant => participant.toLowerCase() === name.toLowerCase())) {
+      alert("Este nome já foi adicionado. Por favor, insira um nome diferente.");
+      return;
     }
 
-    // Edita um participante
-    function startEditingParticipant(id) {
-      const participant = participants.find(p => p.id === id);
-      if (!participant) return;
+    // Adicionar o nome à lista de participantes
+    existingParticipants.push(name);
 
-      const newName = prompt("Digite o novo nome do participante:", participant.name);
-      if (!newName) {
-        alert("Nome inválido!");
-        return;
-      }
+    const list = document.getElementById("list");
+    const totalParticipants = list.getElementsByTagName("li").length + 1;
 
-      const newStatus = confirm("O participante já pagou? Clique em OK para SIM e Cancelar para NÃO.");
-      editParticipant(id, newName, newStatus);
-      participants = getParticipants(); // Atualiza a lista local
-      renderParticipants();
-    }
+    const newListItem = document.createElement("li");
+    newListItem.id = `participant-item-${totalParticipants}`;
+    newListItem.innerHTML = `
+      <span id="participant-${totalParticipants}" onclick="editParticipant(${totalParticipants})">${totalParticipants}. ${name}</span>
+      <span id="status-${totalParticipants}" class="status not-paid">X</span>
+    `;
 
-    // Inicializa a lista na página
-    renderParticipants();
-  </script>
+    list.appendChild(newListItem);
+  }
+</script>
+
 </body>
 </html>
