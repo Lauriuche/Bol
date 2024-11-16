@@ -3,46 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pagamento Bolão</title>
+  <title>Cadastro de Participantes</title>
+  <script src="data.js" defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      padding: 20px;
       background-color: #f4f4f4;
       font-size: 20px;
     }
-    #popup {
-      background-color: #fff;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      border-radius: 8px;
-      max-width: 400px;
-      width: 100%;
+    h1 {
+      text-transform: uppercase;
       text-align: center;
-    }
-    h3 {
-      margin-top: 0;
-      text-transform: uppercase; /* Título em caixa alta */
-      font-size: 24px;
-    }
-    .list-header {
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-      margin-bottom: 20px;
-      font-size: 22px;
     }
     ul {
       list-style: none;
       padding: 0;
-      margin: 0;
     }
     li {
-      margin-bottom: 15px;
+      margin: 10px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -57,115 +37,88 @@
       color: red;
     }
     button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
       cursor: pointer;
-      padding: 15px 30px;
-      background-color: #007BFF;
-      color: white;
       border: none;
       border-radius: 5px;
-      margin-top: 20px;
-      width: 100%;
-      font-size: 18px;
     }
-    button:hover {
+    .add-btn {
+      background-color: #007BFF;
+      color: white;
+    }
+    .add-btn:hover {
       background-color: #0056b3;
     }
-    #list span {
-      font-size: 20px;
-      font-weight: bold;
+    .edit-btn {
+      background-color: orange;
+      color: white;
+    }
+    .edit-btn:hover {
+      background-color: darkorange;
     }
   </style>
 </head>
 <body>
+  <h1>Cadastro de Participantes</h1>
+  <ul id="participant-list"></ul>
+  <button class="add-btn" onclick="startAddingParticipant()">Adicionar Participante</button>
 
-<div id="popup">
-  <h3>Pagamento do Bolão</h3>
-  <br><br>
-  <div class="list-header">
-    <span>Nome dos participantes</span>
-    <span>Pago</span>
-  </div>
-  <ul id="list">
-    <!-- Lista será carregada via JavaScript -->
-  </ul>
-  <button onclick="startAddingParticipant()">Adicionar Participante</button>
-</div>
+  <script>
+    // Carregando os dados do data.js
+    let participants = getParticipants();
 
-<script>
-  const passwordRequired = "0000"; // Senha para ações
+    // Renderiza a lista de participantes
+    function renderParticipants() {
+      const list = document.getElementById("participant-list");
+      list.innerHTML = ""; // Limpa a lista atual
 
-  // Função para carregar a lista de participantes
-  async function loadParticipants() {
-    const response = await fetch('participantes.txt');
-    const text = await response.text();
-    const participants = text.trim().split('\n');
-
-    const list = document.getElementById('list');
-    list.innerHTML = ''; // Limpa a lista antes de recarregar
-
-    participants.forEach((line, index) => {
-      const [name, status] = line.split(';');
-      const statusText = status === 'Sim' ? '✓' : 'X';
-      const statusClass = status === 'Sim' ? 'paid' : 'not-paid';
-
-      const listItem = document.createElement('li');
-      listItem.id = `participant-item-${index + 1}`;
-      listItem.innerHTML = `
-        <span id="participant-${index + 1}" onclick="editParticipant(${index + 1}, '${name}', '${status}')">${index + 1}. ${name}</span>
-        <span id="status-${index + 1}" class="status ${statusClass}">${statusText}</span>
-      `;
-      list.appendChild(listItem);
-    });
-  }
-
-  // Função para adicionar novo participante
-  async function startAddingParticipant() {
-    const name = prompt("Digite o nome do novo participante:");
-    if (!name) {
-      alert("Nome inválido!");
-      return;
+      participants.forEach(participant => {
+        const listItem = document.createElement("li");
+        listItem.innerHTML = `
+          <span>${participant.id}. ${participant.name}</span>
+          <span class="status ${participant.paid ? 'paid' : 'not-paid'}">
+            ${participant.paid ? "✓" : "X"}
+          </span>
+          <button class="edit-btn" onclick="startEditingParticipant(${participant.id})">Editar</button>
+        `;
+        list.appendChild(listItem);
+      });
     }
 
-    const password = prompt("Agora, digite a senha para confirmar a adição:");
-    if (password !== passwordRequired) {
-      alert("Senha inválida!");
-      return;
+    // Adiciona um novo participante
+    function startAddingParticipant() {
+      const name = prompt("Digite o nome do novo participante:");
+      if (!name) {
+        alert("Nome inválido!");
+        return;
+      }
+
+      addParticipant(name);
+      participants = getParticipants(); // Atualiza a lista local
+      renderParticipants();
     }
 
-    // Adiciona ao arquivo usando PHP
-    await fetch('add_participant.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `name=${encodeURIComponent(name)}&status=Não`
-    });
+    // Edita um participante
+    function startEditingParticipant(id) {
+      const participant = participants.find(p => p.id === id);
+      if (!participant) return;
 
-    await loadParticipants(); // Recarrega a lista
-  }
+      const newName = prompt("Digite o novo nome do participante:", participant.name);
+      if (!newName) {
+        alert("Nome inválido!");
+        return;
+      }
 
-  // Função para editar participante
-  async function editParticipant(id, name, status) {
-    const newName = prompt("Editar nome:", name) || name;
-    const newStatus = confirm("Marcar como pago?") ? "Sim" : "Não";
-
-    const password = prompt("Digite a senha para salvar:");
-    if (password !== passwordRequired) {
-      alert("Senha inválida!");
-      return;
+      const newStatus = confirm("O participante já pagou? Clique em OK para SIM e Cancelar para NÃO.");
+      editParticipant(id, newName, newStatus);
+      participants = getParticipants(); // Atualiza a lista local
+      renderParticipants();
     }
 
-    // Atualiza o arquivo usando PHP
-    await fetch('edit_participant.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `id=${id}&name=${encodeURIComponent(newName)}&status=${newStatus}`
-    });
-
-    await loadParticipants(); // Recarrega a lista
-  }
-
-  // Carrega os participantes ao iniciar
-  loadParticipants();
-</script>
-
+    // Inicializa a lista na página
+    renderParticipants();
+  </script>
 </body>
 </html>
