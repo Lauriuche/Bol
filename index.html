@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamento Bolão</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+      font-size: 20px;
+    }
+    #popup {
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    h3 {
+      margin-top: 0;
+      text-transform: uppercase;
+      font-size: 24px;
+    }
+    .list-header, li {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+    .status {
+      color: red;
+      cursor: pointer;
+    }
+    .paid {
+      color: green;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div id="popup">
+  <h3>Pagamento do Bolão</h3>
+  <div class="list-header">
+    <span>Nome dos Participantes</span>
+    <span>Pago</span>
+  </div>
+  <ul id="list"></ul>
+  <button onclick="addParticipant()">Adicionar Participante</button>
+</div>
+
+<script>
+  const API_URL = 'backend.php';
+  let participants = [];
+
+  // Função para carregar a lista do arquivo TXT
+  async function loadParticipants() {
+    const response = await fetch(API_URL);
+    const data = await response.text();
+    participants = data
+      .split('\n')
+      .filter(line => line.trim() !== '')
+      .map(line => {
+        const [name, paid] = line.split(',');
+        return { name, paid: paid === 'true' };
+      });
+    renderList();
+  }
+
+  // Função para salvar a lista no arquivo TXT
+  async function saveParticipants() {
+    const data = participants
+      .map(p => `${p.name},${p.paid}`)
+      .join('\n');
+    await fetch(API_URL, {
+      method: 'POST',
+      body: data,
+    });
+    alert('Lista atualizada com sucesso!');
+  }
+
+  // Função para renderizar a lista
+  function renderList() {
+    const list = document.getElementById('list');
+    list.innerHTML = "";
+    participants.forEach((participant, index) => {
+      list.innerHTML += `
+        <li>
+          <span onclick="editParticipant(${index})">${index + 1}. ${participant.name}</span>
+          <span class="status ${participant.paid ? 'paid' : ''}" onclick="togglePaid(${index})">
+            ${participant.paid ? '✓' : 'X'}
+          </span>
+        </li>`;
+    });
+  }
+
+  // Alterna o status de pagamento
+  function togglePaid(index) {
+    participants[index].paid = !participants[index].paid;
+    renderList();
+  }
+
+  // Edita um participante
+  function editParticipant(index) {
+    const newName = prompt("Editar Nome:", participants[index].name);
+    if (newName && !isDuplicate(newName, index)) {
+      participants[index].name = newName;
+      renderList();
+    } else if (isDuplicate(newName, index)) {
+      alert("Este nome já existe.");
+    }
+  }
+
+  // Adiciona um novo participante
+  function addParticipant() {
+    const name = prompt("Digite o nome do novo participante:");
+    if (name && !isDuplicate(name)) {
+      participants.push({ name, paid: false });
+      renderList();
+    } else if (isDuplicate(name)) {
+      alert("Este nome já existe.");
+    }
+  }
+
+  // Verifica se o nome é duplicado
+  function isDuplicate(name, index = -1) {
+    return participants.some((participant, i) => participant.name.toLowerCase() === name.toLowerCase() && i !== index);
+  }
+
+  // Carrega a lista ao iniciar
+  loadParticipants();
+</script>
+
+</body>
+</html>
