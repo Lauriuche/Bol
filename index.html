@@ -7,34 +7,17 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+      text-align: center;
       background-color: #f4f4f4;
-    }
-    #container {
-      background-color: white;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      max-width: 400px;
-      width: 100%;
     }
     h3 {
-      text-align: center;
-      margin-bottom: 20px;
       text-transform: uppercase;
-    }
-    .list-header {
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-      margin-bottom: 10px;
+      font-size: 20px;
+      margin-bottom: 40px;
     }
     ul {
-      list-style: none;
+      list-style-type: none;
       padding: 0;
     }
     li {
@@ -42,111 +25,126 @@
       justify-content: space-between;
       margin-bottom: 10px;
     }
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 10px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
     .status {
       cursor: pointer;
-      color: red;
       font-weight: bold;
     }
     .status.paid {
       color: green;
     }
+    .status.unpaid {
+      color: red;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
-<div id="container">
-  <h3>Pagamento do Bolão</h3>
-  <div class="list-header">
-    <span>Nome</span>
-    <span>Status</span>
-  </div>
+  <h3>PAGAMENTO DO BOLÃO</h3>
   <ul id="participants"></ul>
   <button onclick="addParticipant()">Adicionar Participante</button>
-</div>
 
-<script type="module">
-  // Importa o cliente do Supabase
-  import { createClient } from 'https://awzqpdbjosynpgquxkex.supabase.co';
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  // Configuração do Supabase
-  const SUPABASE_URL = 'https://awzqpdbjosynpgquxkex.supabase.co'; // Substitua pela sua URL
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3enFwZGJqb3N5bnBncXV4a2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE4ODQxMTEsImV4cCI6MjA0NzQ2MDExMX0.hTDXejAq9KqTdHORbXWORVc1SvMclPX8ev0ypUy6pTg'; // Substitua pela sua anon key
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Configuração do Supabase
+    const SUPABASE_URL = 'https://awzqpdbjosynpgquxkex.supabase.co'; // URL do seu projeto Supabase
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3enFwZGJqb3N5bnBncXV4a2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE4ODQxMTEsImV4cCI6MjA0NzQ2MDExMX0.hTDXejAq9KqTdHORbXWORVc1SvMclPX8ev0ypUy6pTg'; // Substitua isso por uma chave configurada corretamente
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // Carrega os participantes do banco de dados
-  async function loadParticipants() {
-    const { data, error } = await supabase.from('participants').select();
-    if (error) {
-      console.error('Erro ao carregar participantes:', error);
-      return;
+    // Carregar participantes ao abrir a página
+    async function loadParticipants() {
+      const { data, error } = await supabase.from('participants').select();
+      if (error) {
+        console.error('Erro ao carregar participantes:', error);
+        return;
+      }
+      renderParticipants(data);
     }
-    renderParticipants(data);
-  }
 
-  // Renderiza os participantes na lista
-  function renderParticipants(participants) {
-    const list = document.getElementById('participants');
-    list.innerHTML = '';
-    participants.forEach(participant => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <span onclick="editParticipant('${participant.id}')">${participant.name}</span>
-        <span class="status ${participant.paid ? 'paid' : ''}" onclick="togglePaid('${participant.id}', ${participant.paid})">
-          ${participant.paid ? '✓' : 'X'}
-        </span>
-      `;
-      list.appendChild(li);
-    });
-  }
+    // Renderizar participantes na página
+    function renderParticipants(participants) {
+      const participantsList = document.getElementById('participants');
+      participantsList.innerHTML = ''; // Limpa a lista
 
-  // Adiciona um novo participante
-  async function addParticipant() {
-    const name = prompt('Digite o nome do novo participante:');
-    if (!name) return;
-    const { error } = await supabase.from('participants').insert([{ name }]);
-    if (error) {
-      console.error('Erro ao adicionar participante:', error);
-      return;
+      participants.forEach(participant => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span onclick="editParticipant('${participant.id}', '${participant.name}')">${participant.name}</span>
+          <span class="status ${participant.paid ? 'paid' : 'unpaid'}" onclick="togglePaid('${participant.id}', ${participant.paid})">
+            ${participant.paid ? '✓' : 'X'}
+          </span>
+        `;
+        participantsList.appendChild(li);
+      });
     }
+
+    // Alternar status de pagamento
+    async function togglePaid(id, currentStatus) {
+      const { error } = await supabase.from('participants').update({ paid: !currentStatus }).eq('id', id);
+      if (error) {
+        console.error('Erro ao alterar status de pagamento:', error);
+        return;
+      }
+      loadParticipants(); // Recarregar a lista
+    }
+
+    // Adicionar participante
+    async function addParticipant() {
+      const name = prompt('Digite o nome do novo participante:');
+      if (!name) {
+        alert('O nome não pode ser vazio!');
+        return;
+      }
+
+      const { data: existingParticipants, error: checkError } = await supabase
+        .from('participants')
+        .select('name')
+        .eq('name', name);
+      
+      if (checkError) {
+        console.error('Erro ao verificar participantes existentes:', checkError);
+        return;
+      }
+
+      if (existingParticipants.length > 0) {
+        alert('Participante já existe!');
+        return;
+      }
+
+      const { error } = await supabase.from('participants').insert([{ name }]);
+      if (error) {
+        console.error('Erro ao adicionar participante:', error);
+        return;
+      }
+      loadParticipants(); // Recarregar a lista
+    }
+
+    // Editar participante
+    async function editParticipant(id, currentName) {
+      const newName = prompt('Digite o novo nome:', currentName);
+      if (!newName) return;
+
+      const { error } = await supabase.from('participants').update({ name: newName }).eq('id', id);
+      if (error) {
+        console.error('Erro ao editar participante:', error);
+        return;
+      }
+      loadParticipants(); // Recarregar a lista
+    }
+
+    // Carregar participantes ao iniciar
     loadParticipants();
-  }
-
-  // Edita o nome de um participante
-  async function editParticipant(id) {
-    const newName = prompt('Digite o novo nome:');
-    if (!newName) return;
-    const { error } = await supabase.from('participants').update({ name: newName }).eq('id', id);
-    if (error) {
-      console.error('Erro ao editar participante:', error);
-      return;
-    }
-    loadParticipants();
-  }
-
-  // Altera o status de pagamento
-  async function togglePaid(id, currentStatus) {
-    const { error } = await supabase.from('participants').update({ paid: !currentStatus }).eq('id', id);
-    if (error) {
-      console.error('Erro ao alterar status:', error);
-      return;
-    }
-    loadParticipants();
-  }
-
-  // Carrega os participantes ao iniciar
-  loadParticipants();
-</script>
+  </script>
 </body>
 </html>
