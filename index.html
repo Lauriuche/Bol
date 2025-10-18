@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Participar do Bolão</title>
+    <title>ENTRE PARA A LISTA DE PARTICIPANTES DO BOLÃO</title>
     <style>
         /* Define as cores principais para fácil customização */
         :root {
@@ -277,7 +277,7 @@
                 const linkWhatsapp = `https://wa.me/55${numeroLimpo}`;
 
                 // 3. Usa o link gerado na mensagem final
-                const textoMensagem = `--- Nova Inscrição no Bolão ---\n\n👤 Nome: ${nome}\n📱 Telefone: ${linkWhatsapp}\n🏢 Setor: ${setor}`;
+                const textoMensagem = `--- NOVO PARTICIPANTE ---\n\n\n👤 Nome: ${nome}\n\n📱 Telefone: ${linkWhatsapp}\n\n🏢 Setor: ${setor}`;
                 
                 const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(textoMensagem)}`;
                 
