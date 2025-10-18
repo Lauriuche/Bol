@@ -181,7 +181,7 @@
             </div>
 
             <div class="form-grupo" id="outroSetor">
-                <label for="outroSetorInput">Especifique o setor:</label>
+                <label for="outroSetorInput">Qual setor trabalha:</label>
                 <input type="text" id="outroSetorInput" name="outroSetorInput">
             </div>
 
@@ -207,7 +207,7 @@
             const contadorTextoEl = document.getElementById('contadorTexto');
             const btnEnviar = document.getElementById('btnEnviar');
 
-            let participantesAtuais = parseInt(localStorage.getItem('bolaoParticipantes')) || 0;
+            let participantesAtuais = parseInt(localStorage.getItem('bolaoParticipantes')) || 79;
 
             // --- FUNÇÕES ---
             function atualizarContador() {
