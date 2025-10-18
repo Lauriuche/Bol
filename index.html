@@ -277,7 +277,7 @@
                 const linkWhatsapp = `https://wa.me/55${numeroLimpo}`;
 
                 // 3. Usa o link gerado na mensagem final
-                const textoMensagem = `--- NOVO PARTICIPANTE ---\n\n\n👤 Nome: ${nome}\n\n📱 Telefone: ${linkWhatsapp}\n\n🏢 Setor: ${setor}`;
+                const textoMensagem = `\n--- NOVO PARTICIPANTE ---\n\n👤 Nome: ${nome}\n📱 Telefone: ${linkWhatsapp}\n🏢 Setor: ${setor}\n';
                 
                 const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(textoMensagem)}`;
                 
