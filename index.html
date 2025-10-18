@@ -1,5 +1,314 @@
-<form action="https://sheetdb.io/api/v1/buttoninput name="data[nome]" placeholder="Seu nome" required><br>
-  <input name="data[email]" placeholder="Seu email" required><br>
-  <input name="data[telefone]" placeholder="Telefone"><br>
-  <button type="submit">Enviar</button>
-</form>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participar do Bolão</title>
+    <style>
+        /* Define as cores principais para fácil customização */
+        :root {
+            --cor-primaria: #005A9C;
+            --cor-sucesso: #28a745;
+            --cor-aviso: #ffc107;
+            --cor-perigo: #dc3545;
+            --cor-fundo: #f0f2f5;
+            --cor-texto: #333;
+            --cor-borda: #ccc;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--cor-primaria);
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .contador {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .progresso-barra {
+            width: 100%;
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progresso-preenchimento {
+            height: 100%;
+            width: 0%;
+            background-color: var(--cor-sucesso);
+            border-radius: 5px;
+            transition: width 0.4s ease, background-color 0.4s ease;
+        }
+
+        .progresso-preenchimento.aviso { background-color: var(--cor-aviso); }
+        .progresso-preenchimento.perigo { background-color: var(--cor-perigo); }
+
+        .form-grupo {
+            margin-bottom: 20px;
+        }
+
+        .form-grupo label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-grupo input,
+        .form-grupo select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--cor-borda);
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .form-grupo input:focus,
+        .form-grupo select:focus {
+            outline: none;
+            border-color: var(--cor-primaria);
+            box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.2);
+        }
+
+        #outroSetor {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--cor-primaria);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #004a80;
+        }
+
+        .mensagem {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none; /* Escondido por padrão */
+        }
+        
+        .mensagem.sucesso {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .mensagem.erro {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>Participar do Bolão</h1>
+        
+        <div class="contador">
+            <p id="contadorTexto">Vagas Disponíveis</p>
+            <div class="progresso-barra">
+                <div class="progresso-preenchimento" id="progressoPreenchimento"></div>
+            </div>
+            <span id="contagemAtual">0</span> / <span id="maximoVagas">80</span>
+        </div>
+        
+        <div id="mensagem" class="mensagem"></div>
+        
+        <form id="bolaoForm">
+            <div class="form-grupo">
+                <label for="nome">Nome Completo:</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+
+            <div class="form-grupo">
+                <label for="telefone">Telefone (WhatsApp):</label>
+                <input type="tel" id="telefone" name="telefone" required>
+            </div>
+
+            <div class="form-grupo">
+                <label for="setor">Setor da Loja:</label>
+                <select id="setor" name="setor" required>
+                    <option value="">Selecione um Setor</option>
+                    <option value="Caixa">Caixa</option>
+                    <option value="Embalagem">Embalagem</option>
+                    <option value="Reposição">Reposição</option>
+                    <option value="Frios">Frios</option>
+                    <option value="Padaria">Padaria</option>
+                    <option value="Açougue">Açougue</option>
+                    <option value="Depósito">Depósito</option>
+                    <option value="Limpeza">Limpeza</option>
+                    <option value="Administrativo">Administrativo</option>
+                    <option value="outro">Outro</option>
+                </select>
+            </div>
+
+            <div class="form-grupo" id="outroSetor">
+                <label for="outroSetorInput">Especifique o setor:</label>
+                <input type="text" id="outroSetorInput" name="outroSetorInput">
+            </div>
+
+            <button type="submit" id="btnEnviar">Enviar Inscrição</button>
+        </form>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURAÇÃO ---
+            const MAX_VAGAS = 80;
+            const TELEGRAM_TOKEN = "8307035824:AAFsKe4l1WgbZI1uez-n06Vt-TYiuhZLMt8"; // ⚠️ ATENÇÃO: Substitua pelo seu token.
+            const TELEGRAM_CHAT_ID = "861365063"; // ⚠️ ATENÇÃO: Substitua pelo ID do seu chat.
+            // --- ELEMENTOS DO DOM ---
+            const form = document.getElementById('bolaoForm');
+            const setorSelect = document.getElementById('setor');
+            const outroSetorDiv = document.getElementById('outroSetor');
+            const outroSetorInput = document.getElementById('outroSetorInput');
+            const mensagemDiv = document.getElementById('mensagem');
+            const contagemAtualEl = document.getElementById('contagemAtual');
+            const maximoVagasEl = document.getElementById('maximoVagas');
+            const progressoPreenchimentoEl = document.getElementById('progressoPreenchimento');
+            const contadorTextoEl = document.getElementById('contadorTexto');
+            const btnEnviar = document.getElementById('btnEnviar');
+
+            let participantesAtuais = parseInt(localStorage.getItem('bolaoParticipantes')) || 0;
+
+            // --- FUNÇÕES ---
+            function atualizarContador() {
+                contagemAtualEl.textContent = participantesAtuais;
+                const porcentagem = (participantesAtuais / MAX_VAGAS) * 100;
+                progressoPreenchimentoEl.style.width = `${porcentagem}%`;
+
+                progressoPreenchimentoEl.classList.remove('aviso', 'perigo');
+                if (porcentagem >= 90) {
+                    progressoPreenchimentoEl.classList.add('perigo');
+                } else if (porcentagem >= 70) {
+                    progressoPreenchimentoEl.classList.add('aviso');
+                }
+
+                if (participantesAtuais >= MAX_VAGAS) {
+                    contadorTextoEl.textContent = "VAGAS ESGOTADAS!";
+                    btnEnviar.disabled = true;
+                    btnEnviar.textContent = "Inscrições Encerradas";
+                }
+            }
+
+            function mostrarMensagem(texto, tipo = 'sucesso') {
+                mensagemDiv.textContent = texto;
+                mensagemDiv.className = `mensagem ${tipo}`;
+                mensagemDiv.style.display = 'block';
+            }
+
+            // --- LÓGICA DE EVENTOS ---
+            setorSelect.addEventListener('change', () => {
+                const éOutro = setorSelect.value === 'outro';
+                outroSetorDiv.style.display = éOutro ? 'block' : 'none';
+                outroSetorInput.required = éOutro;
+            });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                btnEnviar.disabled = true;
+                btnEnviar.textContent = 'Enviando...';
+                mensagemDiv.style.display = 'none';
+
+                if (participantesAtuais >= MAX_VAGAS) {
+                    mostrarMensagem('As vagas para o bolão já foram esgotadas.', 'erro');
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = 'Enviar Inscrição';
+                    return;
+                }
+                
+                const nome = document.getElementById('nome').value.trim();
+                let setor = setorSelect.value;
+                if (setor === 'outro') {
+                    setor = outroSetorInput.value.trim();
+                }
+
+                if (setorSelect.value === 'outro' && !setor) {
+                    mostrarMensagem('Por favor, especifique o setor.', 'erro');
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = 'Enviar Inscrição';
+                    return;
+                }
+                
+                const telefone = document.getElementById('telefone').value.trim();
+                
+                // 1. Remove caracteres não numéricos do telefone
+                const numeroLimpo = telefone.replace(/\D/g, '');
+
+                // 2. Monta o link completo, adicionando o código do país (55 para Brasil)
+                const linkWhatsapp = `https://wa.me/55${numeroLimpo}`;
+
+                // 3. Usa o link gerado na mensagem final
+                const textoMensagem = `--- Nova Inscrição no Bolão ---\n\n👤 Nome: ${nome}\n📱 Telefone: ${linkWhatsapp}\n🏢 Setor: ${setor}`;
+                
+                const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(textoMensagem)}`;
+                
+                // --- ATENÇÃO: RISCO DE SEGURANÇA ---
+                // Manter o TOKEN no código do navegador é inseguro.
+                // O ideal é ter um backend (função serverless) para fazer este envio.
+                
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Falha na resposta da rede.');
+
+                    participantesAtuais++;
+                    localStorage.setItem('bolaoParticipantes', participantesAtuais);
+                    atualizarContador();
+                    mostrarMensagem('Inscrição enviada com sucesso!', 'sucesso');
+                    form.reset();
+                    outroSetorDiv.style.display = 'none';
+
+                } catch (error) {
+                    console.error('Erro ao enviar:', error);
+                    mostrarMensagem('Ocorreu um erro ao enviar. Tente novamente.', 'erro');
+                } finally {
+                    btnEnviar.disabled = (participantesAtuais >= MAX_VAGAS);
+                    btnEnviar.textContent = (participantesAtuais >= MAX_VAGAS) ? 'Inscrições Encerradas' : 'Enviar Inscrição';
+                }
+            });
+
+            // --- INICIALIZAÇÃO ---
+            maximoVagasEl.textContent = MAX_VAGAS;
+            atualizarContador();
+        });
+    </script>
+</body>
+</html>
