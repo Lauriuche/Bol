@@ -3,148 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pagamento do Bolão</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f4f4f4;
-      padding: 20px;
-    }
-    h3 {
-      text-transform: uppercase;
-      font-size: 20px;
-      margin-bottom: 40px;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .status {
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .status.paid {
-      color: green;
-    }
-    .status.unpaid {
-      color: red;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #007BFF;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
+  <title>Formulário de Inscrição</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h3>PAGAMENTO DO BOLÃO</h3>
-  <ul id="participants"></ul>
-  <button onclick="addParticipant()">Adicionar Participante</button>
+  <div class="container">
+    <h1>Formulário de Inscrição</h1>
+    <form action="salvar.php" method="POST" class="form">
+      <label for="nome">Nome completo:</label>
+      <input type="text" id="nome" name="nome" required>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+      <label for="email">E-mail:</label>
+      <input type="email" id="email" name="email" required>
 
-    // Configuração do Supabase
-    const SUPABASE_URL = 'https://awzqpdbjosynpgquxkex.supabase.co'; // URL do seu projeto Supabase
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3enFwZGJqb3N5bnBncXV4a2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE4ODQxMTEsImV4cCI6MjA0NzQ2MDExMX0.hTDXejAq9KqTdHORbXWORVc1SvMclPX8ev0ypUy6pTg'; // Substitua isso por uma chave configurada corretamente
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+      <label for="telefone">Telefone:</label>
+      <input type="text" id="telefone" name="telefone">
 
-    // Carregar participantes ao abrir a página
-    async function loadParticipants() {
-      const { data, error } = await supabase.from('participants').select();
-      if (error) {
-        console.error('Erro ao carregar participantes:', error);
-        return;
-      }
-      renderParticipants(data);
-    }
-
-    // Renderizar participantes na página
-    function renderParticipants(participants) {
-      const participantsList = document.getElementById('participants');
-      participantsList.innerHTML = ''; // Limpa a lista
-
-      participants.forEach(participant => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <span onclick="editParticipant('${participant.id}', '${participant.name}')">${participant.name}</span>
-          <span class="status ${participant.paid ? 'paid' : 'unpaid'}" onclick="togglePaid('${participant.id}', ${participant.paid})">
-            ${participant.paid ? '✓' : 'X'}
-          </span>
-        `;
-        participantsList.appendChild(li);
-      });
-    }
-
-    // Alternar status de pagamento
-    async function togglePaid(id, currentStatus) {
-      const { error } = await supabase.from('participants').update({ paid: !currentStatus }).eq('id', id);
-      if (error) {
-        console.error('Erro ao alterar status de pagamento:', error);
-        return;
-      }
-      loadParticipants(); // Recarregar a lista
-    }
-
-    // Adicionar participante
-    async function addParticipant() {
-      const name = prompt('Digite o nome do novo participante:');
-      if (!name) {
-        alert('O nome não pode ser vazio!');
-        return;
-      }
-
-      const { data: existingParticipants, error: checkError } = await supabase
-        .from('participants')
-        .select('name')
-        .eq('name', name);
-      
-      if (checkError) {
-        console.error('Erro ao verificar participantes existentes:', checkError);
-        return;
-      }
-
-      if (existingParticipants.length > 0) {
-        alert('Participante já existe!');
-        return;
-      }
-
-      const { error } = await supabase.from('participants').insert([{ name }]);
-      if (error) {
-        console.error('Erro ao adicionar participante:', error);
-        return;
-      }
-      loadParticipants(); // Recarregar a lista
-    }
-
-    // Editar participante
-    async function editParticipant(id, currentName) {
-      const newName = prompt('Digite o novo nome:', currentName);
-      if (!newName) return;
-
-      const { error } = await supabase.from('participants').update({ name: newName }).eq('id', id);
-      if (error) {
-        console.error('Erro ao editar participante:', error);
-        return;
-      }
-      loadParticipants(); // Recarregar a lista
-    }
-
-    // Carregar participantes ao iniciar
-    loadParticipants();
-  </script>
+      <button type="submit">Enviar inscrição</button>
+    </form>
+  </div>
 </body>
 </html>
