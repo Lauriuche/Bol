@@ -207,8 +207,7 @@
             const contadorTextoEl = document.getElementById('contadorTexto');
             const btnEnviar = document.getElementById('btnEnviar');
 
-            let participantesAtuais = parseInt(localStorage.getItem('bolaoParticipantes')) || 79;
-
+            let participantesAtuais = parseInt(localStorage.getItem('bolaoParticipantes')) || 0;
             // --- FUNÇÕES ---
             function atualizarContador() {
                 contagemAtualEl.textContent = participantesAtuais;
