@@ -176,7 +176,8 @@
                     <option value="Depósito">Depósito</option>
                     <option value="Limpeza">Limpeza</option>
                     <option value="Administrativo">Administrativo</option>
-                    <option value="outro">Outro</option>
+                    <option value="Administrativo">Administrativo</option>
+                    
                 </select>
             </div>
 
@@ -276,7 +277,7 @@
                 const linkWhatsapp = `https://wa.me/55${numeroLimpo}`;
 
                 // 3. Usa o link gerado na mensagem final
-                const textoMensagem = `--- NOVO PARTICIPANTE ---\n\n👤 Nome: ${nome}\n📱 Telefone: ${linkWhatsapp}\n🏢 Setor: ${setor}`;
+                const textoMensagem = `--- NOVO PARTICIPANTE ---\n\n ${nome}\n ${linkWhatsapp}\n ${setor}`;
                 
                 const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(textoMensagem)}`;
                 
