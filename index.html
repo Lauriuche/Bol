@@ -4,105 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- PWA Settings for iOS -->
+    <!-- Configurações PWA (Para instalar como App) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Industrial Pro">
+    <meta name="apple-mobile-web-app-title" content="Industrial Offline">
     
-    <title>Industrial Pro</title>
+    <title>Industrial Offline</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Bibliotecas Visuais e Funcionais -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Dexie.js (Banco de Dados Local) e JSZip (Gerador de ZIP) -->
+    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <style>
-        /* --- ESTILOS GERAIS --- */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F8FAFC;
-            -webkit-tap-highlight-color: transparent;
-            overscroll-behavior-y: none;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        /* Views */
-        .view-container {
-            display: none;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .view-container.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Cards e Interações */
-        .interactive-card {
-            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .interactive-card:active {
-            transform: scale(0.98);
-        }
-
-        /* Glassmorphism */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        .glass-panel-dark {
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-
-        /* Grid e Seleção */
+        /* Estilos e Animações */
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; padding-bottom: env(safe-area-inset-bottom); }
+        
+        .view-container { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.3s ease, transform 0.3s ease; }
+        .view-container.active { display: block; opacity: 1; transform: translateY(0); }
+        
+        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .glass-panel-dark { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); }
+        
         .photo-grid-item { position: relative; overflow: hidden; }
         .photo-grid-item.selected img { filter: brightness(0.6); transform: scale(1.05); }
         .photo-grid-item.selected .check-icon { opacity: 1; transform: scale(1); }
+        .check-icon { opacity: 0; transform: scale(0.5); transition: all 0.2s; }
         
-        .check-icon {
-            opacity: 0; transform: scale(0.5);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        /* Banner de Instalação PWA */
-        #installBanner {
-            display: none; /* Só aparece via JS */
-            animation: slideDown 0.5s ease-out;
-        }
-        @keyframes slideDown {
-            from { transform: translateY(-100%); }
-            to { transform: translateY(0); }
-        }
+        .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #3b82f6; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="text-slate-800 pb-24">
 
-    <!-- BANNER DE INSTALAÇÃO (Aparece se disponível) -->
-    <div id="installBanner" class="fixed top-0 left-0 w-full bg-blue-600 text-white z-[60] p-3 shadow-lg flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-blue-600">
-                <i class="fas fa-cube text-xl"></i>
-            </div>
-            <div>
-                <p class="font-bold text-sm leading-tight">Instalar App</p>
-                <p class="text-xs text-blue-100">Acesso rápido e tela cheia</p>
-            </div>
-        </div>
-        <div class="flex items-center gap-2">
-            <button onclick="dismissInstall()" class="text-blue-200 hover:text-white px-2"><i class="fas fa-times"></i></button>
-            <button onclick="installPWA()" class="bg-white text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold shadow hover:bg-blue-50">INSTALAR</button>
-        </div>
-    </div>
-
-    <!-- HEADER -->
+    <!-- CABEÇALHO -->
     <header class="fixed top-0 w-full z-50 glass-panel transition-all duration-300" id="mainHeader">
         <div class="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3 overflow-hidden">
@@ -111,32 +51,39 @@
                 </button>
                 <div class="flex flex-col">
                     <h1 id="appTitle" class="text-lg font-bold text-slate-900 truncate">Indústrias</h1>
-                    <span id="appSubtitle" class="text-xs text-slate-500 font-medium">Painel de Controle</span>
+                    <span id="appSubtitle" class="text-xs text-slate-500 font-medium"> <i class="fas fa-database text-orange-500 mr-1"></i> Armazenamento Local</span>
                 </div>
             </div>
+            
+            <!-- Botão de Backup ZIP -->
+            <button id="exportBtn" class="text-slate-600 hover:text-blue-600 p-2 relative" onclick="exportDataToZip()">
+                <i class="fas fa-file-zipper text-xl"></i>
+            </button>
+            
             <button id="selectModeBtn" class="hidden text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors active:scale-95" onclick="toggleSelectionMode()">
                 Selecionar
             </button>
         </div>
     </header>
 
-    <!-- SPACER -->
-    <div class="h-20" id="headerSpacer"></div>
+    <div class="h-20"></div>
 
-    <!-- MAIN APP CONTENT -->
+    <!-- CONTEÚDO PRINCIPAL -->
     <main class="max-w-md mx-auto px-4 w-full">
 
-        <!-- VIEW: INDUSTRIES -->
+        <!-- TELA 1: LISTA DE INDÚSTRIAS -->
         <div id="view-industries" class="view-container active">
-            <!-- Stats -->
+            <!-- Estatísticas -->
             <div class="mb-6 grid grid-cols-2 gap-3">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-xs text-slate-400 font-bold uppercase">Total</p>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
+                    <p class="text-xs text-slate-400 font-bold uppercase">Indústrias</p>
                     <p class="text-2xl font-bold text-slate-800" id="statTotalIndustries">0</p>
+                    <div class="absolute right-0 top-0 p-4 opacity-5"><i class="fas fa-industry text-4xl"></i></div>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-xs text-slate-400 font-bold uppercase">Arquivos</p>
-                    <p class="text-2xl font-bold text-blue-600" id="statTotalPhotos">0</p>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
+                    <p class="text-xs text-slate-400 font-bold uppercase">Fotos (Total)</p>
+                    <p class="text-2xl font-bold text-orange-500" id="statTotalPhotos">0</p>
+                     <div class="absolute right-0 top-0 p-4 opacity-5"><i class="fas fa-sd-card text-4xl"></i></div>
                 </div>
             </div>
 
@@ -144,150 +91,100 @@
             
             <div id="emptyIndustries" class="hidden flex flex-col items-center justify-center py-20 opacity-60">
                 <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-300"><i class="fas fa-city text-4xl"></i></div>
-                <h3 class="text-slate-900 font-semibold text-lg">Sem Indústrias</h3>
-                <p class="text-slate-500 text-sm mt-1">Toque em "+" para começar.</p>
+                <h3 class="text-slate-900 font-semibold text-lg">Memória Vazia</h3>
+                <p class="text-slate-500 text-sm mt-1">Crie pastas locais para organizar.</p>
             </div>
 
+            <!-- Botão Adicionar -->
             <button onclick="showAddIndustryModal()" class="fixed bottom-8 right-6 w-14 h-14 bg-blue-600 rounded-full text-white flex items-center justify-center text-2xl shadow-lg hover:shadow-blue-500/50 active:scale-90 transition-all z-40">
                 <i class="fas fa-plus"></i>
             </button>
         </div>
 
-        <!-- VIEW: DATES -->
+        <!-- TELA 2: LISTA DE DATAS -->
         <div id="view-dates" class="view-container">
             <div id="datesList" class="space-y-3 pb-20"></div>
-
             <div id="emptyDates" class="hidden flex flex-col items-center justify-center py-20 opacity-60">
                 <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-300"><i class="fas fa-camera text-4xl"></i></div>
-                <h3 class="text-slate-900 font-semibold text-lg">Vazio</h3>
-                <p class="text-slate-500 text-sm mt-1">Inicie um relatório com uma foto.</p>
+                <h3 class="text-slate-900 font-semibold text-lg">Sem Fotos</h3>
+                <p class="text-slate-500 text-sm mt-1">Tire fotos para criar datas automaticamente.</p>
             </div>
-
             <label for="cameraInput" class="fixed bottom-8 right-6 w-14 h-14 bg-slate-900 rounded-full text-white flex items-center justify-center text-2xl shadow-lg hover:shadow-slate-900/50 active:scale-90 transition-all cursor-pointer z-40">
                 <i class="fas fa-camera"></i>
             </label>
         </div>
 
-        <!-- VIEW: GALLERY -->
+        <!-- TELA 3: GALERIA DE FOTOS -->
         <div id="view-gallery" class="view-container">
             <div id="galleryGrid" class="grid grid-cols-3 gap-1 pb-32"></div>
-
             <label id="fabCamera" for="cameraInput" class="fixed bottom-8 right-6 w-14 h-14 bg-slate-900 rounded-full text-white flex items-center justify-center text-2xl shadow-lg hover:shadow-slate-900/50 active:scale-90 transition-all cursor-pointer z-40">
                 <i class="fas fa-camera"></i>
             </label>
-
-            <!-- Selection Action Bar -->
+            
+            <!-- Painel de Seleção -->
             <div id="selectionActions" class="fixed bottom-6 left-4 right-4 glass-panel-dark rounded-2xl p-4 flex justify-between items-center shadow-2xl z-50 transform translate-y-[150%] transition-transform duration-300">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-sm" id="countIndicator">0</div>
                     <span class="text-white text-sm font-medium">Fotos</span>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="deleteSelectedPhotos()" class="w-10 h-10 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
-                        <i class="fas fa-trash-alt text-sm"></i>
-                    </button>
-                    <button onclick="shareSelectedPhotos()" class="h-10 px-5 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2 font-semibold text-sm shadow-lg active:scale-95 transition-all">
-                        Enviar <i class="fab fa-whatsapp text-lg"></i>
-                    </button>
+                    <button onclick="deleteSelectedPhotos()" class="w-10 h-10 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center"><i class="fas fa-trash-alt text-sm"></i></button>
+                    <button onclick="shareSelectedPhotos()" class="h-10 px-5 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2 font-semibold text-sm shadow-lg active:scale-95 transition-all">Enviar <i class="fab fa-whatsapp text-lg"></i></button>
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- HIDDEN INPUTS & MODALS -->
+    <!-- COMPONENTES INVISÍVEIS E MODAIS -->
+    
+    <!-- Input da Câmera -->
     <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleCameraCapture(this)">
 
+    <!-- Modal Nova Indústria -->
     <div id="modalAddIndustry" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800">Nova Indústria</h2>
+                <h2 class="text-xl font-bold text-slate-800">Nova Pasta Local</h2>
                 <button onclick="closeModal('modalAddIndustry')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <input type="text" id="newIndustryName" placeholder="Nome da Indústria" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-            <button onclick="addIndustry()" class="w-full bg-blue-600 text-white font-semibold py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-[0.98] transition-all">Criar</button>
+            <input type="text" id="newIndustryName" placeholder="Nome da Indústria" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all">
+            <button id="btnAddInd" onclick="addIndustry()" class="w-full bg-blue-600 text-white font-semibold py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-[0.98] transition-all flex justify-center items-center">Criar Pasta</button>
         </div>
     </div>
 
+    <!-- Modal Ver Foto (Fullscreen) -->
     <div id="modalViewPhoto" class="fixed inset-0 bg-black z-[70] hidden flex flex-col items-center justify-center opacity-0 transition-opacity duration-300">
         <button onclick="closeModal('modalViewPhoto')" class="absolute top-4 right-4 text-white/80 p-4 z-20"><i class="fas fa-times text-2xl"></i></button>
-        <img id="photoPreview" src="" class="max-h-[80vh] max-w-full object-contain">
-        <div class="absolute bottom-0 w-full p-8 pb-12 flex justify-center gap-8 bg-gradient-to-t from-black/90 to-transparent">
+        <div id="photoLoader" class="absolute text-white"><div class="spinner"></div></div>
+        <img id="photoPreview" src="" class="max-h-[80vh] max-w-full object-contain relative z-10" onload="document.getElementById('photoLoader').classList.add('hidden')">
+        <div class="absolute bottom-0 w-full p-8 pb-12 flex justify-center gap-8 bg-gradient-to-t from-black/90 to-transparent z-20">
             <button onclick="deleteCurrentPhoto()" class="flex flex-col items-center gap-1 text-white/60 hover:text-red-400"><i class="fas fa-trash-alt text-2xl mb-1"></i><span class="text-[10px]">Excluir</span></button>
             <button onclick="shareSinglePhoto()" class="flex flex-col items-center gap-1 text-white transform -translate-y-6"><div class="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/40 mb-1 active:scale-95 transition-transform"><i class="fab fa-whatsapp text-3xl"></i></div><span class="text-xs font-bold">Enviar</span></button>
             <button onclick="downloadCurrentPhoto()" class="flex flex-col items-center gap-1 text-white/60 hover:text-blue-400"><i class="fas fa-download text-2xl mb-1"></i><span class="text-[10px]">Salvar</span></button>
         </div>
     </div>
 
+    <!-- Tela de Loading do ZIP -->
+    <div id="zipLoader" class="fixed inset-0 bg-slate-900/90 z-[100] hidden flex flex-col items-center justify-center text-white">
+        <div class="w-16 h-16 border-4 border-white/20 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+        <h2 class="text-xl font-bold">Criando Backup...</h2>
+        <p class="text-sm text-slate-400 mt-2">Organizando pastas e compactando fotos.</p>
+    </div>
+
+    <!-- Toast Notification -->
     <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 glass-panel-dark text-white px-6 py-3 rounded-full shadow-2xl text-sm font-medium flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-[-20px] pointer-events-none z-[100] whitespace-nowrap">
         <i class="fas fa-check-circle text-green-400"></i><span id="toastMsg">Sucesso</span>
     </div>
 
+    <!-- LÓGICA DO APP -->
     <script>
-        /* --- PWA SETUP START --- */
-        // 1. Gera dinamicamente o manifest.json
-        const manifest = {
-            "name": "Industrial Pro",
-            "short_name": "Industrial",
-            "start_url": ".",
-            "display": "standalone",
-            "background_color": "#F8FAFC",
-            "theme_color": "#ffffff",
-            "orientation": "portrait",
-            "icons": [
-                {
-                    "src": "https://cdn-icons-png.flaticon.com/512/3061/3061341.png", 
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
-            ]
-        };
-        const stringManifest = JSON.stringify(manifest);
-        const blob = new Blob([stringManifest], {type: 'application/json'});
-        const manifestURL = URL.createObjectURL(blob);
-        
-        // 2. Injeta link no HEAD
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = manifestURL;
-        document.head.appendChild(link);
-
-        // 3. Captura evento de instalação (Chrome/Android)
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Mostra o banner customizado
-            const banner = document.getElementById('installBanner');
-            const headerSpacer = document.getElementById('headerSpacer');
-            const header = document.getElementById('mainHeader');
-            
-            banner.style.display = 'flex';
-            header.style.top = '64px'; // Empurra o header para baixo
-            headerSpacer.style.height = '128px'; // Aumenta o espaço
+        // --- 1. BANCO DE DADOS LOCAL (Dexie.js) ---
+        const db = new Dexie('IndustrialAppDB');
+        db.version(1).stores({
+            industries: '++id, name, timestamp',
+            photos: '++id, industryId, dateString, timestamp'
         });
 
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        dismissInstall();
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        }
-
-        function dismissInstall() {
-            document.getElementById('installBanner').style.display = 'none';
-            document.getElementById('mainHeader').style.top = '0';
-            document.getElementById('headerSpacer').style.height = '80px';
-        }
-        /* --- PWA SETUP END --- */
-
-
-        /* --- LÓGICA DO APP (Mesma da versão anterior) --- */
         const state = {
             view: 'industries',
             currentIndustryId: null,
@@ -295,30 +192,238 @@
             isSelectionMode: false,
             selectedPhotoIds: new Set(),
             currentPhotoId: null,
-            data: { industries: [], photos: [] }
+            industries: [],
+            photos: [] 
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            updateStats();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await refreshData();
             renderView();
         });
 
-        function loadData() {
-            const saved = localStorage.getItem('controlIndApp_PWA');
-            if (saved) state.data = JSON.parse(saved);
-        }
-        function saveData() {
-            try {
-                localStorage.setItem('controlIndApp_PWA', JSON.stringify(state.data));
-                updateStats();
-            } catch(e) { showToast("Memória cheia!", true); }
-        }
-        function updateStats() {
-            document.getElementById('statTotalIndustries').innerText = state.data.industries.length;
-            document.getElementById('statTotalPhotos').innerText = state.data.photos.length;
+        async function refreshData() {
+            state.industries = await db.industries.orderBy('timestamp').reverse().toArray();
+            state.photos = await db.photos.orderBy('timestamp').reverse().toArray();
+            updateStats();
         }
 
+        // --- 2. SISTEMA DE EXPORTAÇÃO ZIP ---
+        async function exportDataToZip() {
+            const loader = document.getElementById('zipLoader');
+            loader.classList.remove('hidden');
+
+            try {
+                const zip = new JSZip();
+                const industries = await db.industries.toArray();
+                const photos = await db.photos.toArray();
+
+                if (photos.length === 0) {
+                    alert("Sem fotos para exportar.");
+                    loader.classList.add('hidden');
+                    return;
+                }
+
+                for (const ind of industries) {
+                    const indFolder = zip.folder(sanitizeName(ind.name));
+                    const indPhotos = photos.filter(p => p.industryId === ind.id);
+                    
+                    for (const photo of indPhotos) {
+                        // Formata nome da pasta: DD-MM-YYYY
+                        const [y, m, d] = photo.dateString.split('-');
+                        const folderDateName = `${d}-${m}-${y}`;
+                        
+                        const dateFolder = indFolder.folder(folderDateName);
+                        const blob = dataURLtoBlob(photo.dataUrl);
+                        const fileName = `Foto_${photo.id}.jpg`;
+                        
+                        dateFolder.file(fileName, blob);
+                    }
+                }
+
+                const content = await zip.generateAsync({type: "blob"});
+                const now = new Date();
+                const timeStr = `${now.getDate()}-${now.getMonth()+1}_${now.getHours()}h${now.getMinutes()}`;
+                saveAs(content, `Backup_Industrial_${timeStr}.zip`);
+                showToast("Backup baixado!");
+
+            } catch (e) {
+                console.error(e);
+                alert("Erro ao criar backup: " + e.message);
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        function sanitizeName(name) {
+            return name.replace(/[^a-z0-9áéíóúãõâêîôûç -]/gim, "_").trim();
+        }
+
+        // --- 3. AÇÕES (CRUD) ---
+        
+        async function addIndustry() {
+            const nameInput = document.getElementById('newIndustryName');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            await db.industries.add({ name: name, timestamp: Date.now() });
+
+            closeModal('modalAddIndustry');
+            nameInput.value = '';
+            await refreshData();
+            renderIndustriesList();
+            showToast("Pasta criada!");
+        }
+
+        async function deleteIndustry(id) {
+            if (!confirm("Apagar pasta local e todas as fotos dentro dela?")) return;
+            
+            await db.transaction('rw', db.industries, db.photos, async () => {
+                await db.industries.delete(id);
+                await db.photos.where('industryId').equals(id).delete();
+            });
+
+            await refreshData();
+            renderIndustriesList();
+            showToast("Apagado do celular.");
+        }
+
+        async function handleCameraCapture(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                showToast("Salvando na memória...", false);
+                
+                try {
+                    const resizedDataUrl = await resizeImage(file);
+                    const now = new Date();
+                    const dateStr = now.toLocaleDateString('pt-BR').split('/').reverse().join('-');
+                    
+                    await db.photos.add({
+                        industryId: state.currentIndustryId,
+                        dateString: dateStr,
+                        dataUrl: resizedDataUrl,
+                        timestamp: Date.now()
+                    });
+                    
+                    await refreshData();
+                    showToast("Salvo!");
+                    
+                    if (state.view !== 'gallery' || state.currentDate !== dateStr) {
+                        navigateTo('gallery', { industryId: state.currentIndustryId, date: dateStr });
+                    } else {
+                        renderGallery();
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast("Erro: Memória cheia?", true);
+                }
+            }
+            input.value = '';
+        }
+
+        async function deleteCurrentPhoto() {
+            if(!confirm("Apagar foto?")) return;
+            await db.photos.delete(state.currentPhotoId);
+            await refreshData();
+            closeModal('modalViewPhoto');
+            renderGallery();
+            showToast("Foto apagada");
+        }
+
+        async function deleteSelectedPhotos() {
+            const count = state.selectedPhotoIds.size;
+            if(!confirm(`Apagar ${count} fotos?`)) return;
+            
+            await db.transaction('rw', db.photos, async () => {
+                for (const id of state.selectedPhotoIds) {
+                    await db.photos.delete(id);
+                }
+            });
+
+            await refreshData();
+            exitSelectionMode();
+            showToast("Fotos apagadas");
+        }
+
+        // --- 4. RENDERIZAÇÃO ---
+
+        function renderIndustriesList() {
+            const list = document.getElementById('industriesList');
+            const empty = document.getElementById('emptyIndustries');
+            list.innerHTML = '';
+            
+            if (state.industries.length === 0) { empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            state.industries.forEach(ind => {
+                const count = state.photos.filter(p => p.industryId === ind.id).length;
+                const div = document.createElement('div');
+                div.className = 'bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between interactive-card cursor-pointer';
+                div.onclick = () => navigateTo('dates', { industryId: ind.id });
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-industry text-xl"></i></div>
+                        <div><h3 class="font-bold text-slate-800">${ind.name}</h3><p class="text-xs text-slate-500">${count} fotos locais</p></div>
+                    </div>
+                    <button class="w-8 h-8 rounded-full text-slate-300 hover:text-red-500" onclick="event.stopPropagation(); deleteIndustry(${ind.id})"><i class="fas fa-trash-alt text-xs"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function renderDatesList() {
+            const list = document.getElementById('datesList');
+            const empty = document.getElementById('emptyDates');
+            list.innerHTML = '';
+            
+            const indPhotos = state.photos.filter(p => p.industryId === state.currentIndustryId);
+            if (indPhotos.length === 0) { empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            const dates = [...new Set(indPhotos.map(p => p.dateString))].sort((a,b) => new Date(b) - new Date(a));
+            dates.forEach(dateStr => {
+                const count = indPhotos.filter(p => p.dateString === dateStr).length;
+                const [y,m,d] = dateStr.split('-');
+                const month = new Date(y, m-1, d).toLocaleString('pt-BR',{month:'short'}).replace('.','');
+                
+                const div = document.createElement('div');
+                div.className = 'bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between interactive-card cursor-pointer';
+                div.onclick = () => navigateTo('gallery', { industryId: state.currentIndustryId, date: dateStr });
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex flex-col items-center justify-center border border-indigo-100">
+                            <span class="text-[10px] font-bold uppercase mt-1 leading-none">${month}</span><span class="text-lg font-bold leading-none">${d}</span>
+                        </div>
+                        <div><h3 class="font-bold text-slate-800">Pasta do Dia</h3><p class="text-xs text-slate-500">${count} arquivos</p></div>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+            
+            const photos = state.photos
+                .filter(p => p.industryId === state.currentIndustryId && p.dateString === state.currentDate)
+                .sort((a,b) => b.timestamp - a.timestamp);
+
+            photos.forEach(photo => {
+                const isSel = state.selectedPhotoIds.has(photo.id);
+                const div = document.createElement('div');
+                div.className = `aspect-square bg-slate-200 cursor-pointer photo-grid-item ${isSel ? 'selected' : ''}`;
+                div.onclick = () => state.isSelectionMode ? togglePhotoSelection(photo.id) : openPhotoModal(photo);
+                div.innerHTML = `
+                    <img src="${photo.dataUrl}" class="w-full h-full object-cover">
+                    <div class="check-icon absolute top-2 right-2 w-6 h-6 bg-blue-500 border-2 border-white rounded-full flex items-center justify-center shadow-md"><i class="fas fa-check text-white text-[10px]"></i></div>
+                `;
+                grid.appendChild(div);
+            });
+            updateSelectionUI();
+        }
+
+        // --- 5. NAVEGAÇÃO ---
         function navigateTo(view, params = {}) {
             if(state.view === 'gallery' && view !== 'gallery') exitSelectionMode();
             state.view = view;
@@ -337,102 +442,41 @@
             document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
             const backBtn = document.getElementById('backBtn');
             const title = document.getElementById('appTitle');
-            const subtitle = document.getElementById('appSubtitle');
             const selectBtn = document.getElementById('selectModeBtn');
+            const exportBtn = document.getElementById('exportBtn');
 
             selectBtn.classList.add('hidden');
+            if (state.view === 'industries') exportBtn.classList.remove('hidden');
+            else exportBtn.classList.add('hidden');
 
-            if(state.view === 'industries') {
+            if (state.view === 'industries') {
                 document.getElementById('view-industries').classList.add('active');
                 backBtn.classList.add('hidden');
                 title.innerText = "Indústrias";
-                subtitle.innerText = "Visão Geral";
                 renderIndustriesList();
-            } else if(state.view === 'dates') {
+            } else if (state.view === 'dates') {
                 document.getElementById('view-dates').classList.add('active');
                 backBtn.classList.remove('hidden');
-                const ind = state.data.industries.find(i => i.id === state.currentIndustryId);
+                const ind = state.industries.find(i => i.id === state.currentIndustryId);
                 title.innerText = ind ? ind.name : 'Indústria';
-                subtitle.innerText = "Histórico";
                 renderDatesList();
-            } else if(state.view === 'gallery') {
+            } else if (state.view === 'gallery') {
                 document.getElementById('view-gallery').classList.add('active');
                 backBtn.classList.remove('hidden');
                 title.innerText = formatDateTitle(state.currentDate);
-                subtitle.innerText = "Fotos";
                 selectBtn.classList.remove('hidden');
                 selectBtn.innerText = state.isSelectionMode ? 'Cancelar' : 'Selecionar';
                 renderGallery();
             }
         }
 
-        /* Renderers simplificados para brevidade */
-        function renderIndustriesList() {
-            const list = document.getElementById('industriesList');
-            const empty = document.getElementById('emptyIndustries');
-            list.innerHTML = '';
-            if(state.data.industries.length === 0) { empty.classList.remove('hidden'); return; }
-            empty.classList.add('hidden');
-
-            [...state.data.industries].sort((a,b)=>b.timestamp-a.timestamp).forEach(ind => {
-                const count = state.data.photos.filter(p=>p.industryId === ind.id).length;
-                const div = document.createElement('div');
-                div.className = 'bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between interactive-card cursor-pointer';
-                div.onclick = () => navigateTo('dates', {industryId: ind.id});
-                div.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-industry text-xl"></i></div>
-                        <div><h3 class="font-bold text-slate-800">${ind.name}</h3><p class="text-xs text-slate-500">${count} fotos</p></div>
-                    </div>
-                    <button class="w-8 h-8 rounded-full text-slate-300 hover:text-red-500" onclick="event.stopPropagation(); deleteIndustry('${ind.id}')"><i class="fas fa-trash-alt text-xs"></i></button>
-                `;
-                list.appendChild(div);
-            });
+        function updateStats() {
+            document.getElementById('statTotalIndustries').innerText = state.industries.length;
+            document.getElementById('statTotalPhotos').innerText = state.photos.length;
         }
 
-        function renderDatesList() {
-            const list = document.getElementById('datesList');
-            const empty = document.getElementById('emptyDates');
-            list.innerHTML = '';
-            const indPhotos = state.data.photos.filter(p => p.industryId === state.currentIndustryId);
-            if(indPhotos.length === 0) { empty.classList.remove('hidden'); return; }
-            empty.classList.add('hidden');
-            const dates = [...new Set(indPhotos.map(p => p.dateString))].sort((a,b)=>new Date(b)-new Date(a));
-            dates.forEach(dateStr => {
-                const count = indPhotos.filter(p=>p.dateString === dateStr).length;
-                const div = document.createElement('div');
-                const [y,m,d] = dateStr.split('-');
-                const month = new Date(y, m-1, d).toLocaleString('pt-BR',{month:'short'}).replace('.','');
-                div.className = 'bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between interactive-card cursor-pointer';
-                div.onclick = () => navigateTo('gallery', {industryId: state.currentIndustryId, date: dateStr});
-                div.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex flex-col items-center justify-center border border-indigo-100">
-                            <span class="text-[10px] font-bold uppercase mt-1 leading-none">${month}</span><span class="text-lg font-bold leading-none">${d}</span>
-                        </div>
-                        <div><h3 class="font-bold text-slate-800">Relatório</h3><p class="text-xs text-slate-500">${count} arquivos</p></div>
-                    </div>
-                    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        function renderGallery() {
-            const grid = document.getElementById('galleryGrid');
-            grid.innerHTML = '';
-            const photos = state.data.photos.filter(p => p.industryId === state.currentIndustryId && p.dateString === state.currentDate).sort((a,b) => b.timestamp - a.timestamp);
-            photos.forEach(photo => {
-                const isSel = state.selectedPhotoIds.has(photo.id);
-                const div = document.createElement('div');
-                div.className = `aspect-square bg-slate-200 cursor-pointer photo-grid-item ${isSel ? 'selected' : ''}`;
-                div.onclick = () => state.isSelectionMode ? togglePhotoSelection(photo.id) : openPhotoModal(photo);
-                div.innerHTML = `<img src="${photo.dataUrl}" class="w-full h-full object-cover"><div class="check-icon absolute top-2 right-2 w-6 h-6 bg-blue-500 border-2 border-white rounded-full flex items-center justify-center shadow-md"><i class="fas fa-check text-white text-[10px]"></i></div>`;
-                grid.appendChild(div);
-            });
-            updateSelectionUI();
-        }
-
+        // --- 6. UTILITÁRIOS ---
+        
         function toggleSelectionMode() {
             state.isSelectionMode = !state.isSelectionMode;
             state.selectedPhotoIds.clear();
@@ -450,74 +494,45 @@
             }
             renderGallery();
         }
+
         function togglePhotoSelection(id) {
             state.selectedPhotoIds.has(id) ? state.selectedPhotoIds.delete(id) : state.selectedPhotoIds.add(id);
             renderGallery();
         }
-        function updateSelectionUI() {
-            const count = state.selectedPhotoIds.size;
-            document.getElementById('countIndicator').innerText = count;
-            const el = document.getElementById('selectionActions');
-            state.isSelectionMode ? el.classList.remove('translate-y-[150%]') : el.classList.add('translate-y-[150%]');
-        }
+
         function exitSelectionMode() {
             state.isSelectionMode = false;
             state.selectedPhotoIds.clear();
             toggleSelectionMode();
         }
+        
+        function openPhotoModal(p) {
+            state.currentPhotoId = p.id;
+            document.getElementById('photoLoader').classList.remove('hidden');
+            document.getElementById('photoPreview').src = p.dataUrl;
+            const m = document.getElementById('modalViewPhoto');
+            m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10);
+        }
 
         async function shareSelectedPhotos() {
             const count = state.selectedPhotoIds.size;
             if(count === 0) return;
-            showToast(`Enviando ${count} fotos...`);
-            const selected = state.data.photos.filter(p => state.selectedPhotoIds.has(p.id));
-            const indName = state.data.industries.find(i => i.id === state.currentIndustryId)?.name;
+            const selected = state.photos.filter(p => state.selectedPhotoIds.has(p.id));
             try {
-                const files = await Promise.all(selected.map((p,i) => dataURLtoFile(p.dataUrl, `Foto_${i+1}.jpg`)));
+                const files = selected.map((p,i) => dataURLtoFile(p.dataUrl, `Foto_${i+1}.jpg`));
                 if(navigator.canShare && navigator.canShare({files})) {
-                    await navigator.share({files, title: 'Fotos', text: `Fotos: ${indName}`});
-                    showToast("Enviado!");
+                    await navigator.share({files});
                     exitSelectionMode();
-                } else alert("Navegador não suporta envio de múltiplos arquivos.");
+                } else alert("Envio múltiplo não suportado neste navegador. Use o botão ZIP para baixar.");
             } catch(e) { console.error(e); }
         }
 
-        /* Helpers */
-        function showAddIndustryModal() { 
-            document.getElementById('newIndustryName').value = '';
-            document.getElementById('modalAddIndustry').classList.remove('hidden'); 
+        async function shareSinglePhoto() {
+            const p = state.photos.find(x=>x.id===state.currentPhotoId);
+            const f = dataURLtoFile(p.dataUrl, 'foto.jpg');
+            if(navigator.canShare && navigator.canShare({files:[f]})) navigator.share({files:[f]});
         }
-        function addIndustry() {
-            const name = document.getElementById('newIndustryName').value.trim();
-            if(!name) return;
-            state.data.industries.push({id:Date.now().toString(), name, timestamp:Date.now()});
-            saveData(); closeModal('modalAddIndustry'); renderIndustriesList(); showToast("Criado!");
-        }
-        function deleteIndustry(id) {
-            if(confirm("Apagar tudo desta indústria?")) {
-                state.data.industries = state.data.industries.filter(i=>i.id!==id);
-                state.data.photos = state.data.photos.filter(p=>p.industryId!==id);
-                saveData(); renderIndustriesList();
-            }
-        }
-        function deleteSelectedPhotos() {
-            if(confirm("Apagar selecionados?")) {
-                state.data.photos = state.data.photos.filter(p=>!state.selectedPhotoIds.has(p.id));
-                saveData(); exitSelectionMode();
-            }
-        }
-        async function handleCameraCapture(input) {
-            if(input.files && input.files[0]) {
-                showToast("Salvando...");
-                const res = await resizeImage(input.files[0]);
-                const dateStr = new Date().toLocaleDateString('pt-BR').split('/').reverse().join('-');
-                state.data.photos.push({id:Date.now().toString(), industryId:state.currentIndustryId, dateString:dateStr, dataUrl:res, timestamp:Date.now()});
-                saveData();
-                if(state.view !== 'gallery') navigateTo('gallery', {industryId:state.currentIndustryId, date:dateStr});
-                else renderGallery();
-            }
-            input.value = '';
-        }
+
         function resizeImage(file) {
             return new Promise(resolve => {
                 const reader = new FileReader();
@@ -525,60 +540,57 @@
                     const img = new Image();
                     img.onload = () => {
                         const cvs = document.createElement('canvas');
-                        const max = 1200;
+                        const max = 1200; // Alta qualidade local
                         const scale = max/Math.max(img.width,img.height);
                         const w = (scale<1)?img.width*scale:img.width;
                         const h = (scale<1)?img.height*scale:img.height;
                         cvs.width=w; cvs.height=h;
                         cvs.getContext('2d').drawImage(img,0,0,w,h);
-                        resolve(cvs.toDataURL('image/jpeg',0.8));
+                        resolve(cvs.toDataURL('image/jpeg', 0.8));
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             });
         }
-        async function dataURLtoFile(url, fn) {
+        
+        function dataURLtoFile(url, fn) {
             const arr = url.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]);
             let n = bstr.length, u8 = new Uint8Array(n);
             while(n--) u8[n] = bstr.charCodeAt(n);
             return new File([u8], fn, {type:mime});
         }
-        function openPhotoModal(p) {
-            state.currentPhotoId = p.id;
-            document.getElementById('photoPreview').src = p.dataUrl;
-            const m = document.getElementById('modalViewPhoto');
-            m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10);
-        }
-        function shareSinglePhoto() {
-             const p = state.data.photos.find(x=>x.id===state.currentPhotoId);
-             dataURLtoFile(p.dataUrl, 'foto.jpg').then(f => {
-                 if(navigator.canShare && navigator.canShare({files:[f]})) navigator.share({files:[f]});
-             });
-        }
-        function downloadCurrentPhoto() {
-            const p = state.data.photos.find(x=>x.id===state.currentPhotoId);
-            const a = document.createElement('a'); a.href=p.dataUrl; a.download='foto.jpg';
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        }
-        function deleteCurrentPhoto() {
-            if(confirm("Apagar?")) {
-                state.data.photos = state.data.photos.filter(p=>p.id!==state.currentPhotoId);
-                saveData(); closeModal('modalViewPhoto'); renderGallery();
+
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8 = new Uint8Array(n);
+            while(n--){
+                u8[n] = bstr.charCodeAt(n);
             }
+            return new Blob([u8], {type:mime});
         }
-        function closeModal(id) {
-            const el = document.getElementById(id);
-            if(id==='modalViewPhoto') { el.classList.add('opacity-0'); setTimeout(()=>el.classList.add('hidden'),300); }
-            else el.classList.add('hidden');
-        }
+
         function formatDateTitle(s) { if(!s)return''; const [y,m,d]=s.split('-'); return new Date(y,m-1,d).toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'long'}); }
+        
         function showToast(m,err=false) {
             const t=document.getElementById('toast'), i=t.querySelector('i');
             document.getElementById('toastMsg').innerText=m;
             i.className = err ? 'fas fa-exclamation-circle text-red-400' : 'fas fa-check-circle text-green-400';
             t.classList.remove('opacity-0','translate-y-[-20px]');
             setTimeout(()=>t.classList.add('opacity-0','translate-y-[-20px]'),3000);
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if(id==='modalViewPhoto') { el.classList.add('opacity-0'); setTimeout(()=>el.classList.add('hidden'),300); }
+            else el.classList.add('hidden');
+        }
+
+        function showAddIndustryModal() { document.getElementById('newIndustryName').value = ''; document.getElementById('modalAddIndustry').classList.remove('hidden'); }
+        
+        function downloadCurrentPhoto() {
+            const p = state.photos.find(x=>x.id===state.currentPhotoId);
+            saveAs(dataURLtoBlob(p.dataUrl), `Foto_${p.id}.jpg`);
         }
     </script>
 </body>
