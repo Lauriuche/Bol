@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA: Configurações iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Industrial Sync</title>
+    <meta name="apple-mobile-web-app-title" content="Industrial App">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3061/3061341.png">
+    
+    <title>Industrial Manager</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -13,39 +18,60 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; -webkit-tap-highlight-color: transparent; padding-bottom: 120px; user-select: none; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; -webkit-tap-highlight-color: transparent; padding-bottom: 120px; }
+        
         .glass-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .glass-bar { background: rgba(15, 23, 42, 0.98); border-top: 1px solid rgba(255,255,255,0.05); }
+        
         .ind-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 12px; border: 1px solid #334155; transition: transform 0.1s; }
         .ind-card:active { transform: scale(0.98); border-color: #3b82f6; }
+
         .folder-card { background: #1e293b; border-radius: 12px; border: 1px solid #334155; transition: all 0.2s; }
         .folder-card:active { background: #334155; }
+
         .photo-item { position: relative; overflow: hidden; border-radius: 8px; background: #334155; aspect-ratio: 1/1; }
         .photo-item.selected { border: 3px solid #3b82f6; }
         .photo-item.selected img { opacity: 0.6; }
-        .photo-item.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; z-index: 10; background: #3b82f6; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .photo-item.selected::after {
+            content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: white; font-size: 24px; z-index: 10;
+            background: #3b82f6; width: 40px; height: 40px; display: flex; 
+            align-items: center; justify-content: center; border-radius: 50%;
+        }
+
         .loader { border: 2px solid rgba(255,255,255,0.1); border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .view-section { display: none; animation: fadeIn 0.3s ease; }
-        .view-section.active { display: block; }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- Header Fixo -->
     <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-lg">
         <div class="flex items-center gap-3 w-2/3">
             <button id="backBtn" onclick="goBack()" class="hidden w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center active:scale-90 transition"><i class="fas fa-arrow-left"></i></button>
             <div class="overflow-hidden">
                 <h1 id="pageTitle" class="font-bold text-sm text-slate-100 truncate">Indústrias</h1>
-                <p id="pageSubtitle" class="text-[10px] text-green-400 flex items-center gap-1 truncate"><span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Sincronizado</p>
+                <p id="pageSubtitle" class="text-[10px] text-green-400 flex items-center gap-1 truncate"><span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Online</p>
             </div>
         </div>
         
         <div class="flex items-center gap-2">
-            <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-800 text-blue-400 px-3 py-1.5 rounded-full border border-slate-700 active:scale-95 transition">Selecionar</button>
-            <button onclick="window.location.reload()" class="w-9 h-9 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center active:scale-95 border border-slate-700 transition"><i class="fas fa-sync-alt text-xs"></i></button>
+            <!-- Botão Instalar (Aparece via JS) -->
+            <button id="installBtn" onclick="triggerInstall()" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse flex items-center gap-1">
+                <i class="fas fa-download"></i> Instalar
+            </button>
+
+            <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-800 text-blue-400 px-3 py-1.5 rounded-full border border-slate-700 active:scale-95 transition">
+                Selecionar
+            </button>
+            <button onclick="window.location.reload()" class="w-9 h-9 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center active:scale-95 border border-slate-700 transition">
+                <i class="fas fa-sync-alt text-xs"></i>
+            </button>
         </div>
     </header>
 
@@ -53,47 +79,98 @@
 
     <main class="max-w-md mx-auto px-4">
 
-        <!-- VIEW 1: HOME (Lista de Pastas Raiz) -->
+        <!-- VIEW 1: HOME (Lista de Indústrias) -->
         <div id="view-home" class="view-section active">
             <div class="mb-4 flex justify-between items-end">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pastas do Drive</span>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Locais</span>
                 <span id="indCount" class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono">0</span>
             </div>
+
             <div id="industriesList" class="space-y-3 pb-24">
-                <div class="flex flex-col items-center justify-center py-20 opacity-50"><div class="loader mb-2"></div><span class="text-xs">Lendo Storage...</span></div>
+                <div class="flex flex-col items-center justify-center py-20 opacity-50">
+                    <div class="loader mb-2"></div>
+                    <span class="text-xs">Carregando...</span>
+                </div>
             </div>
-            <button onclick="openAddModal()" class="fixed bottom-8 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full text-white shadow-xl shadow-blue-900/50 flex items-center justify-center text-2xl active:scale-90 transition z-40"><i class="fas fa-plus"></i></button>
+
+            <button onclick="openAddModal()" class="fixed bottom-8 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full text-white shadow-xl shadow-blue-900/50 flex items-center justify-center text-2xl active:scale-90 transition z-40">
+                <i class="fas fa-plus"></i>
+            </button>
         </div>
 
-        <!-- VIEW 2: DATAS (Subpastas) -->
+        <!-- VIEW 2: DATAS -->
         <div id="view-dates" class="view-section">
-            <div class="mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Pastas de Datas</div>
+            <div class="mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Pastas por Data</div>
             <div id="datesList" class="space-y-3 pb-24"></div>
         </div>
 
-        <!-- VIEW 3: GALERIA (Arquivos) -->
+        <!-- VIEW 3: GALERIA -->
         <div id="view-gallery" class="view-section">
-            <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-40 select-none"></div>
+            <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-40"></div>
 
+            <!-- Controles Câmera (ÚNICO) -->
             <div id="cameraControls" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 z-40">
                 <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg hover:shadow-blue-500/20">
-                    <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">ADICIONAR FOTO</span>
+                    <i class="fas fa-camera text-xl"></i>
+                    <span class="font-bold text-sm tracking-wide">ADICIONAR FOTO</span>
                     <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
                 </label>
             </div>
 
+            <!-- Controles Seleção -->
             <div id="selectionControls" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 flex gap-3 z-50 hidden transform translate-y-full transition-transform duration-300">
-                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center border border-red-500/30 active:scale-90"><i class="fas fa-trash-alt"></i></button>
-                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCount">0</span>)</button>
+                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center border border-red-500/30 active:scale-90">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95">
+                    Compartilhar (<span id="selCount">0</span>)
+                </button>
             </div>
         </div>
+
     </main>
 
-    <!-- MODAL ADD PASTA -->
+    <!-- MODAL INSTRUÇÕES DE INSTALAÇÃO -->
+    <div id="installModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white">Instalar Aplicativo</h3>
+                <button onclick="closeInstallModal()" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            
+            <!-- Instruções Android -->
+            <div id="androidInstructions" class="hidden">
+                <p class="text-sm text-slate-300 mb-4">Para instalar no Android:</p>
+                <button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg mb-2">Toque para Instalar</button>
+            </div>
+
+            <!-- Instruções iOS -->
+            <div id="iosInstructions" class="hidden">
+                <p class="text-sm text-slate-300 mb-4">Para instalar no iPhone/iPad:</p>
+                <div class="space-y-4 text-sm text-slate-400">
+                    <div class="flex items-center gap-3">
+                        <span class="w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center font-bold text-white">1</span>
+                        <span>Toque no botão <b>Compartilhar</b> <i class="fas fa-share-square text-blue-400"></i> na barra do navegador.</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center font-bold text-white">2</span>
+                        <span>Role para baixo e selecione <br><b>"Adicionar à Tela de Início"</b> <i class="fas fa-plus-square text-white"></i>.</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fallback PC -->
+            <div id="pcInstructions" class="hidden text-center text-slate-400 text-sm">
+                Este recurso funciona melhor no celular. No Chrome, procure o ícone de instalação na barra de endereço.
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADD INDÚSTRIA -->
     <div id="addModal" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-slate-900 w-full max-w-xs p-6 rounded-2xl border border-slate-700 shadow-2xl">
-            <h3 class="text-sm font-bold text-slate-300 mb-4 uppercase">Nova Pasta (Indústria)</h3>
-            <input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 mb-4 text-white text-sm focus:outline-none focus:border-blue-500">
+            <h3 class="text-sm font-bold text-slate-300 mb-4 uppercase">Nova Indústria</h3>
+            <input type="text" id="newIndName" placeholder="Nome (ex: Camiño Grajaú)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 mb-4 text-white text-sm focus:outline-none focus:border-blue-500">
             <div class="flex gap-3">
                 <button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-white">Cancelar</button>
                 <button onclick="createIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">CRIAR</button>
@@ -111,216 +188,223 @@
 
     <!-- TOAST -->
     <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-800 border border-slate-600 text-white px-5 py-2.5 rounded-full shadow-2xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]">
-        <div id="toastIcon" class="loader w-3 h-3 border-white/30 border-t-white"></div><span id="toastMsg">Processando...</span>
+        <div id="toastIcon" class="loader w-3 h-3 border-white/30 border-t-white"></div>
+        <span id="toastMsg">Processando...</span>
     </div>
 
     <script>
+        // --- 1. LÓGICA DE INSTALAÇÃO PWA ---
+        let deferredPrompt;
+        const installModal = document.getElementById('installModal');
+        const installBtn = document.getElementById('installBtn');
+
+        // Gera manifesto dinamicamente
+        const manifest = {
+            "name": "Industrial App",
+            "short_name": "Industrial",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#0f172a",
+            "theme_color": "#0f172a",
+            "orientation": "portrait",
+            "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/3061/3061341.png", "sizes": "512x512", "type": "image/png" }]
+        };
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'}));
+        document.head.appendChild(link);
+
+        // Detecta possibilidade de instalação
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden'); // Mostra botão no header
+        });
+
+        // Detecta iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+            installBtn.classList.remove('hidden'); // Sempre mostra no iOS para abrir instrução
+        }
+
+        function triggerInstall() {
+            installModal.classList.remove('hidden');
+            
+            if (isIOS) {
+                document.getElementById('iosInstructions').classList.remove('hidden');
+                document.getElementById('androidInstructions').classList.add('hidden');
+            } else if (deferredPrompt) {
+                document.getElementById('androidInstructions').classList.remove('hidden');
+                document.getElementById('iosInstructions').classList.add('hidden');
+                
+                document.getElementById('nativeInstallBtn').onclick = () => {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            installModal.classList.add('hidden');
+                            installBtn.classList.add('hidden');
+                        }
+                        deferredPrompt = null;
+                    });
+                };
+            } else {
+                document.getElementById('pcInstructions').classList.remove('hidden');
+            }
+        }
+
+        function closeInstallModal() { installModal.classList.add('hidden'); }
+
+
+        // --- 2. LÓGICA DO APP (SUPABASE) ---
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const BUCKET = 'galeria';
-
+        
         let currentIndustry = null;
-        let currentDateFolder = null;
-        let folderPhotos = []; 
+        let currentDateGroup = null;
+        let industryPhotos = []; 
         let isSelectionMode = false;
         let selectedPhotos = new Set();
 
         window.onload = loadIndustries;
 
-        // --- NAVEGAÇÃO ---
         function navigateTo(viewId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            const backBtn=document.getElementById('backBtn'), selectBtn=document.getElementById('selectBtn'), title=document.getElementById('pageTitle'), subtitle=document.getElementById('pageSubtitle');
             
+            const backBtn = document.getElementById('backBtn');
+            const selectBtn = document.getElementById('selectBtn');
+            const title = document.getElementById('pageTitle');
+            const subtitle = document.getElementById('pageSubtitle');
+
             isSelectionMode = false; selectedPhotos.clear(); updateSelectionUI();
 
             if (viewId === 'view-home') {
-                backBtn.classList.add('hidden'); selectBtn.classList.add('hidden');
-                title.innerText = "Indústrias"; subtitle.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Sincronizado';
+                backBtn.classList.add('hidden');
+                selectBtn.classList.add('hidden');
+                title.innerText = "Indústrias";
+                subtitle.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Online';
                 currentIndustry = null;
-            } else if (viewId === 'view-dates') {
-                backBtn.classList.remove('hidden'); selectBtn.classList.add('hidden');
-                title.innerText = currentIndustry; subtitle.innerText = "Selecione uma data";
-            } else if (viewId === 'view-gallery') {
-                backBtn.classList.remove('hidden'); selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar";
-                title.innerText = currentDateFolder; subtitle.innerText = "Galeria de Fotos";
+            } 
+            else if (viewId === 'view-dates') {
+                backBtn.classList.remove('hidden');
+                selectBtn.classList.add('hidden');
+                title.innerText = currentIndustry.nome;
+                subtitle.innerText = "Selecione uma data";
+            }
+            else if (viewId === 'view-gallery') {
+                backBtn.classList.remove('hidden');
+                selectBtn.classList.remove('hidden');
+                selectBtn.innerText = "Selecionar";
+                title.innerText = currentDateGroup;
+                subtitle.innerText = "Galeria de Fotos";
             }
         }
 
         function goBack() {
             const active = document.querySelector('.view-section.active').id;
-            if (active === 'view-gallery') navigateTo('view-dates'); else if (active === 'view-dates') navigateTo('view-home');
+            if (active === 'view-gallery') navigateTo('view-dates');
+            else if (active === 'view-dates') navigateTo('view-home');
         }
 
-        // --- 1. LISTAR INDÚSTRIAS (Pastas Raiz) ---
         async function loadIndustries() {
             navigateTo('view-home');
             const list = document.getElementById('industriesList');
             try {
-                // Lista a raiz do bucket
-                const { data, error } = await sb.storage.from(BUCKET).list('', { sortBy: { column: 'name', order: 'asc' } });
+                const { data, error } = await sb.from('industrias').select('*').order('created_at', { ascending: false });
                 if(error) throw error;
-
-                // Filtra o que parece ser pasta (no supabase storage, pastas não tem id se criadas via UI, mas arquivos sim)
-                // Ou simplesmente lista tudo. No modo objeto, pastas são inferidas.
-                // O .list() retorna itens na raiz. Se tiver metadados de arquivo, é arquivo. Se não, é pasta (geralmente).
-                // Mas a melhor forma é ignorar o placeholder .keep
-                
-                const folders = data.filter(item => item.name !== '.keep');
-                document.getElementById('indCount').innerText = folders.length;
+                document.getElementById('indCount').innerText = data.length;
                 list.innerHTML = '';
-
-                if(folders.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Bucket vazio.</div>'; return; }
-
-                folders.forEach(ind => {
+                if(data.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Nenhuma indústria.</div>'; return; }
+                data.forEach(ind => {
                     const el = document.createElement('div');
                     el.className = 'ind-card p-4 flex items-center justify-between cursor-pointer group';
-                    el.onclick = () => openIndustry(ind.name);
-                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700"><i class="fas fa-industry"></i></div><div><h3 class="font-bold text-sm text-slate-200">${ind.name}</h3><p class="text-[10px] text-slate-500">Pasta do Storage</p></div></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i>`;
+                    el.onclick = () => openIndustry(ind);
+                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700"><i class="fas fa-industry"></i></div><div><h3 class="font-bold text-sm text-slate-200">${ind.nome}</h3><p class="text-[10px] text-slate-500">Acessar pastas</p></div></div><button class="w-8 h-8 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center" onclick="deleteIndustry('${ind.id}', event)"><i class="fas fa-trash-alt text-xs"></i></button>`;
                     list.appendChild(el);
                 });
-            } catch(e) { console.error(e); list.innerHTML = '<div class="text-center text-red-400 text-xs">Erro de conexão com Storage.</div>'; }
+            } catch(e) { list.innerHTML = '<div class="text-center text-red-400 text-xs">Erro de conexão.</div>'; }
         }
 
         async function createIndustry() {
             const name = document.getElementById('newIndName').value.trim();
             if(!name) return;
-            showToast("Criando pasta...", "loading");
-            try {
-                // Cria arquivo placeholder para forçar a criação da pasta
-                const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                const { error } = await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob([''], {type: 'text/plain'}));
-                if(error) throw error;
-                showToast("Pasta Criada!", "success"); closeAddModal(); loadIndustries();
-            } catch(e) { showToast("Erro", "error"); alert(e.message); }
+            showToast("Criando...", "loading");
+            try { const { error } = await sb.from('industrias').insert({ nome: name }); if(error) throw error; showToast("Criado!", "success"); closeAddModal(); loadIndustries(); } catch(e) { showToast("Erro", "error"); }
         }
 
-        function openIndustry(name) { currentIndustry = name; loadDates(name); }
+        async function deleteIndustry(id, e) {
+            e.stopPropagation(); if(!confirm("Apagar esta indústria?")) return;
+            showToast("Apagando...", "loading");
+            try { await sb.from('industrias').delete().eq('id', id); showToast("Removido", "success"); loadIndustries(); } catch(e) { showToast("Erro", "error"); }
+        }
 
-        // --- 2. LISTAR DATAS (Subpastas) ---
-        async function loadDates(indName) {
+        function openIndustry(ind) { currentIndustry = ind; loadDates(ind); }
+
+        async function loadDates(ind) {
             navigateTo('view-dates');
             const list = document.getElementById('datesList');
             list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
             try {
-                const { data, error } = await sb.storage.from(BUCKET).list(indName, { sortBy: { column: 'name', order: 'desc' } });
+                const safeName = ind.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                const searchPattern = `${safeName}/%`;
+                const { data, error } = await sb.from('fotos').select('*').like('nome_arquivo', searchPattern).order('created_at', { ascending: false });
                 if(error) throw error;
-
-                // Filtra arquivos soltos na raiz da indústria (como o .keep)
-                const folders = data.filter(item => !item.id); // Itens sem ID no list() geralmente são pastas virtuais
-                // Nota: O comportamento do Supabase list pode variar. Se for arquivo, tem 'id', 'metadata'. Se for pasta, só 'name'.
-                
+                industryPhotos = data;
                 list.innerHTML = '';
-                if(folders.length === 0) { 
-                    list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Nenhuma pasta de data encontrada. Tire uma foto!</div>'; 
-                    // Se não tem pastas, podemos ir direto para galeria de hoje? Não, vamos deixar o usuário tirar foto aqui mesmo se quiser (botão não implementado nesta tela, mas o fluxo exige entrar numa pasta ou criar).
-                    return; 
+                if(data.length === 0) {
+                    list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Nenhuma foto encontrada.</div>';
+                    const today = new Date().toLocaleDateString('pt-BR'); openGallery(today); return;
                 }
-
-                folders.forEach(folder => {
-                    const el = document.createElement('div');
-                    el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98]';
-                    el.onclick = () => openGallery(folder.name);
-                    
-                    // Formata Data se possível (YYYY-MM-DD)
-                    let displayDate = folder.name;
-                    if(folder.name.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                        const [y, m, d] = folder.name.split('-');
-                        displayDate = `${d}/${m}/${y}`;
-                    }
-
-                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-indigo-900/50 text-indigo-400 rounded-xl flex items-center justify-center border border-indigo-500/20"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-indigo-100">${displayDate}</h3><p class="text-[10px] text-slate-400">Pasta</p></div></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i>`;
-                    list.appendChild(el);
+                const datesMap = {};
+                data.forEach(f => {
+                    const date = new Date(f.created_at);
+                    const dateKey = date.toLocaleDateString('pt-BR');
+                    const weekday = date.toLocaleDateString('pt-BR', { weekday: 'long' });
+                    const formattedDate = `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} - ${dateKey}`;
+                    if(!datesMap[formattedDate]) datesMap[formattedDate] = 0; datesMap[formattedDate]++;
+                });
+                Object.keys(datesMap).forEach(dateLabel => {
+                    const count = datesMap[dateLabel];
+                    const div = document.createElement('div');
+                    div.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98]';
+                    div.onclick = () => openGallery(dateLabel);
+                    div.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-indigo-900/50 text-indigo-400 rounded-xl flex items-center justify-center border border-indigo-500/20"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-indigo-100">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} arquivos</p></div></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i>`;
+                    list.appendChild(div);
                 });
             } catch(e) { console.error(e); list.innerHTML = '<div class="text-center text-red-400">Erro ao carregar datas.</div>'; }
         }
 
-        // --- 3. GALERIA (Arquivos) ---
-        function openGallery(folderName) { currentDateFolder = folderName; navigateTo('view-gallery'); loadGalleryPhotos(); }
+        function openGallery(dateLabel) { currentDateGroup = dateLabel; navigateTo('view-gallery'); renderGalleryGrid(); }
 
-        async function loadGalleryPhotos() {
-            const container = document.getElementById('photosContainer');
-            container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>';
+        function renderGalleryGrid() {
+            const container = document.getElementById('photosContainer'); container.innerHTML = '';
+            const datePart = currentDateGroup.split(' - ')[1];
+            let photos = datePart ? industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === datePart) : [];
+            if(photos.length === 0) container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Pasta vazia. Tire a primeira foto!</div>';
             
-            try {
-                const path = `${currentIndustry}/${currentDateFolder}`;
-                const { data, error } = await sb.storage.from(BUCKET).list(path, { sortBy: { column: 'created_at', order: 'asc' } }); // Ordem cronológica
-                if(error) throw error;
+            photos.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)); 
 
-                const files = data.filter(item => item.id); // Só arquivos reais
-                industryPhotos = files; // Cache para seleção
-                container.innerHTML = '';
-
-                if(files.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Pasta vazia.</div>'; return; }
-
-                // Gera URLs públicas para exibição
-                files.forEach(file => {
-                    const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(`${path}/${file.name}`);
-                    file.publicUrl = publicUrl; // Anexa ao objeto para uso posterior
-
-                    const isSelected = selectedPhotos.has(file.name);
-                    const div = document.createElement('div');
-                    div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
-                    div.onclick = () => handlePhotoClick(file);
-                    // Long press
-                    let pressTimer;
-                    div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); });
-                    div.addEventListener('touchend', () => clearTimeout(pressTimer));
-                    
-                    div.innerHTML = `<img src="${publicUrl}" class="w-full h-full object-cover pointer-events-none">`;
-                    container.appendChild(div);
-                });
-
-            } catch(e) { console.error(e); container.innerHTML = '<div class="col-span-3 text-center text-red-400">Erro ao carregar fotos.</div>'; }
+            photos.forEach(foto => {
+                const isSelected = selectedPhotos.has(foto.id);
+                const div = document.createElement('div');
+                div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
+                div.onclick = () => handlePhotoClick(foto);
+                div.innerHTML = `<img src="${foto.url_publica}" class="w-full h-full object-cover">`;
+                container.appendChild(div);
+            });
         }
 
-        // --- UPLOAD ---
-        async function uploadPhoto(input) {
-            const file = input.files[0];
-            if(!file || !currentIndustry) return;
-            showToast("Enviando...", "loading");
-            try {
-                const blob = await resizeImage(file);
-                const now = new Date();
-                
-                // Define pasta da data: se já estiver em uma, usa ela. Se não, usa hoje.
-                let targetDateFolder = currentDateFolder;
-                if(!targetDateFolder) {
-                    targetDateFolder = now.toISOString().split('T')[0]; // YYYY-MM-DD
-                }
-
-                const fileName = `${currentIndustry}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`;
-                
-                const { error } = await sb.storage.from(BUCKET).upload(fileName, blob);
-                if(error) throw error;
-
-                showToast("Salvo!", "success");
-                
-                // Se estiver na galeria, recarrega. Se não, vai para a data de hoje.
-                if (document.getElementById('view-gallery').classList.contains('active')) {
-                    loadGalleryPhotos();
-                } else {
-                    currentDateFolder = targetDateFolder;
-                    openGallery(targetDateFolder);
-                }
-
-            } catch(e) { showToast("Erro upload", "error"); alert(e.message); }
-            input.value = '';
-        }
-
-        // --- SELEÇÃO & SHARE (Igual v10) ---
         function toggleSelectionMode() {
             isSelectionMode = !isSelectionMode;
             const btn = document.getElementById('selectBtn'), cam = document.getElementById('cameraControls'), selBar = document.getElementById('selectionControls');
             if(isSelectionMode) { btn.innerText = "Cancelar"; btn.classList.add('text-red-400', 'border-red-900'); cam.classList.add('hidden'); selBar.classList.remove('hidden', 'translate-y-full'); } 
-            else { btn.innerText = "Selecionar"; btn.classList.remove('text-red-400', 'border-red-900'); selectedPhotos.clear(); cam.classList.remove('hidden'); selBar.classList.add('hidden', 'translate-y-full'); loadGalleryPhotos(); }
+            else { btn.innerText = "Selecionar"; btn.classList.remove('text-red-400', 'border-red-900'); selectedPhotos.clear(); cam.classList.remove('hidden'); selBar.classList.add('hidden', 'translate-y-full'); renderGalleryGrid(); }
         }
 
-        function handlePhotoClick(file) {
-            if(isSelectionMode) { selectedPhotos.has(file.name) ? selectedPhotos.delete(file.name) : selectedPhotos.add(file.name); updateSelectionUI(); loadGalleryPhotos(); } 
-            else { openPhotoModal(file.publicUrl); }
+        function handlePhotoClick(foto) {
+            if(isSelectionMode) { selectedPhotos.has(foto.id) ? selectedPhotos.delete(foto.id) : selectedPhotos.add(foto.id); updateSelectionUI(); renderGalleryGrid(); } 
+            else { window.open(foto.url_publica, '_blank'); }
         }
 
         function updateSelectionUI() { document.getElementById('selCount').innerText = selectedPhotos.size; }
@@ -329,12 +413,12 @@
             if(selectedPhotos.size === 0) return;
             showToast(`Baixando ${selectedPhotos.size} fotos...`, 'loading');
             try {
-                const caption = `> 🛒 *Loja 438* - Camiño Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🏭 *Indústria* - ${currentIndustry}`;
+                const caption = `> 🛒 *Loja 438* - Camiño Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🏭 *Indústria* - ${currentIndustry.nome}`;
                 const filesArray = [];
-                const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.name));
+                const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id));
                 for(let i=0; i<selectedData.length; i++) {
                     const p = selectedData[i];
-                    const resp = await fetch(p.publicUrl);
+                    const resp = await fetch(p.url_publica);
                     const blob = await resp.blob();
                     const file = new File([blob], `Foto_${i+1}.jpg`, { type: blob.type });
                     filesArray.push(file);
@@ -351,16 +435,39 @@
             if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return;
             showToast("Apagando...", "loading");
             try {
-                const paths = Array.from(selectedPhotos).map(name => `${currentIndustry}/${currentDateFolder}/${name}`);
-                await sb.storage.from(BUCKET).remove(paths);
-                selectedPhotos.clear();
-                toggleSelectionMode();
-                loadGalleryPhotos();
-                showToast("Apagado!", "success");
+                const ids = Array.from(selectedPhotos);
+                await sb.from('fotos').delete().in('id', ids);
+                industryPhotos = industryPhotos.filter(p => !selectedPhotos.has(p.id));
+                toggleSelectionMode(); renderGalleryGrid(); showToast("Apagado!", "success");
             } catch(e) { showToast("Erro", "error"); }
         }
 
-        // --- UTILS ---
+        async function uploadPhoto(input) {
+            const file = input.files[0];
+            if(!file || !currentIndustry) return;
+            showToast("Enviando...", "loading");
+            try {
+                const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                const blob = await resizeImage(file);
+                const now = new Date();
+                const dateFolder = now.toISOString().split('T')[0];
+                const fileName = `${safeName}/${dateFolder}/FOTO_${now.getTime()}.jpg`;
+                const { error: upErr } = await sb.storage.from('galeria').upload(fileName, blob); if(upErr) throw upErr;
+                const { data: { publicUrl } } = sb.storage.from('galeria').getPublicUrl(fileName);
+                const { error: dbErr } = await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl }); if(dbErr) throw dbErr;
+                showToast("Salvo!", "success");
+                
+                const searchPattern = `${safeName}/%`;
+                const { data } = await sb.from('fotos').select('*').like('nome_arquivo', searchPattern).order('created_at', { ascending: false });
+                industryPhotos = data;
+                
+                const wasGallery = document.getElementById('view-gallery').classList.contains('active');
+                if(wasGallery) renderGalleryGrid(); else loadDates(currentIndustry);
+
+            } catch(e) { showToast("Erro upload", "error"); alert(e.message); }
+            input.value = '';
+        }
+
         function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
         function openPhotoModal(url) { document.getElementById('previewImg').src = url; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10); }
