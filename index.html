@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- Configurações PWA (Instalação) -->
+    <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
-    <title>Industrial Sync</title>
+    <title>Industrial Manager</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -18,11 +18,21 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; -webkit-tap-highlight-color: transparent; padding-bottom: 120px; user-select: none; }
         
-        .glass-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .glass-bar { background: rgba(15, 23, 42, 0.98); border-top: 1px solid rgba(255,255,255,0.05); }
+        .glass-header { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .glass-bar { background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.05); }
         
-        .ind-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 12px; border: 1px solid #334155; transition: transform 0.1s; }
-        .ind-card:active { transform: scale(0.98); border-color: #3b82f6; }
+        .ind-card { 
+            background: linear-gradient(160deg, #1e293b, #0f172a); 
+            border-radius: 12px; 
+            border: 1px solid #334155; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center; 
+            padding: 12px;
+        }
+        .ind-card:active { transform: scale(0.96); border-color: #3b82f6; }
 
         .folder-card { background: #1e293b; border-radius: 12px; border: 1px solid #334155; transition: all 0.2s; }
         .folder-card:active { background: #334155; }
@@ -41,17 +51,17 @@
         .loader { border: 2px solid rgba(255,255,255,0.1); border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .view-section { display: none; }
-        .view-section.active { display: block; animation: fadeIn 0.3s ease; }
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <!-- Header -->
-    <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-lg">
+    <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-lg shadow-black/40">
         <div class="flex items-center gap-3 w-2/3">
-            <button id="backBtn" onclick="goBack()" class="hidden w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center active:scale-90 transition"><i class="fas fa-arrow-left"></i></button>
+            <button id="backBtn" onclick="goBack()" class="hidden w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center active:scale-90 transition hover:bg-slate-700"><i class="fas fa-arrow-left"></i></button>
             <div class="overflow-hidden">
                 <h1 id="pageTitle" class="font-bold text-sm text-slate-100 truncate">Indústrias</h1>
                 <p id="pageSubtitle" class="text-[10px] text-green-400 flex items-center gap-1 truncate"><span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Sincronizado</p>
@@ -59,7 +69,6 @@
         </div>
         
         <div class="flex items-center gap-2">
-            <!-- Botão Instalar -->
             <button id="installBtn" onclick="triggerInstall()" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1 animate-pulse">
                 <i class="fas fa-download"></i> App
             </button>
@@ -77,34 +86,54 @@
 
     <main class="max-w-md mx-auto px-4">
 
-        <!-- VIEW 1: HOME (Pastas Raiz) -->
+        <!-- VIEW 1: HOME (Locais) -->
         <div id="view-home" class="view-section active">
-            <div class="mb-4 flex justify-between items-end">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Locais (Storage)</span>
-                <span id="indCount" class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono">...</span>
+            <div class="mb-4 flex justify-between items-end px-1">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-th-large"></i> Locais
+                </span>
+                <span id="indCount" class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono border border-slate-700">...</span>
             </div>
-            <div id="industriesList" class="space-y-3 pb-24">
-                <div class="flex flex-col items-center justify-center py-20 opacity-50"><div class="loader mb-2"></div><span class="text-xs">Lendo pastas...</span></div>
+            
+            <div id="industriesList" class="grid grid-cols-2 gap-3 pb-24">
+                <div class="col-span-2 flex flex-col items-center justify-center py-20 opacity-50">
+                    <div class="loader mb-2"></div>
+                    <span class="text-xs">Lendo pastas...</span>
+                </div>
             </div>
-            <button onclick="openAddModal()" class="fixed bottom-8 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full text-white shadow-xl shadow-blue-900/50 flex items-center justify-center text-2xl active:scale-90 transition z-40"><i class="fas fa-plus"></i></button>
+            
+            <button onclick="openAddModal()" class="fixed bottom-8 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full text-white shadow-xl shadow-blue-900/50 flex items-center justify-center text-2xl active:scale-90 transition z-40 transform hover:-translate-y-1">
+                <i class="fas fa-plus"></i>
+            </button>
         </div>
 
-        <!-- VIEW 2: DATAS (Subpastas) -->
+        <!-- VIEW 2: DATAS (Com Câmera Agora) -->
         <div id="view-dates" class="view-section">
-            <div class="mb-4 flex justify-between items-center">
+            <div class="mb-4 flex justify-between items-center px-1">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pastas por Data</span>
-                <span class="text-[9px] text-slate-600 border border-slate-700 px-2 py-1 rounded">Auto-Clean: 45 dias</span>
+                <span class="text-[9px] text-slate-500 border border-slate-700 px-2 py-1 rounded bg-slate-800/50">Auto-Clean: 45 dias</span>
             </div>
-            <div id="datesList" class="space-y-3 pb-24"></div>
+            <!-- Aumentei padding bottom para não esconder itens atrás do botão -->
+            <div id="datesList" class="space-y-3 pb-40"></div>
+
+            <!-- NOVA CÂMERA AQUI (Na lista de datas) -->
+            <div id="cameraControlsDates" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 z-40">
+                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-900/40 hover:shadow-blue-500/20 border border-white/10">
+                    <i class="fas fa-camera text-xl"></i>
+                    <span class="font-bold text-sm tracking-wide">NOVA FOTO (HOJE)</span>
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
+                </label>
+            </div>
         </div>
 
-        <!-- VIEW 3: GALERIA (Arquivos) -->
+        <!-- VIEW 3: GALERIA -->
         <div id="view-gallery" class="view-section">
             <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-40 select-none"></div>
 
             <div id="cameraControls" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 z-40">
-                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg hover:shadow-blue-500/20">
-                    <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">ADICIONAR FOTO</span>
+                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-900/40 hover:shadow-blue-500/20 border border-white/10">
+                    <i class="fas fa-camera text-xl"></i>
+                    <span class="font-bold text-sm tracking-wide">ADICIONAR FOTO</span>
                     <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
                 </label>
             </div>
@@ -116,10 +145,10 @@
         </div>
     </main>
 
-    <!-- MODAL ADD PASTA -->
+    <!-- Modais -->
     <div id="addModal" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-slate-900 w-full max-w-xs p-6 rounded-2xl border border-slate-700 shadow-2xl">
-            <h3 class="text-sm font-bold text-slate-300 mb-4 uppercase">Nova Pasta (Indústria)</h3>
+            <h3 class="text-sm font-bold text-slate-300 mb-4 uppercase">Nova Pasta</h3>
             <input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 mb-4 text-white text-sm focus:outline-none focus:border-blue-500">
             <div class="flex gap-3">
                 <button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-white">Cancelar</button>
@@ -128,11 +157,9 @@
         </div>
     </div>
 
-    <!-- MODAL INSTALAÇÃO -->
     <div id="installModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-700">
             <h3 class="text-lg font-bold text-white mb-2">Instalar App</h3>
-            <p class="text-sm text-slate-400 mb-4">Acesso rápido na tela inicial.</p>
             <div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-300">
                 <p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square"></i></p>
                 <p>2. Selecione <b>"Adicionar à Tela de Início"</b></p>
@@ -144,7 +171,6 @@
         </div>
     </div>
 
-    <!-- MODAL FOTO -->
     <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
         <div class="absolute top-0 w-full p-4 flex justify-end z-20">
             <button onclick="closePhotoModal()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button>
@@ -152,7 +178,6 @@
         <img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl">
     </div>
 
-    <!-- TOAST -->
     <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-800 border border-slate-600 text-white px-5 py-2.5 rounded-full shadow-2xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]">
         <div id="toastIcon" class="loader w-3 h-3 border-white/30 border-t-white"></div><span id="toastMsg">Processando...</span>
     </div>
@@ -170,31 +195,20 @@
         let isSelectionMode = false;
         let selectedPhotos = new Set();
 
-        // PWA SETUP
+        // PWA
         let deferredPrompt;
         const installModal = document.getElementById('installModal');
         const installBtn = document.getElementById('installBtn');
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-        // Manifesto Dinâmico
         const manifest = { "name": "Industrial Sync", "short_name": "Industrial", "start_url": ".", "display": "standalone", "background_color": "#0f172a", "theme_color": "#0f172a", "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/3061/3061341.png", "sizes": "512x512", "type": "image/png" }] };
         const link = document.createElement('link'); link.rel = 'manifest'; link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'})); document.head.appendChild(link);
-
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });
         if(isIOS) installBtn.classList.remove('hidden');
-
-        function triggerInstall() {
-            installModal.classList.remove('hidden');
-            if(isIOS) { document.getElementById('iosInstructions').classList.remove('hidden'); document.getElementById('androidInstructions').classList.add('hidden'); }
-            else if(deferredPrompt) {
-                document.getElementById('androidInstructions').classList.remove('hidden');
-                document.getElementById('nativeInstallBtn').onclick = () => { deferredPrompt.prompt(); deferredPrompt.userChoice.then((r) => { if(r.outcome==='accepted') installModal.classList.add('hidden'); deferredPrompt=null; }); };
-            }
-        }
+        function triggerInstall() { installModal.classList.remove('hidden'); if(isIOS) { document.getElementById('iosInstructions').classList.remove('hidden'); document.getElementById('androidInstructions').classList.add('hidden'); } else if(deferredPrompt) { document.getElementById('androidInstructions').classList.remove('hidden'); document.getElementById('nativeInstallBtn').onclick = () => { deferredPrompt.prompt(); deferredPrompt.userChoice.then((r) => { if(r.outcome==='accepted') installModal.classList.add('hidden'); deferredPrompt=null; }); }; } }
+        function closeInstallModal() { installModal.classList.add('hidden'); }
 
         window.onload = loadIndustries;
 
-        // --- NAVEGAÇÃO ---
         function navigateTo(viewId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
@@ -215,25 +229,29 @@
             navigateTo('view-home');
             const list = document.getElementById('industriesList');
             try {
-                // Lista Pastas na Raiz
                 const { data, error } = await sb.storage.from(BUCKET).list('', { sortBy: { column: 'name', order: 'asc' } });
                 if(error) throw error;
-
-                // Filtra arquivo .keep e arquivos soltos (pastas geralmente não tem metadata extenso na listagem root)
                 const folders = data.filter(item => item.name !== '.keep');
-                
                 document.getElementById('indCount').innerText = folders.length;
                 list.innerHTML = '';
-                if(folders.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Bucket vazio.</div>'; return; }
+                if(folders.length === 0) { list.innerHTML = '<div class="col-span-2 text-center py-20 text-slate-600 text-xs">Bucket vazio.</div>'; return; }
 
                 folders.forEach(ind => {
                     const el = document.createElement('div');
-                    el.className = 'ind-card p-4 flex items-center justify-between cursor-pointer group';
+                    el.className = 'ind-card p-3 flex items-center gap-3 cursor-pointer group hover:border-slate-500 active:scale-95 transition';
                     el.onclick = () => openIndustry(ind.name);
-                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700"><i class="fas fa-industry"></i></div><div><h3 class="font-bold text-sm text-slate-200">${ind.name}</h3><p class="text-[10px] text-slate-500">Pasta do Storage</p></div></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i>`;
+                    el.innerHTML = `
+                        <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700 shadow-inner shrink-0">
+                            <i class="fas fa-industry text-lg"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h3 class="font-bold text-xs text-slate-200 leading-tight truncate">${ind.name}</h3>
+                            <p class="text-[9px] text-slate-500 truncate">Ver pasta</p>
+                        </div>
+                    `;
                     list.appendChild(el);
                 });
-            } catch(e) { console.error(e); list.innerHTML = '<div class="text-center text-red-400 text-xs">Erro de conexão.</div>'; }
+            } catch(e) { console.error(e); list.innerHTML = '<div class="col-span-2 text-center text-red-400 text-xs">Erro de conexão com Storage.</div>'; }
         }
 
         async function createIndustry() {
@@ -241,17 +259,16 @@
             if(!name) return;
             showToast("Criando...", "loading");
             try {
-                // Cria arquivo placeholder .keep
                 const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                 const { error } = await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob([''], {type: 'text/plain'}));
                 if(error) throw error;
-                showToast("Pasta Criada!", "success"); closeAddModal(); loadIndustries();
+                showToast("Criado!", "success"); closeAddModal(); loadIndustries();
             } catch(e) { showToast("Erro", "error"); alert(e.message); }
         }
 
         function openIndustry(name) { currentIndustry = name; loadDates(name); }
 
-        // --- 2. LISTAR DATAS & CLEANUP ---
+        // --- 2. LISTAR DATAS ---
         async function loadDates(indName) {
             navigateTo('view-dates');
             const list = document.getElementById('datesList');
@@ -259,18 +276,12 @@
             try {
                 const { data, error } = await sb.storage.from(BUCKET).list(indName, { sortBy: { column: 'name', order: 'desc' } });
                 if(error) throw error;
-
                 const folders = data.filter(item => item.name !== '.keep');
                 list.innerHTML = '';
-                
                 if(folders.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Nenhuma data.</div>'; return; }
 
-                // Check Cleanup
                 const today = new Date();
-                const foldersToDelete = [];
-
                 folders.forEach(folder => {
-                    // Tenta parsear data YYYY-MM-DD
                     let displayDate = folder.name;
                     let daysLeft = 45;
                     let isExpired = false;
@@ -281,18 +292,13 @@
                         const diffTime = Math.abs(today - folderDate);
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
                         daysLeft = DELETE_AFTER_DAYS - diffDays;
-                        
                         displayDate = `${d}/${m}/${y}`;
                         if(daysLeft <= 0) isExpired = true;
                     }
 
-                    if(isExpired) {
-                        foldersToDelete.push(`${indName}/${folder.name}`); // Marca para deletar
-                    } else {
-                        // Renderiza se não expirou
+                    if(!isExpired) {
                         let daysClass = "text-green-400";
                         if(daysLeft <= 5) daysClass = "text-red-400"; else if(daysLeft <= 15) daysClass = "text-yellow-400";
-
                         const el = document.createElement('div');
                         el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98]';
                         el.onclick = () => openGallery(folder.name);
@@ -300,58 +306,40 @@
                         list.appendChild(el);
                     }
                 });
-
-                // Executa deleção de pastas antigas se houver
-                if(foldersToDelete.length > 0) {
-                    console.log("Limpando pastas antigas:", foldersToDelete);
-                    // Deletar pastas no Storage é complexo (precisa deletar arquivos dentro).
-                    // Para simplificar, deixamos visivelmente fora da lista, mas a deleção real requer loop de arquivos.
-                    // Aqui faremos apenas UI filtering para performance.
-                }
-
             } catch(e) { console.error(e); list.innerHTML = '<div class="text-center text-red-400">Erro.</div>'; }
         }
 
-        // --- 3. GALERIA (Arquivos) ---
+        // --- 3. GALERIA ---
         function openGallery(folderName) { currentDateFolder = folderName; navigateTo('view-gallery'); loadGalleryPhotos(); }
 
         async function loadGalleryPhotos() {
             const container = document.getElementById('photosContainer');
             container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>';
-            
             try {
                 const path = `${currentIndustry}/${currentDateFolder}`;
-                const { data, error } = await sb.storage.from(BUCKET).list(path);
+                const { data, error } = await sb.storage.from(BUCKET).list(path, { sortBy: { column: 'created_at', order: 'asc' } });
                 if(error) throw error;
-
-                const files = data.filter(item => item.name !== '.emptyFolderPlaceholder' && item.name !== '.keep');
+                const files = data.filter(item => item.id);
                 industryPhotos = files; 
                 container.innerHTML = '';
-
                 if(files.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Pasta vazia.</div>'; return; }
-
                 files.forEach(file => {
                     const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(`${path}/${file.name}`);
                     file.publicUrl = publicUrl;
-
                     const isSelected = selectedPhotos.has(file.name);
                     const div = document.createElement('div');
                     div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
                     div.onclick = () => handlePhotoClick(file);
-                    
-                    // Long press
                     let pressTimer;
                     div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); });
                     div.addEventListener('touchend', () => clearTimeout(pressTimer));
-                    
                     div.innerHTML = `<img src="${publicUrl}" class="w-full h-full object-cover pointer-events-none">`;
                     container.appendChild(div);
                 });
-
             } catch(e) { console.error(e); container.innerHTML = '<div class="col-span-3 text-center text-red-400">Erro.</div>'; }
         }
 
-        // --- UPLOAD ---
+        // --- UPLOAD (INTELIGENTE) ---
         async function uploadPhoto(input) {
             const file = input.files[0];
             if(!file || !currentIndustry) return;
@@ -360,22 +348,31 @@
                 const blob = await resizeImage(file);
                 const now = new Date();
                 
+                // Se estiver dentro de uma pasta, usa ela. Se estiver na lista de datas, usa a de HOJE.
                 let targetDateFolder = currentDateFolder;
-                if(!targetDateFolder) targetDateFolder = now.toISOString().split('T')[0];
+                if (!document.getElementById('view-gallery').classList.contains('active')) {
+                    targetDateFolder = now.toISOString().split('T')[0]; // YYYY-MM-DD
+                }
 
                 const fileName = `${currentIndustry}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`;
                 const { error } = await sb.storage.from(BUCKET).upload(fileName, blob);
                 if(error) throw error;
 
                 showToast("Salvo!", "success");
-                if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos();
-                else { currentDateFolder = targetDateFolder; openGallery(targetDateFolder); }
+                
+                // Atualiza a visualização correta
+                if (document.getElementById('view-gallery').classList.contains('active')) {
+                    loadGalleryPhotos();
+                } else {
+                    // Se tirou foto da lista de datas, entra na pasta de hoje
+                    currentDateFolder = targetDateFolder;
+                    openGallery(targetDateFolder);
+                }
 
             } catch(e) { showToast("Erro upload", "error"); alert(e.message); }
             input.value = '';
         }
 
-        // --- SELEÇÃO & SHARE ---
         function toggleSelectionMode() {
             isSelectionMode = !isSelectionMode;
             const btn = document.getElementById('selectBtn'), cam = document.getElementById('cameraControls'), selBar = document.getElementById('selectionControls');
@@ -422,7 +419,6 @@
             } catch(e) { showToast("Erro", "error"); }
         }
 
-        // --- UTILS ---
         function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
         function openPhotoModal(url) { document.getElementById('previewImg').src = url; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10); }
