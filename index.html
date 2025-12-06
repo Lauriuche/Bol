@@ -18,15 +18,12 @@
         .glass-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .glass-bar { background: rgba(15, 23, 42, 0.98); border-top: 1px solid rgba(255,255,255,0.05); }
         
-        /* Cards */
         .ind-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 12px; border: 1px solid #334155; transition: transform 0.1s; }
         .ind-card:active { transform: scale(0.98); border-color: #3b82f6; }
 
-        /* Pasta Card */
         .folder-card { background: #1e293b; border-radius: 12px; border: 1px solid #334155; transition: all 0.2s; }
         .folder-card:active { background: #334155; }
 
-        /* Foto Grid Item */
         .photo-item { position: relative; overflow: hidden; border-radius: 8px; background: #334155; aspect-ratio: 1/1; }
         .photo-item.selected { border: 3px solid #3b82f6; }
         .photo-item.selected img { opacity: 0.6; }
@@ -63,7 +60,6 @@
         </div>
         
         <div class="flex items-center gap-2">
-            <!-- Botão Selecionar (Apenas na Galeria) -->
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-800 text-blue-400 px-3 py-1.5 rounded-full border border-slate-700 active:scale-95 transition">
                 Selecionar
             </button>
@@ -97,20 +93,17 @@
             </button>
         </div>
 
-        <!-- VIEW 2: LISTA DE DATAS (PASTAS) -->
+        <!-- VIEW 2: DATAS -->
         <div id="view-dates" class="view-section">
             <div class="mb-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Pastas por Data</div>
             <div id="datesList" class="space-y-3 pb-24"></div>
         </div>
 
-        <!-- VIEW 3: GALERIA DE FOTOS (DIA ESPECÍFICO) -->
+        <!-- VIEW 3: GALERIA -->
         <div id="view-gallery" class="view-section">
-            
             <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-40"></div>
 
-            <!-- CONTROLES FIXOS (RODAPÉ) -->
-            
-            <!-- 1. Botões de Câmera (Normal) -->
+            <!-- Controles Câmera -->
             <div id="cameraControls" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 flex gap-3 z-40">
                 <label class="flex-1 bg-gradient-to-r from-red-900/90 to-red-800/90 border border-red-500/30 text-white py-3.5 rounded-xl flex flex-col items-center justify-center gap-1 active:scale-95 transition cursor-pointer shadow-lg">
                     <i class="fas fa-camera text-lg"></i>
@@ -125,7 +118,7 @@
                 </label>
             </div>
 
-            <!-- 2. Barra de Seleção (Escondida por padrão) -->
+            <!-- Controles Seleção -->
             <div id="selectionControls" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 flex gap-3 z-50 hidden transform translate-y-full transition-transform duration-300">
                 <button onclick="deleteSelected()" class="w-14 h-14 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center border border-red-500/30 active:scale-90">
                     <i class="fas fa-trash-alt"></i>
@@ -134,16 +127,15 @@
                     Compartilhar (<span id="selCount">0</span>)
                 </button>
             </div>
-
         </div>
 
     </main>
 
-    <!-- MODAL: ADD INDÚSTRIA -->
+    <!-- MODAL ADD INDÚSTRIA -->
     <div id="addModal" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-slate-900 w-full max-w-xs p-6 rounded-2xl border border-slate-700 shadow-2xl">
             <h3 class="text-sm font-bold text-slate-300 mb-4 uppercase">Nova Indústria</h3>
-            <input type="text" id="newIndName" placeholder="Nome (ex: Fábrica A)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 mb-4 text-white text-sm focus:outline-none focus:border-blue-500">
+            <input type="text" id="newIndName" placeholder="Nome (ex: Camiño Grajaú)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 mb-4 text-white text-sm focus:outline-none focus:border-blue-500">
             <div class="flex gap-3">
                 <button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-white">Cancelar</button>
                 <button onclick="createIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">CRIAR</button>
@@ -151,7 +143,7 @@
         </div>
     </div>
 
-    <!-- MODAL: VER FOTO ÚNICA -->
+    <!-- MODAL FOTO -->
     <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
         <div class="absolute top-0 w-full p-4 flex justify-end z-20">
             <button onclick="closePhotoModal()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button>
@@ -166,22 +158,20 @@
     </div>
 
     <script>
-        // --- SUPABASE ---
+        // --- SUPABASE CONFIG ---
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
-        // ESTADO
         let currentIndustry = null;
-        let currentDateGroup = null; // Data selecionada
-        let industryPhotos = []; // Cache das fotos da indústria atual
-        
+        let currentDateGroup = null;
+        let industryPhotos = []; 
         let isSelectionMode = false;
-        let selectedPhotos = new Set(); // IDs das fotos selecionadas
+        let selectedPhotos = new Set();
 
         window.onload = loadIndustries;
 
-        // --- NAVEGAÇÃO ENTRE TELAS ---
+        // --- NAVEGAÇÃO ---
         function navigateTo(viewId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
@@ -191,10 +181,7 @@
             const title = document.getElementById('pageTitle');
             const subtitle = document.getElementById('pageSubtitle');
 
-            // Reset UI states
-            isSelectionMode = false;
-            selectedPhotos.clear();
-            updateSelectionUI();
+            isSelectionMode = false; selectedPhotos.clear(); updateSelectionUI();
 
             if (viewId === 'view-home') {
                 backBtn.classList.add('hidden');
@@ -228,38 +215,17 @@
         async function loadIndustries() {
             navigateTo('view-home');
             const list = document.getElementById('industriesList');
-            
             try {
                 const { data, error } = await sb.from('industrias').select('*').order('created_at', { ascending: false });
                 if(error) throw error;
-
                 document.getElementById('indCount').innerText = data.length;
                 list.innerHTML = '';
-
-                if(data.length === 0) {
-                    list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Nenhuma indústria.</div>';
-                    return;
-                }
-
+                if(data.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Nenhuma indústria.</div>'; return; }
                 data.forEach(ind => {
                     const el = document.createElement('div');
                     el.className = 'ind-card p-4 flex items-center justify-between cursor-pointer group';
                     el.onclick = () => openIndustry(ind);
-                    
-                    el.innerHTML = `
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700">
-                                <i class="fas fa-industry"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-sm text-slate-200">${ind.nome}</h3>
-                                <p class="text-[10px] text-slate-500">Acessar pastas</p>
-                            </div>
-                        </div>
-                        <button class="w-8 h-8 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center" onclick="deleteIndustry('${ind.id}', event)">
-                            <i class="fas fa-trash-alt text-xs"></i>
-                        </button>
-                    `;
+                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700"><i class="fas fa-industry"></i></div><div><h3 class="font-bold text-sm text-slate-200">${ind.nome}</h3><p class="text-[10px] text-slate-500">Acessar pastas</p></div></div><button class="w-8 h-8 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center" onclick="deleteIndustry('${ind.id}', event)"><i class="fas fa-trash-alt text-xs"></i></button>`;
                     list.appendChild(el);
                 });
             } catch(e) { list.innerHTML = '<div class="text-center text-red-400 text-xs">Erro de conexão.</div>'; }
@@ -272,196 +238,113 @@
             try {
                 const { error } = await sb.from('industrias').insert({ nome: name });
                 if(error) throw error;
-                showToast("Criado!", "success");
-                closeAddModal();
-                loadIndustries();
+                showToast("Criado!", "success"); closeAddModal(); loadIndustries();
             } catch(e) { showToast("Erro", "error"); }
         }
 
         async function deleteIndustry(id, e) {
-            e.stopPropagation();
-            if(!confirm("Apagar esta indústria?")) return;
+            e.stopPropagation(); if(!confirm("Apagar esta indústria?")) return;
             showToast("Apagando...", "loading");
-            try {
-                await sb.from('industrias').delete().eq('id', id);
-                showToast("Removido", "success");
-                loadIndustries();
-            } catch(e) { showToast("Erro", "error"); }
+            try { await sb.from('industrias').delete().eq('id', id); showToast("Removido", "success"); loadIndustries(); } catch(e) { showToast("Erro", "error"); }
         }
 
-        function openIndustry(ind) {
-            currentIndustry = ind;
-            loadDates(ind);
-        }
+        function openIndustry(ind) { currentIndustry = ind; loadDates(ind); }
 
-        // --- VIEW 2: DATAS (PASTAS) ---
+        // --- VIEW 2: DATAS ---
         async function loadDates(ind) {
             navigateTo('view-dates');
             const list = document.getElementById('datesList');
             list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
-
             try {
                 const safeName = ind.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                 const searchPattern = `${safeName}/%`;
-
-                // Busca TODAS as fotos da indústria para agrupar
-                const { data, error } = await sb.from('fotos')
-                    .select('*')
-                    .like('nome_arquivo', searchPattern)
-                    .order('created_at', { ascending: false });
-
+                const { data, error } = await sb.from('fotos').select('*').like('nome_arquivo', searchPattern).order('created_at', { ascending: false });
                 if(error) throw error;
-                
-                industryPhotos = data; // Guarda cache para usar na galeria depois
+                industryPhotos = data;
                 list.innerHTML = '';
-
                 if(data.length === 0) {
                     list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Nenhuma foto/data encontrada.</div>';
-                    // Se não tem fotos, podemos forçar ir para a galeria de hoje para tirar a primeira
-                    const today = new Date().toLocaleDateString('pt-BR');
-                    openGallery(today);
-                    return;
+                    const today = new Date().toLocaleDateString('pt-BR'); openGallery(today); return;
                 }
-
-                // Agrupar datas únicas
                 const datesMap = {};
                 data.forEach(f => {
                     const date = new Date(f.created_at);
-                    const dateKey = date.toLocaleDateString('pt-BR'); // "06/12/2025"
-                    
-                    // Formata "Sábado - 06/12/2025"
+                    const dateKey = date.toLocaleDateString('pt-BR');
                     const weekday = date.toLocaleDateString('pt-BR', { weekday: 'long' });
                     const formattedDate = `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} - ${dateKey}`;
-                    
-                    if(!datesMap[formattedDate]) datesMap[formattedDate] = 0;
-                    datesMap[formattedDate]++;
+                    if(!datesMap[formattedDate]) datesMap[formattedDate] = 0; datesMap[formattedDate]++;
                 });
-
-                // Renderizar pastas
                 Object.keys(datesMap).forEach(dateLabel => {
                     const count = datesMap[dateLabel];
                     const div = document.createElement('div');
                     div.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98]';
-                    div.onclick = () => openGallery(dateLabel); // Passa o label "Sábado - ..."
-                    
-                    div.innerHTML = `
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-indigo-900/50 text-indigo-400 rounded-xl flex items-center justify-center border border-indigo-500/20">
-                                <i class="fas fa-folder text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-sm text-indigo-100">${dateLabel}</h3>
-                                <p class="text-[10px] text-slate-400">${count} arquivos</p>
-                            </div>
-                        </div>
-                        <i class="fas fa-chevron-right text-slate-600 text-xs"></i>
-                    `;
+                    div.onclick = () => openGallery(dateLabel);
+                    div.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-indigo-900/50 text-indigo-400 rounded-xl flex items-center justify-center border border-indigo-500/20"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-indigo-100">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} arquivos</p></div></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i>`;
                     list.appendChild(div);
                 });
-
             } catch(e) { console.error(e); list.innerHTML = '<div class="text-center text-red-400">Erro ao carregar datas.</div>'; }
         }
 
         // --- VIEW 3: GALERIA ---
-        function openGallery(dateLabel) {
-            currentDateGroup = dateLabel;
-            navigateTo('view-gallery');
-            renderGalleryGrid();
-        }
+        function openGallery(dateLabel) { currentDateGroup = dateLabel; navigateTo('view-gallery'); renderGalleryGrid(); }
 
         function renderGalleryGrid() {
-            const container = document.getElementById('photosContainer');
-            container.innerHTML = '';
-
-            // Filtra fotos do dia selecionado
-            // O dateLabel é "Sábado - 06/12/2025". Extraímos a parte da data.
-            const datePart = currentDateGroup.split(' - ')[1]; // "06/12/2025"
+            const container = document.getElementById('photosContainer'); container.innerHTML = '';
+            const datePart = currentDateGroup.split(' - ')[1];
+            let photos = datePart ? industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === datePart) : [];
+            if(photos.length === 0) container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Pasta vazia. Tire a primeira foto!</div>';
             
-            // Se for "hoje" e não tiver nada ainda (primeiro uso), não filtra nada (array vazio)
-            let photos = [];
-            if(datePart) {
-                photos = industryPhotos.filter(f => {
-                    return new Date(f.created_at).toLocaleDateString('pt-BR') === datePart;
-                });
-            } else {
-                // Caso fallback (ex: nova indústria sem fotos)
-                photos = [];
-            }
-
-            if(photos.length === 0) {
-                container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Pasta vazia. Tire a primeira foto!</div>';
-            }
+            photos.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)); 
 
             photos.forEach(foto => {
                 const isAntes = foto.nome_arquivo.includes('ANTES');
                 const badgeClass = isAntes ? 'bg-antes' : 'bg-depois';
                 const badgeText = isAntes ? 'ANTES' : 'DEPOIS';
                 const isSelected = selectedPhotos.has(foto.id);
-
                 const div = document.createElement('div');
                 div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
                 div.onclick = () => handlePhotoClick(foto);
-                
-                div.innerHTML = `
-                    <img src="${foto.url_publica}" class="w-full h-full object-cover">
-                    <div class="badge ${badgeClass}">${badgeText}</div>
-                `;
+                div.innerHTML = `<img src="${foto.url_publica}" class="w-full h-full object-cover"><div class="badge ${badgeClass}">${badgeText}</div>`;
                 container.appendChild(div);
             });
         }
 
-        // --- SELEÇÃO E MULTI-SHARE ---
+        // --- SELEÇÃO & COMPARTILHAMENTO COM LEGENDA FIXA ---
         function toggleSelectionMode() {
             isSelectionMode = !isSelectionMode;
-            const btn = document.getElementById('selectBtn');
-            const cam = document.getElementById('cameraControls');
-            const selBar = document.getElementById('selectionControls');
-
-            if(isSelectionMode) {
-                btn.innerText = "Cancelar";
-                btn.classList.add('text-red-400', 'border-red-900');
-                cam.classList.add('hidden');
-                selBar.classList.remove('hidden', 'translate-y-full');
-            } else {
-                btn.innerText = "Selecionar";
-                btn.classList.remove('text-red-400', 'border-red-900');
-                selectedPhotos.clear();
-                cam.classList.remove('hidden');
-                selBar.classList.add('hidden', 'translate-y-full');
-                renderGalleryGrid(); // Redraw to remove selections
-            }
+            const btn = document.getElementById('selectBtn'), cam = document.getElementById('cameraControls'), selBar = document.getElementById('selectionControls');
+            if(isSelectionMode) { btn.innerText = "Cancelar"; btn.classList.add('text-red-400', 'border-red-900'); cam.classList.add('hidden'); selBar.classList.remove('hidden', 'translate-y-full'); } 
+            else { btn.innerText = "Selecionar"; btn.classList.remove('text-red-400', 'border-red-900'); selectedPhotos.clear(); cam.classList.remove('hidden'); selBar.classList.add('hidden', 'translate-y-full'); renderGalleryGrid(); }
         }
 
         function handlePhotoClick(foto) {
-            if(isSelectionMode) {
-                if(selectedPhotos.has(foto.id)) selectedPhotos.delete(foto.id);
-                else selectedPhotos.add(foto.id);
-                updateSelectionUI();
-                renderGalleryGrid(); // Redraw visuals
-            } else {
-                // Se não estiver selecionando, abre modal de visualização única
-                openPhotoModal(foto.url_publica);
-            }
+            if(isSelectionMode) { selectedPhotos.has(foto.id) ? selectedPhotos.delete(foto.id) : selectedPhotos.add(foto.id); updateSelectionUI(); renderGalleryGrid(); } 
+            else { window.open(foto.url_publica, '_blank'); }
         }
 
-        function updateSelectionUI() {
-            document.getElementById('selCount').innerText = selectedPhotos.size;
-        }
+        function updateSelectionUI() { document.getElementById('selCount').innerText = selectedPhotos.size; }
 
         async function shareSelected() {
             if(selectedPhotos.size === 0) return;
             showToast(`Baixando ${selectedPhotos.size} fotos...`, 'loading');
 
             try {
+                // --- DADOS FIXOS AQUI ---
+                const store = "Loja 438";
+                const promoter = "Vagner";
+                const supervisor = "Roberta";
+                const industryName = currentIndustry.nome; 
+
+                // Monta a Legenda
+                const caption = `> 🛒 *${store}* - ${industryName}\n> 👨‍💼 *Promotor* - ${promoter}\n> 👩‍💼 *Supervisora* - ${supervisor}`;
+
                 const filesArray = [];
-                // Filtra as fotos selecionadas do array em memória
                 const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id));
 
                 for(let i=0; i<selectedData.length; i++) {
                     const p = selectedData[i];
                     const resp = await fetch(p.url_publica);
                     const blob = await resp.blob();
-                    // Nome do arquivo com Antes/Depois e índice
                     const type = p.nome_arquivo.includes('ANTES') ? 'ANTES' : 'DEPOIS';
                     const file = new File([blob], `${type}_${i+1}.jpg`, { type: blob.type });
                     filesArray.push(file);
@@ -470,127 +353,58 @@
                 if(navigator.share) {
                     await navigator.share({
                         files: filesArray,
-                        title: 'Fotos Industriais',
-                        text: `Registro: ${currentIndustry.nome} - ${currentDateGroup}`
+                        text: caption // Legenda automática
                     });
-                    toggleSelectionMode(); // Sai do modo seleção
+                    toggleSelectionMode();
                     showToast('Compartilhado!', 'success');
                 } else {
-                    alert("Seu navegador não suporta compartilhamento múltiplo.");
+                    alert("Texto da Legenda:\n\n" + caption);
                 }
-            } catch(e) {
-                console.error(e);
-                showToast("Erro ao compartilhar", 'error');
-            }
+            } catch(e) { console.error(e); showToast("Erro share", 'error'); }
         }
 
         async function deleteSelected() {
             if(selectedPhotos.size === 0) return;
-            if(!confirm(`Apagar ${selectedPhotos.size} fotos selecionadas?`)) return;
-
+            if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return;
             showToast("Apagando...", "loading");
             try {
                 const ids = Array.from(selectedPhotos);
-                
-                // Apagar do Banco
                 await sb.from('fotos').delete().in('id', ids);
-                
-                // Nota: Apagar do Storage em lote exige loop ou logica de backend, 
-                // aqui apagamos do banco para sumir da lista visualmente rápido.
-                
-                // Recarrega dados
-                // Precisa recarregar loadDates para atualizar contadores e industryPhotos
-                // Mas queremos ficar na mesma tela.
-                // Truque: Recarregar dados em background
-                
-                // Remove localmente para feedback instantâneo
                 industryPhotos = industryPhotos.filter(p => !selectedPhotos.has(p.id));
-                toggleSelectionMode();
-                renderGalleryGrid();
-                showToast("Apagado!", "success");
-
+                toggleSelectionMode(); renderGalleryGrid(); showToast("Apagado!", "success");
             } catch(e) { showToast("Erro", "error"); }
         }
 
-        // --- UPLOAD ---
         async function uploadPhoto(input, tipo) {
             const file = input.files[0];
             if(!file || !currentIndustry) return;
             showToast("Enviando...", "loading");
-
             try {
                 const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                 const blob = await resizeImage(file);
                 const now = new Date();
                 const dateFolder = now.toISOString().split('T')[0];
                 const fileName = `${safeName}/${dateFolder}/${tipo}_${now.getTime()}.jpg`;
-
-                // Upload & Insert
-                const { error: upErr } = await sb.storage.from('galeria').upload(fileName, blob);
-                if(upErr) throw upErr;
+                const { error: upErr } = await sb.storage.from('galeria').upload(fileName, blob); if(upErr) throw upErr;
                 const { data: { publicUrl } } = sb.storage.from('galeria').getPublicUrl(fileName);
-                const { error: dbErr } = await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl });
-                if(dbErr) throw dbErr;
-
+                const { error: dbErr } = await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl }); if(dbErr) throw dbErr;
                 showToast("Salvo!", "success");
                 
-                // Atualiza a lista em memória
-                // Precisamos refazer o fetch para garantir sincronia correta
-                // Re-executa a lógica de carregar dados da indústria, mas tenta manter na view atual
-                const wasInGallery = document.getElementById('view-gallery').classList.contains('active');
-                
-                // Recarrega dados
                 const searchPattern = `${safeName}/%`;
                 const { data } = await sb.from('fotos').select('*').like('nome_arquivo', searchPattern).order('created_at', { ascending: false });
                 industryPhotos = data;
-
-                if(wasInGallery) {
-                    // Se a foto é de hoje e estamos na galeria de hoje, atualiza
-                    // Se a galeria aberta é de outro dia, a foto nova não aparece (correto)
-                    // Atualiza data label caso tenha mudado o dia enquanto usava
-                    renderGalleryGrid();
-                } else {
-                    // Se estava na lista de datas (improvável pois o botão está na galeria)
-                    loadDates(currentIndustry);
-                }
+                
+                const wasGallery = document.getElementById('view-gallery').classList.contains('active');
+                if(wasGallery) renderGalleryGrid(); else loadDates(currentIndustry);
 
             } catch(e) { showToast("Erro upload", "error"); alert(e.message); }
             input.value = '';
         }
 
-        // --- UTILS ---
         function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
-        
-        function openPhotoModal(url) { document.getElementById('previewImg').src = url; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10); }
-        function closePhotoModal() { const m = document.getElementById('photoModal'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
-
-        function showToast(msg, type) {
-            const t = document.getElementById('statusToast');
-            const i = document.getElementById('toastIcon');
-            document.getElementById('toastMsg').innerText = msg;
-            t.classList.remove('opacity-0', '-translate-y-10');
-            if(type==='success') { i.className='fas fa-check text-green-400'; setTimeout(()=>t.classList.add('opacity-0'), 2000); }
-            else if(type==='error') { i.className='fas fa-times text-red-400'; setTimeout(()=>t.classList.add('opacity-0'), 3000); }
-            else i.className='loader w-3 h-3 border-white/30 border-t-white';
-        }
-
-        function resizeImage(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader(); reader.readAsDataURL(file);
-                reader.onload = (e) => {
-                    const img = new Image(); img.src = e.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const max = 1200; const scale = max/img.width;
-                        const w = (img.width>max)?max:img.width; const h = (img.width>max)?img.height*scale:img.height;
-                        canvas.width=w; canvas.height=h;
-                        canvas.getContext('2d').drawImage(img,0,0,w,h);
-                        canvas.toBlob(b=>resolve(b), 'image/jpeg', 0.8);
-                    };
-                };
-            });
-        }
+        function showToast(msg, type) { const t=document.getElementById('statusToast'), i=document.getElementById('toastIcon'); document.getElementById('toastMsg').innerText=msg; t.classList.remove('opacity-0', '-translate-y-10'); if(type==='success') { i.className='fas fa-check text-green-400'; setTimeout(()=>t.classList.add('opacity-0'), 2000); } else if(type==='error') { i.className='fas fa-times text-red-400'; setTimeout(()=>t.classList.add('opacity-0'), 3000); } else i.className='loader w-3 h-3 border-white/30 border-t-white'; }
+        function resizeImage(file) { return new Promise(resolve => { const r = new FileReader(); r.readAsDataURL(file); r.onload = e => { const i = new Image(); i.src = e.target.result; i.onload = () => { const c = document.createElement('canvas'), max = 1200, s = max/i.width, w = (i.width>max)?max:i.width, h = (i.width>max)?i.height*s:i.height; c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); c.toBlob(b=>resolve(b), 'image/jpeg', 0.8); }; }; }); }
     </script>
 </body>
 </html>
