@@ -18,8 +18,8 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; -webkit-tap-highlight-color: transparent; padding-bottom: 120px; user-select: none; }
         
-        .glass-header { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .glass-bar { background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.05); }
+        .glass-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .glass-bar { background: rgba(15, 23, 42, 0.98); border-top: 1px solid rgba(255,255,255,0.05); }
         
         .ind-card { 
             background: linear-gradient(160deg, #1e293b, #0f172a); 
@@ -34,7 +34,7 @@
         }
         .ind-card:active { transform: scale(0.96); border-color: #3b82f6; }
 
-        .folder-card { background: #1e293b; border-radius: 12px; border: 1px solid #334155; transition: all 0.2s; }
+        .folder-card { background: #1e293b; border-radius: 12px; border: 1px solid #334155; transition: all 0.2s; position: relative; }
         .folder-card:active { background: #334155; }
 
         .photo-item { position: relative; overflow: hidden; border-radius: 8px; background: #334155; aspect-ratio: 1/1; }
@@ -69,10 +69,6 @@
         </div>
         
         <div class="flex items-center gap-2">
-            <button id="installBtn" onclick="triggerInstall()" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1 animate-pulse">
-                <i class="fas fa-download"></i> App
-            </button>
-
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-800 text-blue-400 px-3 py-1.5 rounded-full border border-slate-700 active:scale-95 transition">
                 Selecionar
             </button>
@@ -107,16 +103,14 @@
             </button>
         </div>
 
-        <!-- VIEW 2: DATAS (Com Câmera Agora) -->
+        <!-- VIEW 2: DATAS (Com Lixeira Explicita) -->
         <div id="view-dates" class="view-section">
             <div class="mb-4 flex justify-between items-center px-1">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pastas por Data</span>
                 <span class="text-[9px] text-slate-500 border border-slate-700 px-2 py-1 rounded bg-slate-800/50">Auto-Clean: 45 dias</span>
             </div>
-            <!-- Aumentei padding bottom para não esconder itens atrás do botão -->
             <div id="datesList" class="space-y-3 pb-40"></div>
 
-            <!-- NOVA CÂMERA AQUI (Na lista de datas) -->
             <div id="cameraControlsDates" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 z-40">
                 <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-900/40 hover:shadow-blue-500/20 border border-white/10">
                     <i class="fas fa-camera text-xl"></i>
@@ -157,20 +151,6 @@
         </div>
     </div>
 
-    <div id="installModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm">
-        <div class="bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-700">
-            <h3 class="text-lg font-bold text-white mb-2">Instalar App</h3>
-            <div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-300">
-                <p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square"></i></p>
-                <p>2. Selecione <b>"Adicionar à Tela de Início"</b></p>
-            </div>
-            <div id="androidInstructions" class="hidden">
-                <button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Instalar Agora</button>
-            </div>
-            <button onclick="document.getElementById('installModal').classList.add('hidden')" class="mt-4 text-slate-500 text-sm w-full py-2">Fechar</button>
-        </div>
-    </div>
-
     <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
         <div class="absolute top-0 w-full p-4 flex justify-end z-20">
             <button onclick="closePhotoModal()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button>
@@ -195,18 +175,6 @@
         let isSelectionMode = false;
         let selectedPhotos = new Set();
 
-        // PWA
-        let deferredPrompt;
-        const installModal = document.getElementById('installModal');
-        const installBtn = document.getElementById('installBtn');
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const manifest = { "name": "Industrial Sync", "short_name": "Industrial", "start_url": ".", "display": "standalone", "background_color": "#0f172a", "theme_color": "#0f172a", "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/3061/3061341.png", "sizes": "512x512", "type": "image/png" }] };
-        const link = document.createElement('link'); link.rel = 'manifest'; link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'})); document.head.appendChild(link);
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });
-        if(isIOS) installBtn.classList.remove('hidden');
-        function triggerInstall() { installModal.classList.remove('hidden'); if(isIOS) { document.getElementById('iosInstructions').classList.remove('hidden'); document.getElementById('androidInstructions').classList.add('hidden'); } else if(deferredPrompt) { document.getElementById('androidInstructions').classList.remove('hidden'); document.getElementById('nativeInstallBtn').onclick = () => { deferredPrompt.prompt(); deferredPrompt.userChoice.then((r) => { if(r.outcome==='accepted') installModal.classList.add('hidden'); deferredPrompt=null; }); }; } }
-        function closeInstallModal() { installModal.classList.add('hidden'); }
-
         window.onload = loadIndustries;
 
         function navigateTo(viewId) {
@@ -224,7 +192,7 @@
             if (active === 'view-gallery') navigateTo('view-dates'); else if (active === 'view-dates') navigateTo('view-home');
         }
 
-        // --- 1. LISTAR INDÚSTRIAS (STORAGE) ---
+        // --- 1. LISTAR INDÚSTRIAS (COM BOTÃO APAGAR) ---
         async function loadIndustries() {
             navigateTo('view-home');
             const list = document.getElementById('industriesList');
@@ -238,16 +206,23 @@
 
                 folders.forEach(ind => {
                     const el = document.createElement('div');
-                    el.className = 'ind-card p-3 flex items-center gap-3 cursor-pointer group hover:border-slate-500 active:scale-95 transition';
+                    // Card Horizontal para caber botão
+                    el.className = 'ind-card p-3 flex items-center justify-between gap-3 cursor-pointer group hover:border-slate-500 active:scale-95 transition';
                     el.onclick = () => openIndustry(ind.name);
+                    
                     el.innerHTML = `
-                        <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700 shadow-inner shrink-0">
-                            <i class="fas fa-industry text-lg"></i>
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700 shadow-inner shrink-0">
+                                <i class="fas fa-industry text-lg"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h3 class="font-bold text-xs text-slate-200 leading-tight truncate">${ind.name}</h3>
+                                <p class="text-[9px] text-slate-500 truncate">Ver pasta</p>
+                            </div>
                         </div>
-                        <div class="overflow-hidden">
-                            <h3 class="font-bold text-xs text-slate-200 leading-tight truncate">${ind.name}</h3>
-                            <p class="text-[9px] text-slate-500 truncate">Ver pasta</p>
-                        </div>
+                        <button class="w-8 h-8 rounded-full bg-slate-800 text-slate-500 hover:text-red-500 flex items-center justify-center shrink-0 border border-slate-700" onclick="deleteIndustry('${ind.name}', event)">
+                            <i class="fas fa-trash-alt text-xs"></i>
+                        </button>
                     `;
                     list.appendChild(el);
                 });
@@ -266,9 +241,45 @@
             } catch(e) { showToast("Erro", "error"); alert(e.message); }
         }
 
+        // DELETAR INDÚSTRIA (Recursivo)
+        async function deleteIndustry(indName, e) {
+            e.stopPropagation();
+            if(!confirm(`ATENÇÃO: Apagar a indústria "${indName}" e TODAS as fotos dentro dela?`)) return;
+            
+            showToast("Apagando tudo...", "loading");
+            try {
+                // 1. Listar tudo dentro
+                const { data: files } = await sb.storage.from(BUCKET).list(indName, { limit: 1000 });
+                // Isso lista só a raiz da pasta. Precisamos ser mais profundos se tiver subpastas.
+                // Truque: No supabase storage, listagem não é recursiva direta fácil via API JS simples.
+                // Mas, vamos tentar apagar as subpastas conhecidas.
+                // Se o usuário usa o app, a estrutura é Indústria/Data/Foto.
+                
+                // Passo A: Listar pastas de data
+                if(files && files.length > 0) {
+                    for(const folder of files) {
+                        // Lista arquivos dentro da pasta de data
+                        const { data: subFiles } = await sb.storage.from(BUCKET).list(`${indName}/${folder.name}`);
+                        if(subFiles && subFiles.length > 0) {
+                            const paths = subFiles.map(f => `${indName}/${folder.name}/${f.name}`);
+                            await sb.storage.from(BUCKET).remove(paths);
+                            // Apaga do DB
+                            await sb.from('fotos').delete().like('nome_arquivo', `${indName}/${folder.name}/%`);
+                        }
+                    }
+                    // Remove arquivos soltos na raiz da industria (.keep)
+                    const rootFiles = files.map(f => `${indName}/${f.name}`);
+                    await sb.storage.from(BUCKET).remove(rootFiles);
+                }
+                
+                showToast("Removido", "success");
+                loadIndustries();
+            } catch(e) { console.error(e); showToast("Erro ao apagar", "error"); }
+        }
+
         function openIndustry(name) { currentIndustry = name; loadDates(name); }
 
-        // --- 2. LISTAR DATAS ---
+        // --- 2. LISTAR DATAS & DELETE PASTA ---
         async function loadDates(indName) {
             navigateTo('view-dates');
             const list = document.getElementById('datesList');
@@ -300,13 +311,53 @@
                         let daysClass = "text-green-400";
                         if(daysLeft <= 5) daysClass = "text-red-400"; else if(daysLeft <= 15) daysClass = "text-yellow-400";
                         const el = document.createElement('div');
-                        el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98]';
+                        el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
                         el.onclick = () => openGallery(folder.name);
-                        el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-indigo-900/50 text-indigo-400 rounded-xl flex items-center justify-center border border-indigo-500/20"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-indigo-100">${displayDate}</h3><p class="text-[10px] text-slate-400"><span class="${daysClass}">Expira em ${daysLeft>0?daysLeft:0} dias</span></p></div></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i>`;
+                        
+                        el.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-indigo-900/50 text-indigo-400 rounded-xl flex items-center justify-center border border-indigo-500/20">
+                                    <i class="fas fa-folder text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-sm text-indigo-100">${displayDate}</h3>
+                                    <p class="text-[10px] text-slate-400"><span class="${daysClass}">Expira em ${daysLeft>0?daysLeft:0} dias</span></p>
+                                </div>
+                            </div>
+                            <button class="w-8 h-8 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center" onclick="deleteDateFolder('${folder.name}', event)">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                        `;
                         list.appendChild(el);
                     }
                 });
             } catch(e) { console.error(e); list.innerHTML = '<div class="text-center text-red-400">Erro.</div>'; }
+        }
+
+        async function deleteDateFolder(folderName, e) {
+            e.stopPropagation();
+            if(!confirm(`Apagar a pasta "${folderName}" e todas as fotos dentro dela?`)) return;
+            
+            showToast("Apagando...", "loading");
+            try {
+                // 1. Listar arquivos
+                const path = `${currentIndustry}/${folderName}`;
+                const { data: files } = await sb.storage.from(BUCKET).list(path);
+                
+                if (files.length > 0) {
+                    const filesToRemove = files.map(x => `${path}/${x.name}`);
+                    // 2. Remover do Storage
+                    await sb.storage.from(BUCKET).remove(filesToRemove);
+                    // 3. Remover do Banco
+                    await sb.from('fotos').delete().like('nome_arquivo', `${path}/%`);
+                }
+                
+                showToast("Pasta apagada", "success");
+                loadDates(currentIndustry);
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao apagar", "error");
+            }
         }
 
         // --- 3. GALERIA ---
@@ -330,16 +381,19 @@
                     const div = document.createElement('div');
                     div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
                     div.onclick = () => handlePhotoClick(file);
+                    
+                    // Long press para seleção também
                     let pressTimer;
                     div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); });
                     div.addEventListener('touchend', () => clearTimeout(pressTimer));
+                    
                     div.innerHTML = `<img src="${publicUrl}" class="w-full h-full object-cover pointer-events-none">`;
                     container.appendChild(div);
                 });
             } catch(e) { console.error(e); container.innerHTML = '<div class="col-span-3 text-center text-red-400">Erro.</div>'; }
         }
 
-        // --- UPLOAD (INTELIGENTE) ---
+        // --- UPLOAD ---
         async function uploadPhoto(input) {
             const file = input.files[0];
             if(!file || !currentIndustry) return;
@@ -348,9 +402,8 @@
                 const blob = await resizeImage(file);
                 const now = new Date();
                 
-                // Se estiver dentro de uma pasta, usa ela. Se estiver na lista de datas, usa a de HOJE.
                 let targetDateFolder = currentDateFolder;
-                if (!document.getElementById('view-gallery').classList.contains('active')) {
+                if(!targetDateFolder) {
                     targetDateFolder = now.toISOString().split('T')[0]; // YYYY-MM-DD
                 }
 
@@ -358,13 +411,14 @@
                 const { error } = await sb.storage.from(BUCKET).upload(fileName, blob);
                 if(error) throw error;
 
+                // Salva no banco também para garantir a deleção por data funcionar (visto que o cleanup usa o banco)
+                const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName);
+                await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl });
+
                 showToast("Salvo!", "success");
-                
-                // Atualiza a visualização correta
                 if (document.getElementById('view-gallery').classList.contains('active')) {
                     loadGalleryPhotos();
                 } else {
-                    // Se tirou foto da lista de datas, entra na pasta de hoje
                     currentDateFolder = targetDateFolder;
                     openGallery(targetDateFolder);
                 }
@@ -373,6 +427,7 @@
             input.value = '';
         }
 
+        // --- SELEÇÃO ---
         function toggleSelectionMode() {
             isSelectionMode = !isSelectionMode;
             const btn = document.getElementById('selectBtn'), cam = document.getElementById('cameraControls'), selBar = document.getElementById('selectionControls');
@@ -415,10 +470,13 @@
             try {
                 const paths = Array.from(selectedPhotos).map(name => `${currentIndustry}/${currentDateFolder}/${name}`);
                 await sb.storage.from(BUCKET).remove(paths);
+                // Tenta apagar do banco tbm
+                await sb.from('fotos').delete().like('nome_arquivo', `${currentIndustry}/${currentDateFolder}/%`);
                 selectedPhotos.clear(); toggleSelectionMode(); loadGalleryPhotos(); showToast("Apagado!", "success");
             } catch(e) { showToast("Erro", "error"); }
         }
 
+        // --- UTILS ---
         function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
         function openPhotoModal(url) { document.getElementById('previewImg').src = url; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10); }
