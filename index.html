@@ -309,7 +309,7 @@
             });
         }
 
-        // --- SELEÇÃO & COMPARTILHAMENTO COM LEGENDA FIXA ---
+        // --- SELEÇÃO & COMPARTILHAMENTO ---
         function toggleSelectionMode() {
             isSelectionMode = !isSelectionMode;
             const btn = document.getElementById('selectBtn'), cam = document.getElementById('cameraControls'), selBar = document.getElementById('selectionControls');
@@ -329,14 +329,8 @@
             showToast(`Baixando ${selectedPhotos.size} fotos...`, 'loading');
 
             try {
-                // --- DADOS FIXOS AQUI ---
-                const store = "Loja 438";
-                const promoter = "Vagner";
-                const supervisor = "Roberta";
-                const industryName = currentIndustry.nome; 
-
-                // Monta a Legenda
-                const caption = `> 🛒 *${store}* - ${industryName}\n> 👨‍💼 *Promotor* - ${promoter}\n> 👩‍💼 *Supervisora* - ${supervisor}`;
+                // Monta a legenda EXATA
+                const caption = `> 🛒 *Loja 438* - Camiño Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🏭 *Indústria* - ${currentIndustry.nome}`;
 
                 const filesArray = [];
                 const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id));
@@ -353,12 +347,12 @@
                 if(navigator.share) {
                     await navigator.share({
                         files: filesArray,
-                        text: caption // Legenda automática
+                        text: caption // Legenda aqui
                     });
                     toggleSelectionMode();
                     showToast('Compartilhado!', 'success');
                 } else {
-                    alert("Texto da Legenda:\n\n" + caption);
+                    alert("Legenda gerada:\n\n" + caption);
                 }
             } catch(e) { console.error(e); showToast("Erro share", 'error'); }
         }
@@ -375,6 +369,7 @@
             } catch(e) { showToast("Erro", "error"); }
         }
 
+        // --- UPLOAD ---
         async function uploadPhoto(input, tipo) {
             const file = input.files[0];
             if(!file || !currentIndustry) return;
@@ -401,8 +396,11 @@
             input.value = '';
         }
 
+        // --- UTILS ---
         function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+        function openPhotoModal(url) { document.getElementById('previewImg').src = url; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10); }
+        function closePhotoModal() { const m = document.getElementById('photoModal'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
         function showToast(msg, type) { const t=document.getElementById('statusToast'), i=document.getElementById('toastIcon'); document.getElementById('toastMsg').innerText=msg; t.classList.remove('opacity-0', '-translate-y-10'); if(type==='success') { i.className='fas fa-check text-green-400'; setTimeout(()=>t.classList.add('opacity-0'), 2000); } else if(type==='error') { i.className='fas fa-times text-red-400'; setTimeout(()=>t.classList.add('opacity-0'), 3000); } else i.className='loader w-3 h-3 border-white/30 border-t-white'; }
         function resizeImage(file) { return new Promise(resolve => { const r = new FileReader(); r.readAsDataURL(file); r.onload = e => { const i = new Image(); i.src = e.target.result; i.onload = () => { const c = document.createElement('canvas'), max = 1200, s = max/i.width, w = (i.width>max)?max:i.width, h = (i.width>max)?i.height*s:i.height; c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); c.toBlob(b=>resolve(b), 'image/jpeg', 0.8); }; }; }); }
     </script>
