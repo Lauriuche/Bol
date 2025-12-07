@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
@@ -14,40 +16,72 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; -webkit-tap-highlight-color: transparent; padding-bottom: 120px; user-select: none; }
+        /* Ajustes Globais */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: white; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+            /* Padding inferior grande para garantir rolagem total */
+            padding-bottom: calc(100px + env(safe-area-inset-bottom)); 
+        }
         
         .glass-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .glass-bar { background: rgba(15, 23, 42, 0.98); border-top: 1px solid rgba(255,255,255,0.05); }
         
-        /* CARD INDÚSTRIA (Atualizado: Sem ícone, mais compacto) */
-        .ind-card { 
-            background: linear-gradient(160deg, #1e293b, #0f172a); 
-            border-radius: 12px; 
-            border: 1px solid #334155; 
-            transition: transform 0.1s; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 6px;
-            height: 70px; /* Reduzido de 90px */
+        /* --- CORREÇÃO: BARRA DE NAVEGAÇÃO (Abas) --- */
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            /* Altura considera a área segura do iPhone */
+            height: calc(65px + env(safe-area-inset-bottom)); 
+            padding-bottom: env(safe-area-inset-bottom);
+            background: #0f172a; /* Fundo sólido para cobrir scroll */
+            border-top: 1px solid #334155; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: flex-start; /* Alinha ícones no topo da área útil */
+            padding-top: 12px;
+            z-index: 50; 
+            transition: transform 0.3s ease;
         }
+        .bottom-nav.hidden-nav { transform: translateY(100%); } /* Esconde para baixo */
+
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; font-size: 10px; font-weight: 600; width: 100%; }
+        .nav-item i { font-size: 22px; margin-bottom: 4px; }
+        .nav-item.active { color: #3b82f6; }
+
+        /* --- CORREÇÃO: BARRA DE AÇÃO FIXA (Câmera/Seleção) --- */
+        .fixed-bottom-bar { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            width: 100%;
+            background: rgba(15, 23, 42, 0.98); 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            z-index: 60; 
+            
+            /* O SEGREDO: Padding embaixo baseado no dispositivo */
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            padding-top: 20px;
+            padding-left: 16px;
+            padding-right: 16px;
+            
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+        .fixed-bottom-bar.hidden-bar { transform: translateY(110%); }
+
+        /* Cards e Listas */
+        .ind-card { background: linear-gradient(160deg, #1e293b, #0f172a); border-radius: 12px; border: 1px solid #334155; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 6px; height: 70px; }
         .ind-card:active { transform: scale(0.95); border-color: #3b82f6; }
         
-        /* Card Rota de Hoje */
-        .today-route-card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            transition: background 0.2s;
-        }
+        .today-route-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .today-route-card:active { background: #334155; }
-
+        
         .route-day-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
         .route-header { padding: 12px; background: rgba(51, 65, 85, 0.5); font-weight: bold; font-size: 14px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
         .route-header.today { background: rgba(34, 197, 94, 0.2); color: #4ade80; border-bottom: 1px solid rgba(34, 197, 94, 0.3); }
@@ -72,11 +106,6 @@
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: #0f172a; border-top: 1px solid #334155; display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: 10px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; font-size: 10px; font-weight: 600; width: 100%; height: 100%; justify-content: center; }
-        .nav-item i { font-size: 20px; margin-bottom: 4px; }
-        .nav-item.active { color: #3b82f6; }
     </style>
 </head>
 <body>
@@ -101,52 +130,41 @@
 
     <div class="h-20"></div>
 
-    <main class="max-w-md mx-auto px-4 pb-24">
+    <main class="max-w-md mx-auto px-4">
 
-        <!-- VIEW 1: HOME -->
+        <!-- VIEW 1: HOME (Geral) -->
         <div id="view-home" class="view-section active">
-            <!-- Grid 3 Colunas -->
             <div class="mb-4 flex justify-between items-end px-1">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-th-large"></i> Locais</span>
                 <span id="indCount" class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono border border-slate-700">...</span>
             </div>
             
-            <!-- AQUI: Grid mudado para 3 colunas -->
             <div id="industriesList" class="grid grid-cols-3 gap-2">
                 <div class="col-span-3 flex flex-col items-center justify-center py-20 opacity-50"><div class="loader mb-2"></div><span class="text-xs">Lendo pastas...</span></div>
             </div>
 
-            <!-- Botão Todas as Fotos -->
             <button onclick="openAllPhotos()" class="btn-all-photos"><i class="fas fa-images mr-2"></i> Todas as Fotos</button>
 
-            <!-- SEÇÃO ROTA DE HOJE -->
+            <!-- ROTA DE HOJE -->
             <div class="mt-8 mb-6">
                 <div class="flex items-center gap-2 mb-3 px-1">
                     <i class="fas fa-map-marker-alt text-yellow-500 text-sm"></i>
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Rota de Hoje (<span id="todayLabel" class="text-slate-200">...</span>)</span>
                 </div>
-                
                 <div id="todayRouteContainer" class="space-y-2">
-                    <!-- Lista de hoje inserida via JS -->
-                    <div class="p-4 text-center text-slate-600 text-xs bg-slate-900/50 rounded-xl border border-slate-800 border-dashed">
-                        Carregando rota...
-                    </div>
+                    <div class="p-4 text-center text-slate-600 text-xs bg-slate-900/50 rounded-xl border border-slate-800 border-dashed">Carregando rota...</div>
                 </div>
             </div>
             
-            <div class="h-12"></div>
-            
-            <!-- FAB Flutuante -->
-            <button onclick="openAddModal()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full text-white shadow-xl shadow-blue-900/50 flex items-center justify-center text-2xl active:scale-90 transition z-40 transform hover:-translate-y-1">
-                <i class="fas fa-plus"></i>
-            </button>
+            <!-- Espaço para o FAB não ficar escondido pela Nav Bar -->
+            <div class="h-24"></div> 
+
+            <button onclick="openAddModal()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full text-white shadow-xl shadow-blue-900/50 flex items-center justify-center text-2xl active:scale-90 transition z-40 transform hover:-translate-y-1"><i class="fas fa-plus"></i></button>
         </div>
 
-        <!-- VIEW 1.5: ROTAS (Cronograma Completo) -->
+        <!-- VIEW 1.5: ROTAS (Cronograma) -->
         <div id="view-routes" class="view-section">
-            <div class="mb-4 px-1 flex justify-between items-center">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Cronograma Semanal</span>
-            </div>
+            <div class="mb-4 px-1 flex justify-between items-center"><span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Cronograma Semanal</span></div>
             <div id="routesContainer" class="space-y-4 pb-24"></div>
         </div>
 
@@ -156,10 +174,13 @@
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pastas por Data</span>
                 <span class="text-[9px] text-slate-500 border border-slate-700 px-2 py-1 rounded bg-slate-800/50">Auto-Clean: 45 dias</span>
             </div>
-            <div id="datesList" class="space-y-3 pb-40"></div>
-            <div id="cameraControlsDates" class="fixed bottom-20 left-0 w-full glass-bar p-4 pb-4 z-40 border-b-0 rounded-t-2xl">
-                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-900/40 hover:shadow-blue-500/20 border border-white/10">
-                    <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">NOVA FOTO (HOJE)</span>
+            <div id="datesList" class="space-y-3 pb-32"></div>
+            
+            <!-- CÂMERA FIXA (Elevada) -->
+            <div id="cameraControlsDates" class="fixed-bottom-bar flex justify-center">
+                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-900/40 hover:shadow-blue-500/20 border border-white/10">
+                    <i class="fas fa-camera text-xl"></i>
+                    <span class="font-bold text-sm tracking-wide">NOVA FOTO (HOJE)</span>
                     <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
                 </label>
             </div>
@@ -167,14 +188,16 @@
 
         <!-- VIEW 3: GALERIA -->
         <div id="view-gallery" class="view-section">
-            <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-40 select-none"></div>
-            <div id="cameraControls" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 z-40">
-                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-900/40 hover:shadow-blue-500/20 border border-white/10">
+            <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
+
+            <div id="cameraControls" class="fixed-bottom-bar flex justify-center">
+                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-900/40 hover:shadow-blue-500/20 border border-white/10">
                     <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">ADICIONAR FOTO</span>
                     <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
                 </label>
             </div>
-            <div id="selectionControls" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 flex gap-3 z-50 hidden transform translate-y-full transition-transform duration-300">
+
+            <div id="selectionControls" class="fixed-bottom-bar flex gap-3 hidden-bar">
                 <button onclick="deleteSelected()" class="w-14 h-14 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center border border-red-500/30 active:scale-90"><i class="fas fa-trash-alt"></i></button>
                 <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCount">0</span>)</button>
             </div>
@@ -183,8 +206,9 @@
         <!-- VIEW 4: TODAS AS FOTOS -->
         <div id="view-all" class="view-section">
             <div class="mb-4 px-1 text-xs font-bold text-slate-500 uppercase tracking-widest">Feed Global (Recentes)</div>
-            <div id="allPhotosContainer" class="grid grid-cols-3 gap-1 pb-40 select-none"></div>
-            <div id="selectionControlsAll" class="fixed bottom-0 left-0 w-full glass-bar p-4 pb-8 flex gap-3 z-50 hidden transform translate-y-full transition-transform duration-300">
+            <div id="allPhotosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
+            
+            <div id="selectionControlsAll" class="fixed-bottom-bar flex gap-3 hidden-bar">
                 <button onclick="deleteSelected()" class="w-14 h-14 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center border border-red-500/30 active:scale-90"><i class="fas fa-trash-alt"></i></button>
                 <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCountAll">0</span>)</button>
             </div>
@@ -192,8 +216,8 @@
 
     </main>
 
-    <!-- NAV INFERIOR -->
-    <nav class="bottom-nav">
+    <!-- NAV INFERIOR (TAB BAR) -->
+    <nav id="mainNavBar" class="bottom-nav">
         <div id="nav-general" class="nav-item active" onclick="switchMainTab('general')">
             <i class="fas fa-th-large"></i><span>Geral</span>
         </div>
@@ -202,28 +226,8 @@
         </div>
     </nav>
 
-    <!-- MODAL ROTA -->
-    <div id="routeConfigModal" class="fixed inset-0 bg-black/90 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-700 h-[80vh] flex flex-col">
-            <h3 class="text-sm font-bold text-white mb-2 uppercase">Configurar Rotas (Nuvem)</h3>
-            <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-                <button onclick="selectRouteDay('Segunda')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Seg</button>
-                <button onclick="selectRouteDay('Terça')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Ter</button>
-                <button onclick="selectRouteDay('Quarta')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Qua</button>
-                <button onclick="selectRouteDay('Quinta')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Qui</button>
-                <button onclick="selectRouteDay('Sexta')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Sex</button>
-                <button onclick="selectRouteDay('Sábado')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Sáb</button>
-            </div>
-            <div class="text-xs text-slate-400 mb-2">Marque as indústrias para <span id="currentConfigDay" class="text-yellow-400 font-bold">...</span>:</div>
-            <div id="routeChecklist" class="flex-1 overflow-y-auto space-y-2 mb-4 bg-slate-900 p-2 rounded-lg border border-slate-700"></div>
-            <div class="flex gap-3 mt-auto">
-                <button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-white">Fechar</button>
-                <button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR NO BANCO</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modais Padrão -->
+    <!-- MODAIS (Código igual) -->
+    <div id="routeConfigModal" class="fixed inset-0 bg-black/90 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm"><div class="bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-700 h-[80vh] flex flex-col"><h3 class="text-sm font-bold text-white mb-2 uppercase">Configurar Rotas (Nuvem)</h3><div class="flex gap-2 mb-4 overflow-x-auto pb-2"><button onclick="selectRouteDay('Segunda')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Seg</button><button onclick="selectRouteDay('Terça')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Ter</button><button onclick="selectRouteDay('Quarta')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Qua</button><button onclick="selectRouteDay('Quinta')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Qui</button><button onclick="selectRouteDay('Sexta')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Sex</button><button onclick="selectRouteDay('Sábado')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Sáb</button></div><div class="text-xs text-slate-400 mb-2">Marque as indústrias para <span id="currentConfigDay" class="text-yellow-400 font-bold">...</span>:</div><div id="routeChecklist" class="flex-1 overflow-y-auto space-y-2 mb-4 bg-slate-900 p-2 rounded-lg border border-slate-700"></div><div class="flex gap-3 mt-auto"><button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-white">Fechar</button><button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR NO BANCO</button></div></div></div>
     <div id="addModal" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-slate-900 w-full max-w-xs p-6 rounded-2xl border border-slate-700 shadow-2xl"><h3 class="text-sm font-bold text-slate-300 mb-4 uppercase">Nova Pasta</h3><input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 mb-4 text-white text-sm focus:outline-none focus:border-blue-500"><div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-white">Cancelar</button><button onclick="createIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">CRIAR</button></div></div></div>
     <div id="installModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm"><div class="bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-700"><h3 class="text-lg font-bold text-white mb-2">Instalar App</h3><div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-300"><p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square"></i></p><p>2. Selecione <b>"Adicionar à Tela de Início"</b></p></div><div id="androidInstructions" class="hidden"><button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Instalar Agora</button></div><button onclick="document.getElementById('installModal').classList.add('hidden')" class="mt-4 text-slate-500 text-sm w-full py-2">Fechar</button></div></div>
     <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300"><div class="absolute top-0 w-full p-4 flex justify-end z-20"><button onclick="closePhotoModal()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button></div><img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl"><div class="absolute bottom-8 flex gap-4 w-full max-w-xs justify-center px-4"><button onclick="deleteSinglePhoto()" class="w-14 h-14 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center border border-red-500/30 active:scale-90 backdrop-blur-md"><i class="fas fa-trash-alt text-lg"></i></button></div></div>
@@ -245,7 +249,7 @@
         let currentModalPhoto = null;
         
         let routes = { 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
-        const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']; // Domingo 6 index adjusted
+        const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']; 
         let configSelectedDay = null;
 
         // PWA
@@ -263,15 +267,14 @@
             fetchRoutesFromDB();
         };
 
-        // --- BANCO DE DADOS ROTAS ---
+        // --- ROTAS DB ---
         async function fetchRoutesFromDB() {
             try {
                 const { data, error } = await sb.from('rotas').select('*');
                 if (data && data.length > 0) {
                     data.forEach(row => { if(routes[row.dia]) routes[row.dia] = row.industrias; });
                 }
-                renderRoutes();
-                renderTodayRoute(); // Chama renderização da rota de hoje na home
+                renderRoutes(); renderTodayRoute();
             } catch (e) { console.error("Erro rotas:", e); }
         }
 
@@ -283,8 +286,7 @@
                 const { error } = await sb.from('rotas').upsert({ dia: day, industrias: industries }, { onConflict: 'dia' });
                 if (error) throw error;
                 showToast("Salvo!", "success");
-                renderRoutes();
-                renderTodayRoute(); // Atualiza home tbm
+                renderRoutes(); renderTodayRoute();
             } catch (e) { showToast("Erro", "error"); }
         }
 
@@ -306,24 +308,35 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
             const backBtn=document.getElementById('backBtn'), selectBtn=document.getElementById('selectBtn'), title=document.getElementById('pageTitle'), subtitle=document.getElementById('pageSubtitle');
+            const navBar = document.getElementById('mainNavBar');
+
             isSelectionMode = false; selectedPhotos.clear(); updateSelectionUI();
             
             backBtn.classList.add('hidden'); selectBtn.classList.add('hidden');
 
             if (viewId === 'view-home') { 
-                title.innerText = "Indústrias"; subtitle.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Sincronizado'; currentIndustry = null; 
+                title.innerText = "Indústrias"; subtitle.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Sincronizado'; currentIndustry = null;
+                navBar.classList.remove('hidden-nav'); 
             } 
             else if (viewId === 'view-routes') { 
-                title.innerText = "Cronograma"; subtitle.innerHTML = 'Rotas Semanais'; 
+                title.innerText = "Cronograma"; subtitle.innerHTML = 'Rotas Semanais';
+                navBar.classList.remove('hidden-nav');
             }
-            else if (viewId === 'view-dates') { 
-                backBtn.classList.remove('hidden'); title.innerText = currentIndustry; subtitle.innerText = "Selecione uma data"; 
-            }
-            else if (viewId === 'view-gallery') { 
-                backBtn.classList.remove('hidden'); selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria de Fotos"; 
-            }
-            else if (viewId === 'view-all') { 
-                backBtn.classList.remove('hidden'); selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral";
+            else {
+                // Views Profundas (Datas, Galeria, Todas)
+                // Esconde a Tab Bar para dar lugar à barra de câmera
+                navBar.classList.add('hidden-nav');
+                backBtn.classList.remove('hidden'); 
+                
+                if (viewId === 'view-dates') { 
+                    title.innerText = currentIndustry; subtitle.innerText = "Selecione uma data"; 
+                }
+                else if (viewId === 'view-gallery') { 
+                    selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria de Fotos"; 
+                }
+                else if (viewId === 'view-all') { 
+                    selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral";
+                }
             }
         }
 
@@ -337,7 +350,7 @@
             }
         }
 
-        // --- 1. LISTAR INDÚSTRIAS (3 COLUNAS - Sem Ícone) ---
+        // --- 1. LISTAR INDÚSTRIAS ---
         async function loadIndustries() {
             if(document.getElementById('nav-routes').classList.contains('active')) return;
             const list = document.getElementById('industriesList');
@@ -353,58 +366,37 @@
                     const el = document.createElement('div');
                     el.className = 'ind-card group cursor-pointer active:scale-95';
                     el.onclick = () => openIndustry(ind.name);
-                    el.innerHTML = `
-                        <h3 class="font-bold text-xs text-slate-200 text-center leading-tight line-clamp-3 px-1 break-words w-full">${ind.name}</h3>
-                        <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition" onclick="deleteIndustry('${ind.name}', event)"><i class="fas fa-trash-alt text-[9px]"></i></button>
-                    `;
+                    el.innerHTML = `<h3 class="font-bold text-xs text-slate-200 text-center leading-tight line-clamp-3 px-1 break-words w-full">${ind.name}</h3><button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition" onclick="deleteIndustry('${ind.name}', event)"><i class="fas fa-trash-alt text-[9px]"></i></button>`;
                     list.appendChild(el);
                 });
             } catch(e) { console.error(e); }
         }
 
-        // --- ROTA DE HOJE (DASHBOARD) ---
         function renderTodayRoute() {
             const container = document.getElementById('todayRouteContainer');
             const label = document.getElementById('todayLabel');
-            
             const daysMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
             const today = daysMap[new Date().getDay()];
             label.innerText = today;
             container.innerHTML = '';
-
             const todaysIndustries = routes[today] || [];
-            
-            if (todaysIndustries.length === 0) {
-                container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs bg-slate-900/30 rounded-xl border border-slate-800 border-dashed">Nenhuma visita agendada.</div>`;
-                return;
-            }
-
+            if (todaysIndustries.length === 0) { container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs bg-slate-900/30 rounded-xl border border-slate-800 border-dashed">Nenhuma visita agendada.</div>`; return; }
             todaysIndustries.forEach(indName => {
                 const el = document.createElement('div');
                 el.className = 'today-route-card cursor-pointer active:scale-[0.98]';
                 el.onclick = () => openIndustry(indName);
-                el.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30"><i class="fas fa-building text-xs"></i></div>
-                        <span class="text-xs font-bold text-slate-200">${indName}</span>
-                    </div>
-                    <div class="bg-blue-600 rounded-full w-6 h-6 flex items-center justify-center shadow-lg shadow-blue-500/30"><i class="fas fa-camera text-[10px] text-white"></i></div>
-                `;
+                el.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30"><i class="fas fa-building text-xs"></i></div><span class="text-xs font-bold text-slate-200">${indName}</span></div><div class="bg-blue-600 rounded-full w-6 h-6 flex items-center justify-center shadow-lg shadow-blue-500/30"><i class="fas fa-camera text-[10px] text-white"></i></div>`;
                 container.appendChild(el);
             });
         }
 
-        // --- ROTAS COMPLETAS ---
         function renderRoutes() {
             const container = document.getElementById('routesContainer');
             container.innerHTML = '';
             const todayIndex = new Date().getDay(); 
             const daysMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
             const todayName = daysMap[todayIndex]; 
-            
-            // Filtra só dias uteis + sabado para exibição ou todos se tiver dados
             const displayDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-
             displayDays.forEach(day => {
                 const isToday = day === todayName;
                 const industries = routes[day] || [];
@@ -412,23 +404,15 @@
                 dayCard.className = 'route-day-card';
                 let html = `<div class="route-header ${isToday ? 'today' : ''}"><span>${day}</span> <span class="text-[10px] bg-slate-900 px-2 rounded">${industries.length}</span></div>`;
                 if (industries.length === 0) { html += `<div class="p-3 text-center text-slate-600 text-xs italic opacity-50">Sem rota</div>`; } 
-                else {
-                    industries.forEach(indName => {
-                        html += `<div class="route-item" onclick="openIndustry('${indName}')"><div class="flex items-center gap-3"><i class="fas fa-industry text-slate-500 text-xs"></i><span class="text-sm font-medium text-slate-300">${indName}</span></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i></div>`;
-                    });
-                }
-                dayCard.innerHTML = html;
-                container.appendChild(dayCard);
+                else { industries.forEach(indName => { html += `<div class="route-item" onclick="openIndustry('${indName}')"><div class="flex items-center gap-3"><i class="fas fa-industry text-slate-500 text-xs"></i><span class="text-sm font-medium text-slate-300">${indName}</span></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i></div>`; }); }
+                dayCard.innerHTML = html; container.appendChild(dayCard);
             });
         }
 
         function openRouteConfig() { document.getElementById('routeConfigModal').classList.remove('hidden'); selectRouteDay('Segunda'); }
         function selectRouteDay(day) {
             configSelectedDay = day;
-            document.querySelectorAll('.day-selector').forEach(btn => {
-                if(btn.innerText.startsWith(day.substring(0,3))) { btn.classList.remove('bg-slate-700', 'text-slate-400'); btn.classList.add('bg-blue-600', 'text-white'); } 
-                else { btn.classList.add('bg-slate-700', 'text-slate-400'); btn.classList.remove('bg-blue-600', 'text-white'); }
-            });
+            document.querySelectorAll('.day-selector').forEach(btn => { if(btn.innerText.startsWith(day.substring(0,3))) { btn.classList.remove('bg-slate-700', 'text-slate-400'); btn.classList.add('bg-blue-600', 'text-white'); } else { btn.classList.add('bg-slate-700', 'text-slate-400'); btn.classList.remove('bg-blue-600', 'text-white'); } });
             document.getElementById('currentConfigDay').innerText = day; renderChecklist();
         }
         function renderChecklist() {
@@ -443,23 +427,16 @@
                 list.appendChild(item);
             });
         }
-        function toggleRouteItem(indName) {
-            if(!routes[configSelectedDay]) routes[configSelectedDay] = [];
-            const idx = routes[configSelectedDay].indexOf(indName);
-            if(idx > -1) routes[configSelectedDay].splice(idx, 1); else routes[configSelectedDay].push(indName);
-        }
+        function toggleRouteItem(indName) { if(!routes[configSelectedDay]) routes[configSelectedDay] = []; const idx = routes[configSelectedDay].indexOf(indName); if(idx > -1) routes[configSelectedDay].splice(idx, 1); else routes[configSelectedDay].push(indName); }
 
-        // --- FUNÇÕES COMUNS ---
         async function createIndustry() {
-            const name = document.getElementById('newIndName').value.trim();
-            if(!name) return;
+            const name = document.getElementById('newIndName').value.trim(); if(!name) return;
             showToast("Criando...", "loading");
             try {
                 const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                 const { error } = await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob([''], {type: 'text/plain'}));
                 if(error) throw error;
-                showToast("Criado!", "success"); closeAddModal(); loadIndustries();
-                if(!allIndustries.includes(name)) allIndustries.push(name);
+                showToast("Criado!", "success"); closeAddModal(); loadIndustries(); if(!allIndustries.includes(name)) allIndustries.push(name);
             } catch(e) { showToast("Erro", "error"); alert(e.message); }
         }
         async function deleteIndustry(indName, e) {
@@ -613,16 +590,20 @@
         // --- SELEÇÃO ---
         function toggleSelectionMode() {
             isSelectionMode = !isSelectionMode;
-            const btn = document.getElementById('selectBtn'), cam = document.getElementById('cameraControls'), selBar = document.getElementById('selectionControls'), selBarAll = document.getElementById('selectionControlsAll');
+            const btn = document.getElementById('selectBtn'), selBar = document.getElementById('selectionControls'), selBarAll = document.getElementById('selectionControlsAll');
+            const camDates = document.getElementById('cameraControlsDates'), camGallery = document.getElementById('cameraControls');
             const isAll = document.getElementById('view-all').classList.contains('active');
+            
             if(isSelectionMode) {
                 btn.innerText = "Cancelar"; btn.classList.add('text-red-400', 'border-red-900');
-                if(cam) cam.classList.add('hidden');
-                if(isAll) selBarAll.classList.remove('hidden', 'translate-y-full'); else selBar.classList.remove('hidden', 'translate-y-full');
+                if(camDates) camDates.classList.add('hidden-bar');
+                if(camGallery) camGallery.classList.add('hidden-bar');
+                if(isAll) selBarAll.classList.remove('hidden-bar'); else selBar.classList.remove('hidden-bar');
             } else {
                 btn.innerText = "Selecionar"; btn.classList.remove('text-red-400', 'border-red-900'); selectedPhotos.clear();
-                if(cam) cam.classList.remove('hidden');
-                selBar.classList.add('hidden', 'translate-y-full'); selBarAll.classList.add('hidden', 'translate-y-full');
+                if(camDates) camDates.classList.remove('hidden-bar');
+                if(camGallery) camGallery.classList.remove('hidden-bar');
+                selBar.classList.add('hidden-bar'); selBarAll.classList.add('hidden-bar');
                 if(isAll) openAllPhotos(); else loadGalleryPhotos();
             }
         }
