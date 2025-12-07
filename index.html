@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#ffffff">
     <title>Industrial Manager</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,61 +16,127 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; -webkit-tap-highlight-color: transparent; padding-bottom: calc(100px + env(safe-area-inset-bottom)); user-select: none; }
+        /* Ajustes Globais - TEMA CLARO */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; /* Fundo Cinza Muito Claro */
+            color: #1e293b; /* Texto Escuro */
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+            padding-bottom: calc(100px + env(safe-area-inset-bottom)); 
+        }
         
-        .glass-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .glass-bar { background: rgba(15, 23, 42, 0.98); border-top: 1px solid rgba(255,255,255,0.05); }
+        /* Vidro Branco */
+        .glass-header { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(12px); 
+            border-bottom: 1px solid rgba(0,0,0,0.05); 
+        }
         
-        /* BARRA FIXA INFERIOR */
+        /* Barra Fixa Inferior Branca */
         .fixed-bottom-bar { 
-            position: fixed; bottom: 0; left: 0; right: 0; width: 100%;
-            background: rgba(15, 23, 42, 0.98); border-top: 1px solid rgba(255,255,255,0.1); 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95); 
+            border-top: 1px solid #e2e8f0; 
             z-index: 60; 
             padding-bottom: calc(20px + env(safe-area-inset-bottom));
-            padding-top: 20px; padding-left: 16px; padding-right: 16px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.5); transition: transform 0.3s ease;
+            padding-top: 20px;
+            padding-left: 16px;
+            padding-right: 16px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
         }
         .fixed-bottom-bar.hidden-bar { transform: translateY(110%); }
 
+        /* NAV Bar Inferior Branca */
         .bottom-nav { 
-            position: fixed; bottom: 0; left: 0; width: 100%; 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
             height: calc(65px + env(safe-area-inset-bottom)); 
             padding-bottom: env(safe-area-inset-bottom);
-            background: #0f172a; border-top: 1px solid #334155; 
-            display: flex; justify-content: space-around; align-items: flex-start; padding-top: 12px;
-            z-index: 50; transition: transform 0.3s ease;
+            background: #ffffff; 
+            border-top: 1px solid #e2e8f0; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: flex-start; 
+            padding-top: 12px;
+            z-index: 50; 
+            transition: transform 0.3s ease;
         }
         .bottom-nav.hidden-nav { transform: translateY(100%); }
 
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; font-size: 10px; font-weight: 600; width: 100%; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 10px; font-weight: 600; width: 100%; }
         .nav-item i { font-size: 22px; margin-bottom: 4px; }
-        .nav-item.active { color: #3b82f6; }
+        .nav-item.active { color: #2563eb; } /* Azul mais vibrante */
 
-        .ind-card { background: linear-gradient(160deg, #1e293b, #0f172a); border-radius: 12px; border: 1px solid #334155; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 6px; height: 70px; }
-        .ind-card:active { transform: scale(0.95); border-color: #3b82f6; }
+        /* Cards Claros */
+        .ind-card { 
+            background: #ffffff;
+            border-radius: 16px; 
+            border: 1px solid #e2e8f0; 
+            transition: transform 0.1s, box-shadow 0.1s; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 10px 6px; 
+            height: 80px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .ind-card:active { transform: scale(0.96); border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
         
-        .today-route-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .today-route-card:active { background: #334155; }
+        .today-route-card { 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 12px; 
+            padding: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 8px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .today-route-card:active { background: #f1f5f9; }
         
-        .route-day-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
-        .route-header { padding: 12px; background: rgba(51, 65, 85, 0.5); font-weight: bold; font-size: 14px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
-        .route-header.today { background: rgba(34, 197, 94, 0.2); color: #4ade80; border-bottom: 1px solid rgba(34, 197, 94, 0.3); }
-        .route-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .route-day-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .route-header { padding: 12px; background: #f8fafc; font-weight: bold; font-size: 14px; color: #64748b; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        .route-header.today { background: #ecfdf5; color: #16a34a; border-bottom: 1px solid #dcfce7; }
+        .route-item { padding: 12px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; cursor: pointer; color: #334155; }
         .route-item:last-child { border-bottom: none; }
-        .route-item:active { background: rgba(255,255,255,0.05); }
+        .route-item:active { background: #f1f5f9; }
 
-        .folder-card { background: #1e293b; border-radius: 12px; border: 1px solid #334155; transition: all 0.2s; position: relative; }
-        .folder-card:active { background: #334155; }
+        .folder-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.2s; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .folder-card:active { background: #f8fafc; transform: scale(0.98); }
 
-        .photo-item { position: relative; overflow: hidden; border-radius: 8px; background: #334155; aspect-ratio: 1/1; }
-        .photo-item.selected { border: 3px solid #3b82f6; }
-        .photo-item.selected img { opacity: 0.6; }
-        .photo-item.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; z-index: 10; background: #3b82f6; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .photo-item { position: relative; overflow: hidden; border-radius: 12px; background: #cbd5e1; aspect-ratio: 1/1; }
+        .photo-item.selected { border: 3px solid #2563eb; }
+        .photo-item.selected img { opacity: 0.8; }
+        .photo-item.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; z-index: 10; background: #2563eb; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
 
-        .btn-all-photos { background: linear-gradient(90deg, #1e293b, #334155); border: 1px solid #475569; width: 100%; padding: 14px; border-radius: 12px; font-weight: 600; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px; font-size: 11px; margin-top: 15px; transition: transform 0.1s; }
-        .btn-all-photos:active { transform: scale(0.98); border-color: #94a3b8; color: white; }
+        .btn-all-photos { 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 16px; 
+            font-weight: 700; 
+            color: #475569; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            font-size: 12px; 
+            margin-top: 15px; 
+            transition: transform 0.1s; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
+        .btn-all-photos:active { transform: scale(0.98); background: #f1f5f9; }
 
-        .loader { border: 2px solid rgba(255,255,255,0.1); border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        .loader { border: 3px solid #e2e8f0; border-top: 3px solid #2563eb; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .view-section { display: none; animation: fadeIn 0.3s ease; }
@@ -77,105 +144,113 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body class="text-slate-800">
 
-    <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-lg shadow-black/40">
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-sm">
         <div class="flex items-center gap-3 w-2/3">
-            <button id="backBtn" onclick="goBack()" class="hidden w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center active:scale-90 transition hover:bg-slate-700"><i class="fas fa-arrow-left"></i></button>
+            <button id="backBtn" onclick="goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center active:scale-90 transition"><i class="fas fa-arrow-left"></i></button>
             <div class="overflow-hidden">
-                <h1 id="pageTitle" class="font-bold text-sm text-slate-100 truncate">Indústrias</h1>
-                <p id="pageSubtitle" class="text-[10px] text-green-400 flex items-center gap-1 truncate"><span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Sincronizado</p>
+                <h1 id="pageTitle" class="font-bold text-base text-slate-800 truncate tracking-tight">Indústrias</h1>
+                <p id="pageSubtitle" class="text-[11px] text-slate-500 flex items-center gap-1.5 truncate"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Online</p>
             </div>
         </div>
         
         <div class="flex items-center gap-2">
-            <button id="installBtn" onclick="triggerInstall()" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
-            <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-800 text-blue-400 px-3 py-1.5 rounded-full border border-slate-700 active:scale-95 transition">Selecionar</button>
-            <button id="configRouteBtn" onclick="openRouteConfig()" class="hidden w-9 h-9 rounded-full bg-slate-800 text-yellow-400 hover:text-white flex items-center justify-center active:scale-95 border border-slate-700 transition"><i class="fas fa-cog text-xs"></i></button>
-            <button onclick="window.location.reload()" class="w-9 h-9 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center active:scale-95 border border-slate-700 transition"><i class="fas fa-sync-alt text-xs"></i></button>
+            <button id="installBtn" onclick="triggerInstall()" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
+            <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
+            <button id="configRouteBtn" onclick="openRouteConfig()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
+            <button onclick="window.location.reload()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
         </div>
     </header>
 
     <div class="h-20"></div>
 
-    <main class="max-w-md mx-auto px-4">
+    <main class="max-w-md mx-auto px-4 pb-32">
 
+        <!-- VIEW 1: HOME -->
         <div id="view-home" class="view-section active">
             <div class="mb-4 flex justify-between items-end px-1">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-th-large"></i> Locais</span>
-                <span id="indCount" class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono border border-slate-700">...</span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-th-large"></i> Locais</span>
+                <span id="indCount" class="text-[10px] bg-slate-200 px-2 py-1 rounded text-slate-600 font-mono font-bold">...</span>
             </div>
             
-            <div id="industriesList" class="grid grid-cols-3 gap-2">
-                <div class="col-span-3 flex flex-col items-center justify-center py-20 opacity-50"><div class="loader mb-2"></div><span class="text-xs">Lendo pastas...</span></div>
+            <div id="industriesList" class="grid grid-cols-3 gap-3">
+                <div class="col-span-3 flex flex-col items-center justify-center py-20 opacity-50"><div class="loader mb-2"></div><span class="text-xs text-slate-400">Lendo pastas...</span></div>
             </div>
 
-            <button onclick="openAllPhotos()" class="btn-all-photos"><i class="fas fa-images mr-2"></i> Todas as Fotos</button>
+            <button onclick="openAllPhotos()" class="btn-all-photos text-slate-500 hover:text-blue-600"><i class="fas fa-images mr-2"></i> Ver Galeria Completa</button>
 
+            <!-- ROTA DE HOJE -->
             <div class="mt-8 mb-6">
                 <div class="flex items-center gap-2 mb-3 px-1">
-                    <i class="fas fa-map-marker-alt text-yellow-500 text-sm"></i>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Rota de Hoje (<span id="todayLabel" class="text-slate-200">...</span>)</span>
+                    <i class="fas fa-map-marker-alt text-blue-500 text-sm"></i>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Rota de Hoje (<span id="todayLabel" class="text-slate-600">...</span>)</span>
                 </div>
                 <div id="todayRouteContainer" class="space-y-2">
-                    <div class="p-4 text-center text-slate-600 text-xs bg-slate-900/50 rounded-xl border border-slate-800 border-dashed">Carregando rota...</div>
+                    <div class="p-4 text-center text-slate-400 text-xs bg-white rounded-xl border border-slate-200 border-dashed">Carregando rota...</div>
                 </div>
             </div>
             
-            <div class="h-24"></div>
-
-            <button onclick="openAddModal()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-500 rounded-full text-white shadow-xl shadow-blue-900/50 flex items-center justify-center text-2xl active:scale-90 transition z-40 transform hover:-translate-y-1"><i class="fas fa-plus"></i></button>
+            <div class="h-24"></div> 
+            
+            <!-- FAB CLARO -->
+            <button onclick="openAddModal()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full text-white shadow-xl shadow-blue-200 flex items-center justify-center text-2xl active:scale-90 transition z-40 transform hover:-translate-y-1"><i class="fas fa-plus"></i></button>
         </div>
 
+        <!-- VIEW 1.5: ROTAS -->
         <div id="view-routes" class="view-section">
-            <div class="mb-4 px-1 flex justify-between items-center"><span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Cronograma Semanal</span></div>
+            <div class="mb-4 px-1 flex justify-between items-center"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Cronograma Semanal</span></div>
             <div id="routesContainer" class="space-y-4 pb-24"></div>
         </div>
 
+        <!-- VIEW 2: DATAS -->
         <div id="view-dates" class="view-section">
             <div class="mb-4 flex justify-between items-center px-1">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pastas por Data</span>
-                <span class="text-[9px] text-slate-500 border border-slate-700 px-2 py-1 rounded bg-slate-800/50">Auto-Clean: 45 dias</span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pastas por Data</span>
+                <span class="text-[9px] text-slate-500 border border-slate-200 bg-white px-2 py-1 rounded">Auto-Clean: 45 dias</span>
             </div>
-            <div id="datesList" class="space-y-3 pb-32"></div>
+            <div id="datesList" class="space-y-3 pb-40"></div>
             
             <div id="cameraControlsDates" class="fixed-bottom-bar flex justify-center">
-                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-900/40 hover:shadow-blue-500/20 border border-white/10">
-                    <i class="fas fa-camera text-xl"></i>
-                    <span class="font-bold text-sm tracking-wide">NOVA FOTO (HOJE)</span>
-                    <input type="file" accept="image/*" class="hidden" onchange="uploadPhoto(this)">
+                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
+                    <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">FOTO DE HOJE</span>
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
                 </label>
             </div>
         </div>
 
+        <!-- VIEW 3: GALERIA -->
         <div id="view-gallery" class="view-section">
             <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
 
             <div id="cameraControls" class="fixed-bottom-bar flex justify-center">
-                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-900/40 hover:shadow-blue-500/20 border border-white/10">
+                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
                     <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">ADICIONAR FOTO</span>
-                    <input type="file" accept="image/*" class="hidden" onchange="uploadPhoto(this)">
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
                 </label>
             </div>
 
             <div id="selectionControls" class="fixed-bottom-bar flex gap-3 hidden-bar">
-                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center border border-red-500/30 active:scale-90"><i class="fas fa-trash-alt"></i></button>
-                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCount">0</span>)</button>
+                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
+                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg shadow-green-200 flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCount">0</span>)</button>
             </div>
         </div>
 
+        <!-- VIEW 4: TODAS AS FOTOS -->
         <div id="view-all" class="view-section">
-            <div class="mb-4 px-1 text-xs font-bold text-slate-500 uppercase tracking-widest">Feed Global (Recentes)</div>
+            <div class="mb-4 px-1 text-xs font-bold text-slate-400 uppercase tracking-widest">Feed Global (Recentes)</div>
             <div id="allPhotosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
             
             <div id="selectionControlsAll" class="fixed-bottom-bar flex gap-3 hidden-bar">
-                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center border border-red-500/30 active:scale-90"><i class="fas fa-trash-alt"></i></button>
-                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCountAll">0</span>)</button>
+                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
+                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg shadow-green-200 flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCountAll">0</span>)</button>
             </div>
         </div>
 
     </main>
 
+    <!-- NAV INFERIOR -->
     <nav id="mainNavBar" class="bottom-nav">
         <div id="nav-general" class="nav-item active" onclick="switchMainTab('general')">
             <i class="fas fa-th-large"></i><span>Geral</span>
@@ -185,11 +260,35 @@
         </div>
     </nav>
 
-    <div id="routeConfigModal" class="fixed inset-0 bg-black/90 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm"><div class="bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-700 h-[80vh] flex flex-col"><h3 class="text-sm font-bold text-white mb-2 uppercase">Configurar Rotas (Nuvem)</h3><div class="flex gap-2 mb-4 overflow-x-auto pb-2"><button onclick="selectRouteDay('Segunda')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Seg</button><button onclick="selectRouteDay('Terça')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Ter</button><button onclick="selectRouteDay('Quarta')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Qua</button><button onclick="selectRouteDay('Quinta')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Qui</button><button onclick="selectRouteDay('Sexta')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Sex</button><button onclick="selectRouteDay('Sábado')" class="day-selector bg-slate-700 px-3 py-1 rounded text-xs text-white whitespace-nowrap">Sáb</button></div><div class="text-xs text-slate-400 mb-2">Marque as indústrias para <span id="currentConfigDay" class="text-yellow-400 font-bold">...</span>:</div><div id="routeChecklist" class="flex-1 overflow-y-auto space-y-2 mb-4 bg-slate-900 p-2 rounded-lg border border-slate-700"></div><div class="flex gap-3 mt-auto"><button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-white">Fechar</button><button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR NO BANCO</button></div></div></div>
-    <div id="addModal" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-slate-900 w-full max-w-xs p-6 rounded-2xl border border-slate-700 shadow-2xl"><h3 class="text-sm font-bold text-slate-300 mb-4 uppercase">Nova Pasta</h3><input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 mb-4 text-white text-sm focus:outline-none focus:border-blue-500"><div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-white">Cancelar</button><button onclick="createIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">CRIAR</button></div></div></div>
-    <div id="installModal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm"><div class="bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-700"><h3 class="text-lg font-bold text-white mb-2">Instalar App</h3><div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-300"><p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square"></i></p><p>2. Selecione <b>"Adicionar à Tela de Início"</b></p></div><div id="androidInstructions" class="hidden"><button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Instalar Agora</button></div><button onclick="document.getElementById('installModal').classList.add('hidden')" class="mt-4 text-slate-500 text-sm w-full py-2">Fechar</button></div></div>
-    <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300"><div class="absolute top-0 w-full p-4 flex justify-end z-20"><button onclick="closePhotoModal()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button></div><img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl"><div class="absolute bottom-8 flex gap-4 w-full max-w-xs justify-center px-4"><button onclick="deleteSinglePhoto()" class="w-14 h-14 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center border border-red-500/30 active:scale-90 backdrop-blur-md"><i class="fas fa-trash-alt text-lg"></i></button></div></div>
-    <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-800 border border-slate-600 text-white px-5 py-2.5 rounded-full shadow-2xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]"><div id="toastIcon" class="loader w-3 h-3 border-white/30 border-t-white"></div><span id="toastMsg">Processando...</span></div>
+    <!-- MODAL ROTA (Claro) -->
+    <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col">
+            <h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3>
+            <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+                <button onclick="selectRouteDay('Segunda')" class="day-selector bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-500 whitespace-nowrap border border-slate-200">Seg</button>
+                <button onclick="selectRouteDay('Terça')" class="day-selector bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-500 whitespace-nowrap border border-slate-200">Ter</button>
+                <button onclick="selectRouteDay('Quarta')" class="day-selector bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-500 whitespace-nowrap border border-slate-200">Qua</button>
+                <button onclick="selectRouteDay('Quinta')" class="day-selector bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-500 whitespace-nowrap border border-slate-200">Qui</button>
+                <button onclick="selectRouteDay('Sexta')" class="day-selector bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-500 whitespace-nowrap border border-slate-200">Sex</button>
+                <button onclick="selectRouteDay('Sábado')" class="day-selector bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-500 whitespace-nowrap border border-slate-200">Sáb</button>
+            </div>
+            <div class="text-xs text-slate-400 mb-2">Indústrias para <span id="currentConfigDay" class="text-blue-600 font-bold">...</span>:</div>
+            <div id="routeChecklist" class="flex-1 overflow-y-auto space-y-1 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
+            <div class="flex gap-3 mt-auto">
+                <button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Fechar</button>
+                <button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modais Padrão (Claros) -->
+    <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl"><h3 class="text-sm font-bold text-slate-700 mb-4 uppercase">Nova Pasta</h3><input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 mb-4 text-slate-700 text-sm focus:outline-none focus:border-blue-500"><div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button onclick="createIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">CRIAR</button></div></div></div>
+    <div id="installModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl"><h3 class="text-lg font-bold text-slate-800 mb-2">Instalar App</h3><div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-600"><p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square text-blue-500"></i></p><p>2. Selecione <b>"Adicionar à Tela de Início"</b></p></div><div id="androidInstructions" class="hidden"><button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md">Instalar Agora</button></div><button onclick="document.getElementById('installModal').classList.add('hidden')" class="mt-4 text-slate-400 text-sm w-full py-2">Fechar</button></div></div>
+    
+    <!-- Modal Foto (Escuro para contraste) -->
+    <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300"><div class="absolute top-0 w-full p-4 flex justify-end z-20"><button onclick="closePhotoModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button></div><img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl"><div class="absolute bottom-8 flex gap-4 w-full max-w-xs justify-center px-4"><button onclick="deleteSinglePhoto()" class="w-14 h-14 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button></div></div>
+    
+    <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full shadow-xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]"><div id="toastIcon" class="loader w-3 h-3 border-slate-200 border-t-blue-500"></div><span id="toastMsg">Processando...</span></div>
 
     <script>
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
@@ -205,61 +304,26 @@
         let isSelectionMode = false;
         let selectedPhotos = new Set();
         let currentModalPhoto = null;
-        
         let routes = { 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
-        const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']; 
+        const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
         let configSelectedDay = null;
-
-        // PWA
         let deferredPrompt;
         const installModal = document.getElementById('installModal'), installBtn = document.getElementById('installBtn'), isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const manifest = { "name": "Industrial Sync", "short_name": "Industrial", "start_url": ".", "display": "standalone", "background_color": "#0f172a", "theme_color": "#0f172a", "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/3061/3061341.png", "sizes": "512x512", "type": "image/png" }] };
-        const link = document.createElement('link'); link.rel = 'manifest'; link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'})); document.head.appendChild(link);
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });
-        if(isIOS) installBtn.classList.remove('hidden');
-        function triggerInstall() { installModal.classList.remove('hidden'); if(isIOS) { document.getElementById('iosInstructions').classList.remove('hidden'); document.getElementById('androidInstructions').classList.add('hidden'); } else if(deferredPrompt) { document.getElementById('androidInstructions').classList.remove('hidden'); document.getElementById('nativeInstallBtn').onclick = () => { deferredPrompt.prompt(); deferredPrompt.userChoice.then((r) => { if(r.outcome==='accepted') installModal.classList.add('hidden'); deferredPrompt=null; }); }; } }
-        function closeInstallModal() { installModal.classList.add('hidden'); }
 
-        window.onload = () => { 
-            loadIndustries(); 
-            fetchRoutesFromDB();
-        };
+        window.onload = () => { loadIndustries(); fetchRoutesFromDB(); };
 
-        // --- BANCO DE DADOS ROTAS ---
         async function fetchRoutesFromDB() {
-            try {
-                const { data, error } = await sb.from('rotas').select('*');
-                if (data && data.length > 0) {
-                    data.forEach(row => { if(routes[row.dia]) routes[row.dia] = row.industrias; });
-                }
-                renderRoutes(); renderTodayRoute();
-            } catch (e) { console.error("Erro rotas:", e); }
+            try { const { data } = await sb.from('rotas').select('*'); if (data) data.forEach(row => { if(routes[row.dia]) routes[row.dia] = row.industrias; }); renderRoutes(); renderTodayRoute(); } catch (e) {}
         }
-
         async function saveRouteConfig() {
             showToast("Salvando...", "loading");
-            try {
-                const day = configSelectedDay;
-                const industries = routes[day];
-                const { error } = await sb.from('rotas').upsert({ dia: day, industrias: industries }, { onConflict: 'dia' });
-                if (error) throw error;
-                showToast("Salvo!", "success");
-                renderRoutes(); renderTodayRoute();
-            } catch (e) { showToast("Erro", "error"); }
+            try { await sb.from('rotas').upsert({ dia: configSelectedDay, industrias: routes[configSelectedDay] }, { onConflict: 'dia' }); showToast("Salvo!", "success"); renderRoutes(); renderTodayRoute(); } catch (e) { showToast("Erro", "error"); }
         }
 
-        // --- NAVEGAÇÃO ---
         function switchMainTab(tab) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            if(tab === 'general') {
-                document.getElementById('nav-general').classList.add('active');
-                navigateTo('view-home');
-                document.getElementById('configRouteBtn').classList.add('hidden');
-            } else {
-                document.getElementById('nav-routes').classList.add('active');
-                navigateTo('view-routes');
-                document.getElementById('configRouteBtn').classList.remove('hidden');
-            }
+            if(tab === 'general') { document.getElementById('nav-general').classList.add('active'); navigateTo('view-home'); document.getElementById('configRouteBtn').classList.add('hidden'); } 
+            else { document.getElementById('nav-routes').classList.add('active'); navigateTo('view-routes'); document.getElementById('configRouteBtn').classList.remove('hidden'); }
         }
 
         function navigateTo(viewId) {
@@ -267,32 +331,15 @@
             document.getElementById(viewId).classList.add('active');
             const backBtn=document.getElementById('backBtn'), selectBtn=document.getElementById('selectBtn'), title=document.getElementById('pageTitle'), subtitle=document.getElementById('pageSubtitle');
             const navBar = document.getElementById('mainNavBar');
-
             isSelectionMode = false; selectedPhotos.clear(); updateSelectionUI();
-            
             backBtn.classList.add('hidden'); selectBtn.classList.add('hidden');
-
-            if (viewId === 'view-home') { 
-                title.innerText = "Indústrias"; subtitle.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Sincronizado'; currentIndustry = null;
-                navBar.classList.remove('hidden-nav'); 
-            } 
-            else if (viewId === 'view-routes') { 
-                title.innerText = "Cronograma"; subtitle.innerHTML = 'Rotas Semanais';
-                navBar.classList.remove('hidden-nav');
-            }
+            if (viewId === 'view-home') { title.innerText = "Indústrias"; subtitle.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Online'; currentIndustry = null; navBar.classList.remove('hidden-nav'); } 
+            else if (viewId === 'view-routes') { title.innerText = "Cronograma"; subtitle.innerHTML = 'Rotas Semanais'; navBar.classList.remove('hidden-nav'); }
             else {
-                navBar.classList.add('hidden-nav');
-                backBtn.classList.remove('hidden'); 
-                
-                if (viewId === 'view-dates') { 
-                    title.innerText = currentIndustry; subtitle.innerText = "Selecione uma data"; 
-                }
-                else if (viewId === 'view-gallery') { 
-                    selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria de Fotos"; 
-                }
-                else if (viewId === 'view-all') { 
-                    selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral";
-                }
+                navBar.classList.add('hidden-nav'); backBtn.classList.remove('hidden');
+                if (viewId === 'view-dates') { title.innerText = currentIndustry; subtitle.innerText = "Pastas"; }
+                else if (viewId === 'view-gallery') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria"; }
+                else if (viewId === 'view-all') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral"; }
             }
         }
 
@@ -300,67 +347,56 @@
             const active = document.querySelector('.view-section.active').id;
             if (active === 'view-gallery') navigateTo('view-dates'); 
             else if (active === 'view-all') navigateTo('view-home');
-            else if (active === 'view-dates') {
-                if (document.getElementById('nav-routes').classList.contains('active')) switchMainTab('routes');
-                else switchMainTab('general');
-            }
+            else if (active === 'view-dates') { if (document.getElementById('nav-routes').classList.contains('active')) switchMainTab('routes'); else switchMainTab('general'); }
         }
 
-        // --- 1. LISTAR INDÚSTRIAS ---
         async function loadIndustries() {
             if(document.getElementById('nav-routes').classList.contains('active')) return;
             const list = document.getElementById('industriesList');
             try {
-                const { data, error } = await sb.storage.from(BUCKET).list('', { sortBy: { column: 'name', order: 'asc' } });
-                if(error) throw error;
+                const { data } = await sb.storage.from(BUCKET).list('', { sortBy: { column: 'name', order: 'asc' } });
                 const folders = data.filter(item => item.name !== '.keep');
                 allIndustries = folders.map(f => f.name); 
                 document.getElementById('indCount').innerText = folders.length;
                 list.innerHTML = '';
-                if(folders.length === 0) { list.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Vazio.</div>'; return; }
+                if(folders.length === 0) { list.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; }
                 folders.forEach(ind => {
                     const el = document.createElement('div');
                     el.className = 'ind-card group cursor-pointer active:scale-95';
                     el.onclick = () => openIndustry(ind.name);
-                    el.innerHTML = `<h3 class="font-bold text-xs text-slate-200 text-center leading-tight line-clamp-3 px-1 break-words w-full">${ind.name}</h3><button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition" onclick="deleteIndustry('${ind.name}', event)"><i class="fas fa-trash-alt text-[9px]"></i></button>`;
+                    el.innerHTML = `<div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-2 shadow-sm"><i class="fas fa-industry text-lg"></i></div><h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-3 px-1 w-full">${ind.name}</h3><button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition" onclick="deleteIndustry('${ind.name}', event)"><i class="fas fa-trash-alt text-[9px]"></i></button>`;
                     list.appendChild(el);
                 });
-            } catch(e) { console.error(e); }
+            } catch(e) {}
         }
 
         function renderTodayRoute() {
             const container = document.getElementById('todayRouteContainer');
-            const label = document.getElementById('todayLabel');
             const daysMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
             const today = daysMap[new Date().getDay()];
-            label.innerText = today;
+            document.getElementById('todayLabel').innerText = today;
             container.innerHTML = '';
             const todaysIndustries = routes[today] || [];
-            if (todaysIndustries.length === 0) { container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs bg-slate-900/30 rounded-xl border border-slate-800 border-dashed">Nenhuma visita agendada.</div>`; return; }
+            if (todaysIndustries.length === 0) { container.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs bg-white rounded-xl border border-slate-200 border-dashed">Sem rota hoje.</div>`; return; }
             todaysIndustries.forEach(indName => {
                 const el = document.createElement('div');
                 el.className = 'today-route-card cursor-pointer active:scale-[0.98]';
                 el.onclick = () => openIndustry(indName);
-                el.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30"><i class="fas fa-building text-xs"></i></div><span class="text-xs font-bold text-slate-200">${indName}</span></div><div class="bg-blue-600 rounded-full w-6 h-6 flex items-center justify-center shadow-lg shadow-blue-500/30"><i class="fas fa-camera text-[10px] text-white"></i></div>`;
+                el.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100"><i class="fas fa-building text-xs"></i></div><span class="text-xs font-bold text-slate-700">${indName}</span></div><div class="bg-blue-600 rounded-full w-6 h-6 flex items-center justify-center shadow-lg shadow-blue-200"><i class="fas fa-camera text-[10px] text-white"></i></div>`;
                 container.appendChild(el);
             });
         }
 
         function renderRoutes() {
-            const container = document.getElementById('routesContainer');
-            container.innerHTML = '';
-            const todayIndex = new Date().getDay(); 
-            const daysMap = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-            const todayName = daysMap[todayIndex]; 
-            const displayDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-            displayDays.forEach(day => {
-                const isToday = day === todayName;
+            const container = document.getElementById('routesContainer'); container.innerHTML = '';
+            const today = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][new Date().getDay()];
+            ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'].forEach(day => {
+                const isToday = day === today;
                 const industries = routes[day] || [];
-                const dayCard = document.createElement('div');
-                dayCard.className = 'route-day-card';
-                let html = `<div class="route-header ${isToday ? 'today' : ''}"><span>${day}</span> <span class="text-[10px] bg-slate-900 px-2 rounded">${industries.length}</span></div>`;
-                if (industries.length === 0) { html += `<div class="p-3 text-center text-slate-600 text-xs italic opacity-50">Sem rota</div>`; } 
-                else { industries.forEach(indName => { html += `<div class="route-item" onclick="openIndustry('${indName}')"><div class="flex items-center gap-3"><i class="fas fa-industry text-slate-500 text-xs"></i><span class="text-sm font-medium text-slate-300">${indName}</span></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i></div>`; }); }
+                const dayCard = document.createElement('div'); dayCard.className = 'route-day-card';
+                let html = `<div class="route-header ${isToday ? 'today' : ''}"><span>${day}</span> <span class="text-[10px] bg-slate-100 text-slate-500 px-2 rounded-full border border-slate-200">${industries.length}</span></div>`;
+                if (industries.length === 0) { html += `<div class="p-3 text-center text-slate-400 text-xs italic opacity-50">--</div>`; } 
+                else { industries.forEach(indName => { html += `<div class="route-item" onclick="openIndustry('${indName}')"><div class="flex items-center gap-3"><i class="fas fa-industry text-slate-400 text-xs"></i><span class="text-sm font-medium text-slate-600">${indName}</span></div><i class="fas fa-chevron-right text-slate-300 text-xs"></i></div>`; }); }
                 dayCard.innerHTML = html; container.appendChild(dayCard);
             });
         }
@@ -368,18 +404,18 @@
         function openRouteConfig() { document.getElementById('routeConfigModal').classList.remove('hidden'); selectRouteDay('Segunda'); }
         function selectRouteDay(day) {
             configSelectedDay = day;
-            document.querySelectorAll('.day-selector').forEach(btn => { if(btn.innerText.startsWith(day.substring(0,3))) { btn.classList.remove('bg-slate-700', 'text-slate-400'); btn.classList.add('bg-blue-600', 'text-white'); } else { btn.classList.add('bg-slate-700', 'text-slate-400'); btn.classList.remove('bg-blue-600', 'text-white'); } });
+            document.querySelectorAll('.day-selector').forEach(btn => { if(btn.innerText.startsWith(day.substring(0,3))) { btn.classList.remove('bg-white', 'text-slate-500'); btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600'); } else { btn.classList.add('bg-white', 'text-slate-500'); btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600'); } });
             document.getElementById('currentConfigDay').innerText = day; renderChecklist();
         }
         function renderChecklist() {
             const list = document.getElementById('routeChecklist'); list.innerHTML = '';
-            if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Nenhuma indústria criada na aba Geral.</div>'; return; }
+            if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias primeiro.</div>'; return; }
             const currentRoute = routes[configSelectedDay] || [];
             allIndustries.forEach(ind => {
                 const isChecked = currentRoute.includes(ind);
                 const item = document.createElement('label');
-                item.className = 'flex items-center gap-3 p-2 hover:bg-slate-800 rounded cursor-pointer';
-                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded bg-slate-700 border-slate-600" value="${ind}" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind}')"><span class="text-sm text-slate-300">${ind}</span>`;
+                item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer';
+                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" value="${ind}" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind}')"><span class="text-sm text-slate-600">${ind}</span>`;
                 list.appendChild(item);
             });
         }
@@ -390,27 +426,25 @@
             showToast("Criando...", "loading");
             try {
                 const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                const { error } = await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob([''], {type: 'text/plain'}));
-                if(error) throw error;
+                await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob([''], {type: 'text/plain'}));
                 showToast("Criado!", "success"); closeAddModal(); loadIndustries(); if(!allIndustries.includes(name)) allIndustries.push(name);
-            } catch(e) { showToast("Erro", "error"); alert(e.message); }
+            } catch(e) { showToast("Erro", "error"); }
         }
         async function deleteIndustry(indName, e) {
-             e.stopPropagation(); if(!confirm(`ATENÇÃO: Apagar a indústria "${indName}" e TODAS as suas pastas/fotos?`)) return;
+             e.stopPropagation(); if(!confirm(`Apagar "${indName}"?`)) return;
              showToast("Apagando...", "loading");
              try {
                  const { data: files } = await sb.storage.from(BUCKET).list(indName, { limit: 1000 });
                  if(files && files.length > 0) {
                     for(const folder of files) {
                         const { data: subFiles } = await sb.storage.from(BUCKET).list(`${indName}/${folder.name}`);
-                        if(subFiles && subFiles.length > 0) {
+                        if(subFiles) {
                             const paths = subFiles.map(f => `${indName}/${folder.name}/${f.name}`);
                             await sb.storage.from(BUCKET).remove(paths);
                             await sb.from('fotos').delete().like('nome_arquivo', `${indName}/${folder.name}/%`);
                         }
                     }
-                    const rootFiles = files.map(f => `${indName}/${f.name}`);
-                    await sb.storage.from(BUCKET).remove(rootFiles);
+                    await sb.storage.from(BUCKET).remove(files.map(f => `${indName}/${f.name}`));
                  }
                  showToast("Removido", "success"); loadIndustries();
              } catch(e) { showToast("Erro", "error"); }
@@ -423,11 +457,10 @@
             const list = document.getElementById('datesList');
             list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
             try {
-                const { data, error } = await sb.storage.from(BUCKET).list(indName, { sortBy: { column: 'name', order: 'desc' } });
-                if(error) throw error;
+                const { data } = await sb.storage.from(BUCKET).list(indName, { sortBy: { column: 'name', order: 'desc' } });
                 const folders = data.filter(item => item.name !== '.keep');
                 list.innerHTML = '';
-                if(folders.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-600 text-xs">Nenhuma data.</div>'; return; }
+                if(folders.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; }
                 const today = new Date();
                 folders.forEach(folder => {
                     let displayDate = folder.name;
@@ -441,20 +474,20 @@
                         if(daysLeft <= 0) isExpired = true;
                     }
                     if(!isExpired) {
-                        let daysClass = "text-green-400";
-                        if(daysLeft <= 5) daysClass = "text-red-400"; else if(daysLeft <= 15) daysClass = "text-yellow-400";
+                        let daysClass = "text-green-600";
+                        if(daysLeft <= 5) daysClass = "text-red-500"; else if(daysLeft <= 15) daysClass = "text-yellow-600";
                         const el = document.createElement('div');
                         el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
                         el.onclick = () => openGallery(folder.name);
-                        el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-indigo-900/50 text-indigo-400 rounded-xl flex items-center justify-center border border-indigo-500/20"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-indigo-100">${displayDate}</h3><p class="text-[10px] text-slate-400"><span class="${daysClass}">Expira em ${daysLeft>0?daysLeft:0} dias</span></p></div></div><button class="w-8 h-8 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center" onclick="deleteDateFolder('${folder.name}', event)"><i class="fas fa-trash-alt text-xs"></i></button>`;
+                        el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${displayDate}</h3><p class="text-[10px] text-slate-400"><span class="${daysClass}">Expira em ${daysLeft>0?daysLeft:0} dias</span></p></div></div><button class="w-8 h-8 rounded-full text-slate-400 hover:text-red-500 flex items-center justify-center" onclick="deleteDateFolder('${folder.name}', event)"><i class="fas fa-trash-alt text-xs"></i></button>`;
                         list.appendChild(el);
                     }
                 });
-            } catch(e) { console.error(e); }
+            } catch(e) {}
         }
 
         async function deleteDateFolder(folderName, e) {
-            e.stopPropagation(); if(!confirm(`Apagar a pasta "${folderName}" e todas as fotos?`)) return;
+            e.stopPropagation(); if(!confirm(`Apagar pasta "${folderName}"?`)) return;
             showToast("Apagando...", "loading");
             try {
                 const path = `${currentIndustry}/${folderName}`;
@@ -464,9 +497,8 @@
                     await sb.storage.from(BUCKET).remove(filesToRemove);
                     await sb.from('fotos').delete().like('nome_arquivo', `${path}/%`);
                 }
-                const keepFile = `${currentIndustry}/.keep`;
-                await sb.storage.from(BUCKET).upload(keepFile, new Blob([''], {type: 'text/plain'}), { upsert: true });
-                showToast("Pasta apagada", "success"); loadDates(currentIndustry);
+                await sb.storage.from(BUCKET).upload(`${currentIndustry}/.keep`, new Blob(['']), { upsert: true });
+                showToast("Apagado", "success"); loadDates(currentIndustry);
             } catch (e) { showToast("Erro", "error"); }
         }
 
@@ -477,12 +509,11 @@
             container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>';
             try {
                 const path = `${currentIndustry}/${currentDateFolder}`;
-                const { data, error } = await sb.storage.from(BUCKET).list(path, { sortBy: { column: 'created_at', order: 'asc' } });
-                if(error) throw error;
+                const { data } = await sb.storage.from(BUCKET).list(path, { sortBy: { column: 'created_at', order: 'asc' } });
                 const files = data.filter(item => item.id);
                 industryPhotos = files.map(f => ({ ...f, fullPath: `${path}/${f.name}`, publicUrl: sb.storage.from(BUCKET).getPublicUrl(`${path}/${f.name}`).data.publicUrl }));
                 container.innerHTML = '';
-                if(files.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Pasta vazia.</div>'; return; }
+                if(files.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; }
                 industryPhotos.forEach(file => {
                     const isSelected = selectedPhotos.has(file.fullPath);
                     const div = document.createElement('div');
@@ -494,20 +525,18 @@
                     div.innerHTML = `<img src="${file.publicUrl}" class="w-full h-full object-cover pointer-events-none">`;
                     container.appendChild(div);
                 });
-            } catch(e) { console.error(e); container.innerHTML = '<div class="col-span-3 text-center text-red-400">Erro.</div>'; }
+            } catch(e) {}
         }
 
-        // --- TODAS AS FOTOS ---
         async function openAllPhotos() {
             navigateTo('view-all');
             const container = document.getElementById('allPhotosContainer');
             container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>';
             try {
-                const { data, error } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200);
-                if(error) throw error;
+                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200);
                 industryPhotos = data.map(f => ({ ...f, fullPath: f.nome_arquivo, publicUrl: f.url_publica, displayName: f.nome_arquivo.split('/')[0] }));
                 container.innerHTML = '';
-                if(data.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Nenhuma foto encontrada.</div>'; return; }
+                if(data.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; }
                 industryPhotos.forEach(file => {
                     const isSelected = selectedPhotos.has(file.fullPath);
                     const div = document.createElement('div');
@@ -519,10 +548,9 @@
                     div.innerHTML = `<img src="${file.publicUrl}" class="w-full h-full object-cover pointer-events-none"><div class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[9px] px-2 py-1 truncate">${file.displayName}</div>`;
                     container.appendChild(div);
                 });
-            } catch(e) { console.error(e); }
+            } catch(e) {}
         }
 
-        // --- UPLOAD ---
         async function uploadPhoto(input) {
             const file = input.files[0];
             if(!file || !currentIndustry) return;
@@ -533,27 +561,26 @@
                 let targetDateFolder = currentDateFolder;
                 if(!targetDateFolder) targetDateFolder = now.toISOString().split('T')[0];
                 const fileName = `${currentIndustry}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`;
-                const { error } = await sb.storage.from(BUCKET).upload(fileName, blob); if(error) throw error;
+                await sb.storage.from(BUCKET).upload(fileName, blob);
                 const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName);
                 await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl });
                 showToast("Salvo!", "success");
                 if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos();
                 else { currentDateFolder = targetDateFolder; openGallery(targetDateFolder); }
-            } catch(e) { showToast("Erro upload", "error"); alert(e.message); }
+            } catch(e) { showToast("Erro", "error"); }
             input.value = '';
         }
 
-        // --- SELEÇÃO ---
         function toggleSelectionMode() {
             isSelectionMode = !isSelectionMode;
             const btn = document.getElementById('selectBtn'), cam = document.getElementById('cameraControls'), selBar = document.getElementById('selectionControls'), selBarAll = document.getElementById('selectionControlsAll');
             const isAll = document.getElementById('view-all').classList.contains('active');
             if(isSelectionMode) {
-                btn.innerText = "Cancelar"; btn.classList.add('text-red-400', 'border-red-900');
+                btn.innerText = "Cancelar"; btn.classList.add('text-red-500', 'border-red-200', 'bg-red-50');
                 if(cam) cam.classList.add('hidden-bar');
                 if(isAll) selBarAll.classList.remove('hidden-bar'); else selBar.classList.remove('hidden-bar');
             } else {
-                btn.innerText = "Selecionar"; btn.classList.remove('text-red-400', 'border-red-900'); selectedPhotos.clear();
+                btn.innerText = "Selecionar"; btn.classList.remove('text-red-500', 'border-red-200', 'bg-red-50'); selectedPhotos.clear();
                 if(cam) cam.classList.remove('hidden-bar');
                 selBar.classList.add('hidden-bar'); selBarAll.classList.add('hidden-bar');
                 if(isAll) openAllPhotos(); else loadGalleryPhotos();
@@ -576,7 +603,6 @@
             if(document.getElementById('selCountAll')) document.getElementById('selCountAll').innerText = count;
         }
 
-        // --- ACTIONS ---
         async function deleteSelected() {
             if(selectedPhotos.size === 0) return;
             if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return;
@@ -590,7 +616,7 @@
         }
 
         async function deleteSinglePhoto() {
-            if(!currentModalPhoto || !confirm("Apagar esta foto?")) return;
+            if(!currentModalPhoto || !confirm("Apagar?")) return;
             showToast("Apagando...", "loading");
             try {
                 await sb.storage.from(BUCKET).remove([currentModalPhoto]);
@@ -619,13 +645,13 @@
             } catch(e) { showToast("Erro share", 'error'); }
         }
 
-        // --- UTILS ---
         function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
         function openPhotoModal(url, fullPath) { currentModalPhoto = fullPath; document.getElementById('previewImg').src = url; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10); }
         function closePhotoModal() { const m = document.getElementById('photoModal'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
-        function showToast(msg, type) { const t=document.getElementById('statusToast'), i=document.getElementById('toastIcon'); document.getElementById('toastMsg').innerText=msg; t.classList.remove('opacity-0', '-translate-y-10'); if(type==='success') { i.className='fas fa-check text-green-400'; setTimeout(()=>t.classList.add('opacity-0'), 2000); } else if(type==='error') { i.className='fas fa-times text-red-400'; setTimeout(()=>t.classList.add('opacity-0'), 3000); } else i.className='loader w-3 h-3 border-white/30 border-t-white'; }
+        function showToast(msg, type) { const t=document.getElementById('statusToast'), i=document.getElementById('toastIcon'); document.getElementById('toastMsg').innerText=msg; t.classList.remove('opacity-0', '-translate-y-10'); if(type==='success') { i.className='fas fa-check text-green-400'; setTimeout(()=>t.classList.add('opacity-0'), 2000); } else if(type==='error') { i.className='fas fa-times text-red-400'; setTimeout(()=>t.classList.add('opacity-0'), 3000); } else i.className='loader w-3 h-3 border-slate-200 border-t-blue-500'; }
         function resizeImage(file) { return new Promise(resolve => { const r = new FileReader(); r.readAsDataURL(file); r.onload = e => { const i = new Image(); i.src = e.target.result; i.onload = () => { const c = document.createElement('canvas'), max = 1200, s = max/i.width, w = (i.width>max)?max:i.width, h = (i.width>max)?i.height*s:i.height; c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); c.toBlob(b=>resolve(b), 'image/jpeg', 0.8); }; }; }); }
     </script>
 </body>
 </html>
+
