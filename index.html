@@ -28,94 +28,68 @@
         
         .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
         
-        /* ABAS DE DIAS (FICHÁRIO - AJUSTADO PARA GRID) */
+        /* ABAS */
         .day-tab {
-            font-weight: 800; 
-            font-size: 11px; /* Fonte levemente menor */
-            color: #94a3b8; 
-            background: #e2e8f0;
-            padding: 8px 0; /* Sem padding lateral */
-            width: 100%; /* Ocupa toda a célula do grid */
-            border-radius: 6px 6px 0 0; 
-            text-transform: uppercase;
-            letter-spacing: 0;
-            transition: all 0.2s; 
-            border-bottom: 2px solid transparent; 
-            white-space: nowrap;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-weight: 800; font-size: 11px; color: #94a3b8; background: #e2e8f0;
+            padding: 8px 0; width: 100%; border-radius: 6px 6px 0 0; 
+            text-transform: uppercase; transition: all 0.2s; border-bottom: 2px solid transparent; 
+            white-space: nowrap; display: flex; justify-content: center; align-items: center;
         }
-        .day-tab.active {
-            background: #ffffff; color: #3b82f6; box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-            position: relative; z-index: 10;
-        }
-        .day-tab.active::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: #3b82f6; border-radius: 3px 3px 0 0;
-        }
-        
-        /* Estilo especial para Domingo */
+        .day-tab.active { background: #ffffff; color: #3b82f6; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); position: relative; z-index: 10; }
+        .day-tab.active::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #3b82f6; border-radius: 3px 3px 0 0; }
         .day-tab.sunday { color: #ef4444; } 
         .day-tab.sunday.active { color: #dc2626; } 
         .day-tab.sunday.active::after { background: #dc2626; }
 
-        /* CARD ROTA */
-        .route-list-card {
-            background: #ffffff; border-radius: 0 12px 12px 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; min-height: 300px;
-            position: relative; z-index: 5;
-        }
-        .route-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.1s;
-        }
-        .route-row:last-child { border-bottom: none; }
+        /* CARDS */
+        .route-list-card { background: #ffffff; border-radius: 0 12px 12px 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; min-height: 300px; position: relative; z-index: 5; }
+        .route-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.1s; }
         .route-row:active { background: #f8fafc; }
 
-        /* BARRA FIXA */
-        .fixed-bottom-bar { 
-            position: fixed; bottom: 0; left: 0; right: 0; width: 100%;
-            background: rgba(255, 255, 255, 0.95); border-top: 1px solid #e2e8f0;
-            z-index: 60; 
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
-            padding-top: 20px; padding-left: 16px; padding-right: 16px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05); transition: transform 0.3s ease;
+        .ind-card { 
+            background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; 
+            transition: transform 0.1s; display: flex; flex-direction: column; 
+            align-items: center; justify-content: space-between; padding: 10px 6px; height: 90px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative;
         }
-        .fixed-bottom-bar.hidden-bar { transform: translateY(110%); }
+        .ind-card:active { transform: scale(0.96); border-color: #2563eb; }
+        
+        .cat-badge {
+            font-size: 8px; font-weight: 700; text-transform: uppercase;
+            background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px;
+            margin-top: 2px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
 
-        /* NAV BAR */
-        .bottom-nav { 
-            position: fixed; bottom: 0; left: 0; width: 100%; 
-            height: calc(65px + env(safe-area-inset-bottom)); 
-            padding-bottom: env(safe-area-inset-bottom);
-            background: #ffffff; border-top: 1px solid #e2e8f0; 
-            display: flex; justify-content: space-around; align-items: flex-start; 
-            padding-top: 12px; z-index: 50; transition: transform 0.3s ease;
+        .folder-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.2s; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .folder-card:active { background: #f8fafc; transform: scale(0.98); }
+
+        .photo-item { position: relative; overflow: hidden; border-radius: 12px; background: #cbd5e1; aspect-ratio: 1/1; transition: transform 0.1s; }
+        .photo-item:active { transform: scale(0.98); }
+        .photo-item.selected { border: 4px solid #2563eb; }
+        .photo-item.selected img { opacity: 0.7; }
+        .photo-item.selected::after { 
+            content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            color: white; font-size: 20px; z-index: 10; 
+            background: #2563eb; width: 36px; height: 36px; display: flex; 
+            align-items: center; justify-content: center; border-radius: 50%; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
         }
+
+        /* BARRAS */
+        .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background: rgba(255, 255, 255, 0.98); border-top: 1px solid #e2e8f0; z-index: 60; padding-bottom: calc(20px + env(safe-area-inset-bottom)); padding-top: 20px; padding-left: 16px; padding-right: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); transition: transform 0.3s ease; }
+        .fixed-bottom-bar.hidden-bar { transform: translateY(110%); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: calc(65px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; align-items: flex-start; padding-top: 12px; z-index: 50; transition: transform 0.3s ease; }
         .bottom-nav.hidden-nav { transform: translateY(100%); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 10px; font-weight: 600; width: 100%; }
         .nav-item i { font-size: 22px; margin-bottom: 4px; }
         .nav-item.active { color: #2563eb; }
 
-        /* SEARCH BAR */
         .search-container { position: sticky; top: 0; z-index: 30; background: #f8fafc; padding-bottom: 10px; }
         .search-input { width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 12px 12px 40px; font-size: 14px; color: #334155; outline: none; transition: border-color 0.2s; }
         .search-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-
-        /* CARDS */
-        .ind-card { background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 6px; height: 80px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .ind-card:active { transform: scale(0.96); border-color: #2563eb; }
-
-        .folder-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.2s; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .folder-card:active { background: #f8fafc; transform: scale(0.98); }
-
-        .photo-item { position: relative; overflow: hidden; border-radius: 12px; background: #cbd5e1; aspect-ratio: 1/1; }
-        .photo-item.selected { border: 3px solid #2563eb; }
-        .photo-item.selected img { opacity: 0.8; }
-        .photo-item.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; z-index: 10; background: #2563eb; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-
+        
         .btn-all-photos { background: #ffffff; border: 1px solid #e2e8f0; width: 100%; padding: 16px; border-radius: 16px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; margin-top: 15px; transition: transform 0.1s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .btn-all-photos:active { transform: scale(0.98); background: #f1f5f9; }
 
@@ -129,7 +103,7 @@
 <body class="text-slate-800">
 
     <!-- Header -->
-    <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-lg shadow-black/40">
+    <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-sm">
         <div class="flex items-center gap-3 w-2/3">
             <button id="backBtn" onclick="goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center active:scale-90 transition"><i class="fas fa-arrow-left"></i></button>
             <div class="overflow-hidden">
@@ -141,6 +115,7 @@
         <div class="flex items-center gap-2">
             <button id="installBtn" onclick="triggerInstall()" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
+            <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
             <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
             <button onclick="window.location.reload()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
         </div>
@@ -153,30 +128,15 @@
         <!-- VIEW 1: HOME (CRONOGRAMA) -->
         <div id="view-home" class="view-section active">
             <div class="mb-4 px-1 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Agenda Semanal</div>
-            
-            <!-- Abas dos Dias (GRID 7 Colunas - Fixo) -->
-            <div class="grid grid-cols-7 gap-1 mb-0 px-1 pb-1" id="routeTabsContainer">
-                <!-- JS injeta os dias aqui -->
-            </div>
-
-            <!-- Cartão da Lista (Fichário) -->
-            <div class="route-list-card">
-                <div id="routeListContent" class="flex flex-col">
-                    <div class="p-6 text-center text-slate-400 text-sm">Carregando...</div>
-                </div>
-            </div>
-            
-            <!-- Botão Todas as Fotos -->
+            <div class="grid grid-cols-7 gap-1 mb-0 px-1 pb-1" id="routeTabsContainer"></div>
+            <div class="route-list-card"><div id="routeListContent" class="flex flex-col"><div class="p-6 text-center text-slate-400 text-sm">Carregando...</div></div></div>
             <button onclick="openAllPhotos()" class="btn-all-photos text-slate-500 hover:text-blue-600"><i class="fas fa-images mr-2"></i> Feed de Fotos</button>
         </div>
 
         <!-- VIEW 1.5: LOCAIS (LISTA GERAL) -->
         <div id="view-routes" class="view-section">
             <div class="search-container mb-4">
-                <div class="relative">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" onkeyup="filterIndustries()" placeholder="Buscar local..." class="search-input">
-                </div>
+                <div class="relative"><i class="fas fa-search search-icon"></i><input type="text" id="searchInput" onkeyup="filterIndustries()" placeholder="Buscar local..." class="search-input"></div>
             </div>
             <div class="mb-2 flex justify-between items-end px-1">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-th-large"></i> Todos os Locais</span>
@@ -232,39 +192,32 @@
 
     <!-- NAV INFERIOR -->
     <nav id="mainNavBar" class="bottom-nav">
-        <div id="nav-general" class="nav-item active" onclick="switchMainTab('general')">
-            <i class="fas fa-calendar-alt"></i><span>Geral</span>
-        </div>
-        <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')">
-            <i class="fas fa-th-large"></i><span>Locais</span>
-        </div>
+        <div id="nav-general" class="nav-item active" onclick="switchMainTab('general')"><i class="fas fa-calendar-alt"></i><span>Geral</span></div>
+        <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')"><i class="fas fa-th-large"></i><span>Locais</span></div>
     </nav>
 
-    <!-- MODAL ROTA -->
-    <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col">
-            <h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3>
-            <!-- Grid para seleção de dia na config tbm -->
-            <div class="grid grid-cols-7 gap-1 mb-4 pb-2">
-                <button onclick="selectRouteConfigDay('Domingo')" class="day-cfg-btn bg-red-50 px-0 py-1 rounded text-[10px] text-red-500 font-bold border border-red-200 flex justify-center">DOM</button>
-                <button onclick="selectRouteConfigDay('Segunda')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEG</button>
-                <button onclick="selectRouteConfigDay('Terça')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">TER</button>
-                <button onclick="selectRouteConfigDay('Quarta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUA</button>
-                <button onclick="selectRouteConfigDay('Quinta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUI</button>
-                <button onclick="selectRouteConfigDay('Sexta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEX</button>
-                <button onclick="selectRouteConfigDay('Sábado')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SÁB</button>
+    <!-- MODAL ROTA CONFIG -->
+    <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col"><h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3><div class="grid grid-cols-7 gap-1 mb-4 pb-2"><button onclick="selectRouteConfigDay('Domingo')" class="day-cfg-btn bg-red-50 px-0 py-1 rounded text-[10px] text-red-500 font-bold border border-red-200 flex justify-center">DOM</button><button onclick="selectRouteConfigDay('Segunda')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEG</button><button onclick="selectRouteConfigDay('Terça')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">TER</button><button onclick="selectRouteConfigDay('Quarta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUA</button><button onclick="selectRouteConfigDay('Quinta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUI</button><button onclick="selectRouteConfigDay('Sexta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEX</button><button onclick="selectRouteConfigDay('Sábado')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SÁB</button></div><div class="text-xs text-slate-400 mb-2">Indústrias para <span id="currentConfigDay" class="text-blue-600 font-bold">...</span>:</div><div id="routeChecklist" class="flex-1 overflow-y-auto space-y-1 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100"></div><div class="flex gap-3 mt-auto"><button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Fechar</button><button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div></div></div>
+
+    <!-- MODAL ADD/EDIT INDÚSTRIA (COM CATEGORIA) -->
+    <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
+            <h3 id="modalTitle" class="text-sm font-bold text-slate-700 mb-4 uppercase">Nova Indústria</h3>
+            <input type="hidden" id="editIndId">
+            <input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 mb-3 text-slate-700 text-sm focus:outline-none focus:border-blue-500">
+            <div class="flex gap-2 mb-4">
+                <div class="relative w-full">
+                    <select id="catSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-600 text-xs focus:outline-none appearance-none"><option value="">Sem Categoria</option></select>
+                    <i class="fas fa-chevron-down absolute right-3 top-3.5 text-slate-400 text-xs"></i>
+                </div>
+                <button onclick="document.getElementById('newCatContainer').classList.toggle('hidden')" class="w-10 bg-blue-50 text-blue-600 rounded-xl border border-blue-200 flex items-center justify-center"><i class="fas fa-plus"></i></button>
             </div>
-            <div class="text-xs text-slate-400 mb-2">Indústrias para <span id="currentConfigDay" class="text-blue-600 font-bold">...</span>:</div>
-            <div id="routeChecklist" class="flex-1 overflow-y-auto space-y-1 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
-            <div class="flex gap-3 mt-auto">
-                <button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Fechar</button>
-                <button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button>
-            </div>
+            <div id="newCatContainer" class="hidden mb-4 flex gap-2"><input type="text" id="newCatName" placeholder="Nova Categoria..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs"><button onclick="addNewCategory()" class="bg-green-500 text-white px-3 rounded-lg text-xs font-bold">OK</button></div>
+            <div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button id="btnSaveInd" onclick="saveIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div>
         </div>
     </div>
 
     <!-- Modais Padrão -->
-    <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl"><h3 class="text-sm font-bold text-slate-700 mb-4 uppercase">Nova Pasta</h3><input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 mb-4 text-slate-700 text-sm focus:outline-none focus:border-blue-500"><div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button onclick="createIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">CRIAR</button></div></div></div>
     <div id="installModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl"><h3 class="text-lg font-bold text-slate-800 mb-2">Instalar App</h3><div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-600"><p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square text-blue-500"></i></p><p>2. Selecione <b>"Adicionar à Tela de Início"</b></p></div><div id="androidInstructions" class="hidden"><button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md">Instalar Agora</button></div><button onclick="document.getElementById('installModal').classList.add('hidden')" class="mt-4 text-slate-400 text-sm w-full py-2">Fechar</button></div></div>
     <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300"><div class="absolute top-0 w-full p-4 flex justify-end z-20"><button onclick="closePhotoModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button></div><img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl"><div class="absolute bottom-8 flex gap-4 w-full max-w-xs justify-center px-4"><button onclick="deleteSinglePhoto()" class="w-14 h-14 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button></div></div>
     <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full shadow-xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]"><div id="toastIcon" class="loader w-3 h-3 border-slate-200 border-t-blue-500"></div><span id="toastMsg">Processando...</span></div>
@@ -280,12 +233,14 @@
         let currentDateFolder = null;
         let industryPhotos = []; 
         let allIndustries = []; 
+        let categories = [];
         let isSelectionMode = false;
         let selectedPhotos = new Set();
         let currentModalPhoto = null;
+        let longPressTimer;
         
-        let routes = { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
-        const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        let routes = { 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
+        const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
         let configSelectedDay = null;
         let viewSelectedDay = null;
         let deferredPrompt;
@@ -294,319 +249,138 @@
         window.onload = () => { 
             loadIndustries(); 
             fetchRoutesFromDB();
+            loadCategories();
         };
 
-        async function fetchRoutesFromDB() {
-            try {
-                const { data } = await sb.from('rotas').select('*');
-                if (data && data.length > 0) {
-                    data.forEach(row => { if(routes[row.dia]) routes[row.dia] = row.industrias; });
-                }
-                const todayIndex = new Date().getDay(); // 0 is Sunday
-                const todayName = weekDays[todayIndex];
-                selectRouteViewDay(todayName);
-            } catch (e) { console.error("Erro rotas:", e); }
-        }
-
-        async function saveRouteConfig() {
-            showToast("Salvando...", "loading");
-            try {
-                const day = configSelectedDay;
-                const industries = routes[day];
-                const { error } = await sb.from('rotas').upsert({ dia: day, industrias: industries }, { onConflict: 'dia' });
-                if (error) throw error;
-                showToast("Salvo!", "success");
-                if (day === viewSelectedDay) renderRouteList(day);
-            } catch (e) { showToast("Erro", "error"); }
-        }
-
-        function switchMainTab(tab) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            if(tab === 'general') {
-                document.getElementById('nav-general').classList.add('active');
-                navigateTo('view-home');
-                document.getElementById('configRouteBtn').classList.remove('hidden');
-                if(!viewSelectedDay) { 
-                     const todayName = weekDays[new Date().getDay()];
-                     selectRouteViewDay(todayName);
-                }
-            } else {
-                document.getElementById('nav-routes').classList.add('active');
-                navigateTo('view-routes');
-                document.getElementById('configRouteBtn').classList.add('hidden');
-            }
-        }
-
-        function navigateTo(viewId) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            const backBtn=document.getElementById('backBtn'), selectBtn=document.getElementById('selectBtn'), title=document.getElementById('pageTitle'), subtitle=document.getElementById('pageSubtitle');
-            isSelectionMode = false; selectedPhotos.clear(); updateSelectionUI();
-            
-            backBtn.classList.add('hidden'); selectBtn.classList.add('hidden');
-
-            if (viewId === 'view-home') { 
-                title.innerText = "Cronograma"; subtitle.innerHTML = 'Visão Semanal'; document.getElementById('mainNavBar').classList.remove('hidden-nav'); 
-            } 
-            else if (viewId === 'view-routes') { 
-                title.innerText = "Locais"; subtitle.innerHTML = 'Lista Completa'; document.getElementById('mainNavBar').classList.remove('hidden-nav'); 
-            }
-            else {
-                document.getElementById('mainNavBar').classList.add('hidden-nav'); backBtn.classList.remove('hidden');
-                if (viewId === 'view-dates') { title.innerText = currentIndustry; subtitle.innerText = "Pastas"; }
-                else if (viewId === 'view-gallery') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria"; }
-                else if (viewId === 'view-all') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral"; }
-            }
-        }
-
-        function goBack() {
-            const active = document.querySelector('.view-section.active').id;
-            if (active === 'view-gallery') navigateTo('view-dates'); 
-            else if (active === 'view-all') navigateTo('view-home');
-            else if (active === 'view-dates') {
-                if (document.getElementById('nav-routes').classList.contains('active')) switchMainTab('routes');
-                else switchMainTab('general');
-            }
-        }
-
-        function filterIndustries() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allIndustries.filter(name => name.toLowerCase().includes(term));
-            renderIndustries(filtered);
-        }
-
+        // --- CORE: CARREGAR INDÚSTRIAS COM SINCRONIZAÇÃO AUTOMÁTICA ---
         async function loadIndustries() {
+            if(document.getElementById('nav-routes').classList.contains('active')) return;
             const list = document.getElementById('industriesList');
+            
             try {
-                const { data, error } = await sb.storage.from(BUCKET).list('', { sortBy: { column: 'name', order: 'asc' } });
-                if(error) throw error;
-                const folders = data.filter(item => item.name !== '.keep');
-                allIndustries = folders.map(f => f.name); 
-                document.getElementById('indCount').innerText = folders.length;
-                renderIndustries(allIndustries);
-            } catch(e) {}
+                const { data: dbData, error: dbError } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
+                const { data: stData, error: stError } = await sb.storage.from(BUCKET).list('');
+                
+                // --- AUTO-RESGATE (SYNC) ---
+                if (stData) {
+                    const stFolders = stData.filter(i => i.name !== '.keep').map(i => i.name);
+                    const dbNames = dbData ? dbData.map(i => i.nome) : [];
+                    const missingInDb = stFolders.filter(name => !dbNames.includes(name));
+                    
+                    if (missingInDb.length > 0) {
+                        const toInsert = missingInDb.map(name => ({ nome: name }));
+                        await sb.from('industrias').insert(toInsert);
+                        return loadIndustries();
+                    }
+                }
+                
+                if(dbError) throw dbError;
+                allIndustries = dbData;
+                document.getElementById('indCount').innerText = dbData.length;
+                renderIndustries(dbData);
+            } catch(e) { console.error("Erro loadIndustries", e); }
         }
 
         function renderIndustries(industries) {
             const list = document.getElementById('industriesList'); list.innerHTML = '';
             if(industries.length === 0) { list.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Vazio.</div>'; return; }
-            industries.forEach(indName => {
+            industries.forEach(ind => {
                 const el = document.createElement('div');
-                el.className = 'ind-card group cursor-pointer active:scale-95';
-                el.onclick = () => openIndustry(indName);
+                el.className = 'ind-card group cursor-pointer active:scale-95 relative';
+                el.onclick = () => openIndustry(ind);
+                
+                // Long press delete Industry
+                el.addEventListener('touchstart', () => { longPressTimer = setTimeout(() => deleteIndustry(ind.id, null, ind.nome), 800); });
+                el.addEventListener('touchend', () => clearTimeout(longPressTimer));
+                el.addEventListener('contextmenu', (e) => { e.preventDefault(); deleteIndustry(ind.id, null, ind.nome); });
+                
+                const catName = ind.categorias ? ind.categorias.nome : '';
+                const catBadge = catName ? `<div class="cat-badge">${catName}</div>` : '';
+
                 el.innerHTML = `
                     <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700 shadow-inner mb-2"><i class="fas fa-industry text-lg"></i></div>
-                    <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-3 px-1 break-words w-full">${indName}</h3>
-                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition" onclick="deleteIndustry('${indName}', event)"><i class="fas fa-trash-alt text-[9px]"></i></button>
+                    <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-2 px-1 break-words w-full">${ind.nome}</h3>
+                    ${catBadge}
+                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-10" onclick="deleteIndustry('${ind.id}', event, '${ind.nome}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
                 `;
                 list.appendChild(el);
             });
         }
 
-        function selectRouteViewDay(day) {
-            viewSelectedDay = day;
-            const container = document.getElementById('routeTabsContainer'); container.innerHTML = '';
-            weekDays.forEach(d => {
-                const btn = document.createElement('button');
-                btn.innerText = d.substring(0, 3); 
-                // Style Sunday red
-                let className = `day-tab ${d === day ? 'active' : ''}`;
-                if (d === 'Domingo') className += ' sunday';
-                btn.className = className;
-                btn.onclick = () => selectRouteViewDay(d); container.appendChild(btn);
-            });
-            renderRouteList(day);
-        }
-
-        function renderRouteList(day) {
-            const container = document.getElementById('routeListContent');
-            const industries = routes[day] || [];
-            container.innerHTML = '';
-            if (industries.length === 0) { container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Nenhuma rota definida.</div>'; return; }
-            industries.forEach(indName => {
-                const row = document.createElement('div');
-                row.className = 'route-row group';
-                row.onclick = () => openIndustry(indName);
-                row.innerHTML = `<div class="flex items-center gap-3"><i class="fas fa-folder text-blue-400 text-lg"></i><span class="font-bold text-sm text-slate-600">${indName}</span></div><i class="fas fa-chevron-right text-slate-300 text-xs group-active:translate-x-1 transition"></i>`;
-                container.appendChild(row);
-            });
-        }
-
-        function openRouteConfig() { document.getElementById('routeConfigModal').classList.remove('hidden'); selectRouteConfigDay('Segunda'); }
-        function selectRouteConfigDay(day) {
-            configSelectedDay = day;
-            document.querySelectorAll('.day-cfg-btn').forEach(btn => { 
-                if(btn.innerText.startsWith(day.substring(0,3))) { 
-                    btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full';
-                } else { 
-                    btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full';
-                } 
-            });
-            document.getElementById('currentConfigDay').innerText = day; renderChecklist();
-        }
-        function renderChecklist() {
-            const list = document.getElementById('routeChecklist'); list.innerHTML = '';
-            if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; return; }
-            const currentRoute = routes[configSelectedDay] || [];
-            allIndustries.forEach(ind => {
-                const isChecked = currentRoute.includes(ind);
-                const item = document.createElement('label');
-                item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer';
-                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" value="${ind}" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind}')"><span class="text-sm text-slate-600">${ind}</span>`;
-                list.appendChild(item);
-            });
-        }
-        function toggleRouteItem(indName) { if(!routes[configSelectedDay]) routes[configSelectedDay] = []; const idx = routes[configSelectedDay].indexOf(indName); if(idx > -1) routes[configSelectedDay].splice(idx, 1); else routes[configSelectedDay].push(indName); }
-
-        async function createIndustry() {
-            const name = document.getElementById('newIndName').value.trim(); if(!name) return;
-            showToast("Criando...", "loading");
-            try {
-                const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob([''], {type: 'text/plain'}));
-                showToast("Criado!", "success"); closeAddModal(); loadIndustries(); if(!allIndustries.includes(name)) allIndustries.push(name);
-            } catch(e) { showToast("Erro", "error"); }
-        }
-        async function deleteIndustry(indName, e) {
-             e.stopPropagation(); if(!confirm(`Apagar "${indName}"?`)) return;
+        async function deleteIndustry(id, e, indName) {
+             if(e) e.stopPropagation(); 
+             if(!confirm(`ATENÇÃO: Apagar indústria "${indName}"?`)) return;
              showToast("Apagando...", "loading");
-             try {
-                 const { data: files } = await sb.storage.from(BUCKET).list(indName, { limit: 1000 });
-                 if(files && files.length > 0) {
-                    for(const folder of files) {
-                        const { data: subFiles } = await sb.storage.from(BUCKET).list(`${indName}/${folder.name}`);
-                        if(subFiles) { const paths = subFiles.map(f => `${indName}/${folder.name}/${f.name}`); await sb.storage.from(BUCKET).remove(paths); await sb.from('fotos').delete().like('nome_arquivo', `${indName}/${folder.name}/%`); }
-                    }
-                    await sb.storage.from(BUCKET).remove(files.map(f => `${indName}/${f.name}`));
+             try { 
+                 const ind = allIndustries.find(i => i.id == id);
+                 if(ind) {
+                     await sb.from('industrias').delete().eq('id', id); 
+                     const safeName = ind.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                     await sb.storage.from(BUCKET).remove([`${safeName}/.keep`]);
                  }
-                 showToast("Removido", "success"); loadIndustries();
+                 showToast("Removido", "success"); loadIndustries(); 
              } catch(e) { showToast("Erro", "error"); }
         }
-        function openIndustry(name) { currentIndustry = name; loadDates(name); }
 
-        async function loadDates(indName) {
-            navigateTo('view-dates');
-            const list = document.getElementById('datesList');
-            list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
+        // --- RESTANTE (CATEGORIAS, ROTAS, ETC) ---
+        async function loadCategories() { try { const { data } = await sb.from('categorias').select('*').order('nome'); if(data) { categories = data; renderCategoryOptions(); } } catch(e) {} }
+        function renderCategoryOptions() { const select = document.getElementById('catSelect'); select.innerHTML = '<option value="">Sem Categoria</option>'; categories.forEach(cat => { const opt = document.createElement('option'); opt.value = cat.id; opt.innerText = cat.nome; select.appendChild(opt); }); }
+        async function addNewCategory() { const name = document.getElementById('newCatName').value.trim(); if(!name) return; try { const { data } = await sb.from('categorias').insert({ nome: name }).select(); await loadCategories(); document.getElementById('catSelect').value = data[0].id; document.getElementById('newCatContainer').classList.add('hidden'); } catch(e) { alert("Erro cat: " + e.message); } }
+        async function fetchRoutesFromDB() { try { const { data } = await sb.from('rotas').select('*'); if (data) data.forEach(row => { if(routes[row.dia]) routes[row.dia] = row.industrias; }); const todayIndex = new Date().getDay(); const todayName = todayIndex === 0 ? 'Segunda' : weekDays[todayIndex - 1] || 'Segunda'; selectRouteViewDay(todayName); } catch (e) {} }
+        async function saveRouteConfig() { showToast("Salvando...", "loading"); try { const day = configSelectedDay; const industries = routes[day]; const { error } = await sb.from('rotas').upsert({ dia: day, industrias: industries }, { onConflict: 'dia' }); if (error) throw error; showToast("Salvo!", "success"); if (day === viewSelectedDay) renderRouteList(day); } catch (e) { showToast("Erro", "error"); } }
+        async function saveIndustry() {
+            const id = document.getElementById('editIndId').value;
+            const name = document.getElementById('newIndName').value.trim();
+            const catId = document.getElementById('catSelect').value || null;
+            if(!name) return;
+            showToast("Salvando...", "loading");
             try {
-                const { data, error } = await sb.storage.from(BUCKET).list(indName, { sortBy: { column: 'name', order: 'desc' } });
-                const folders = data.filter(item => item.name !== '.keep');
-                list.innerHTML = '';
-                if(folders.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; }
-                const today = new Date();
-                folders.forEach(folder => {
-                    let displayDate = folder.name; let daysLeft = 45; let isExpired = false;
-                    if(folder.name.match(/^\d{4}-\d{2}-\d{2}$/)) { const [y, m, d] = folder.name.split('-'); const folderDate = new Date(y, m-1, d); const diffTime = Math.abs(today - folderDate); const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); daysLeft = DELETE_AFTER_DAYS - diffDays; displayDate = `${d}/${m}/${y}`; if(daysLeft <= 0) isExpired = true; }
-                    if(!isExpired) {
-                        let daysClass = "text-green-600"; if(daysLeft <= 5) daysClass = "text-red-500"; else if(daysLeft <= 15) daysClass = "text-yellow-600";
-                        const el = document.createElement('div');
-                        el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
-                        el.onclick = () => openGallery(folder.name);
-                        el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${displayDate}</h3><p class="text-[10px] text-slate-400"><span class="${daysClass}">Expira em ${daysLeft>0?daysLeft:0} dias</span></p></div></div><button class="w-8 h-8 rounded-full text-slate-600 hover:text-red-500 flex items-center justify-center" onclick="deleteDateFolder('${folder.name}', event)"><i class="fas fa-trash-alt text-xs"></i></button>`;
-                        list.appendChild(el);
-                    }
-                });
-            } catch(e) {}
+                if(id) { 
+                     const oldInd = allIndustries.find(i => i.id == id);
+                     if(oldInd && oldInd.nome !== name) {
+                         const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                         const newSafe = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                         const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${oldSafe}/%`);
+                         if(files) { for(const f of files) { const newPath = f.nome_arquivo.replace(`${oldSafe}/`, `${newSafe}/`); await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath); await sb.from('fotos').update({nome_arquivo: newPath}).eq('id', f.id); } }
+                         await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`);
+                     }
+                     const { error } = await sb.from('industrias').update({ nome: name, categoria_id: catId }).eq('id', id); if(error) throw error;
+                } else { 
+                     const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                     await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), {upsert: true});
+                     const { error } = await sb.from('industrias').insert({ nome: name, categoria_id: catId }); if(error) throw error;
+                }
+                showToast("Salvo!", "success"); closeAddModal(); loadIndustries();
+            } catch(e) { showToast("Erro", "error"); alert(e.message); }
         }
-        async function deleteDateFolder(folderName, e) {
-            e.stopPropagation(); if(!confirm(`Apagar pasta "${folderName}"?`)) return; showToast("Apagando...", "loading");
-            try { const path = `${currentIndustry}/${folderName}`; const { data: files } = await sb.storage.from(BUCKET).list(path); if (files.length > 0) { const filesToRemove = files.map(x => `${path}/${x.name}`); await sb.storage.from(BUCKET).remove(filesToRemove); await sb.from('fotos').delete().like('nome_arquivo', `${path}/%`); } await sb.storage.from(BUCKET).upload(`${currentIndustry}/.keep`, new Blob(['']), { upsert: true }); showToast("Pasta apagada", "success"); loadDates(currentIndustry); } catch (e) { showToast("Erro", "error"); }
-        }
-        function openGallery(folderName) { currentDateFolder = folderName; navigateTo('view-gallery'); loadGalleryPhotos(); }
-        async function loadGalleryPhotos() {
-            const container = document.getElementById('photosContainer');
-            container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>';
-            try {
-                const path = `${currentIndustry}/${currentDateFolder}`;
-                const { data, error } = await sb.storage.from(BUCKET).list(path, { sortBy: { column: 'created_at', order: 'asc' } });
-                const files = data.filter(item => item.id);
-                industryPhotos = files.map(f => ({ ...f, fullPath: `${path}/${f.name}`, publicUrl: sb.storage.from(BUCKET).getPublicUrl(`${path}/${f.name}`).data.publicUrl }));
-                container.innerHTML = '';
-                if(files.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; }
-                industryPhotos.forEach(file => {
-                    const isSelected = selectedPhotos.has(file.fullPath);
-                    const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
-                    div.onclick = () => handlePhotoClick(file.fullPath, file.publicUrl);
-                    let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file.fullPath, file.publicUrl); }, 500); });
-                    div.addEventListener('touchend', () => clearTimeout(pressTimer));
-                    div.innerHTML = `<img src="${file.publicUrl}" class="w-full h-full object-cover pointer-events-none">`;
-                    container.appendChild(div);
-                });
-            } catch(e) {}
-        }
-        async function openAllPhotos() {
-            navigateTo('view-all');
-            const container = document.getElementById('allPhotosContainer');
-            container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>';
-            try {
-                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200);
-                industryPhotos = data.map(f => ({ ...f, fullPath: f.nome_arquivo, publicUrl: f.url_publica, displayName: f.nome_arquivo.split('/')[0] }));
-                container.innerHTML = '';
-                if(data.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; }
-                industryPhotos.forEach(file => {
-                    const isSelected = selectedPhotos.has(file.fullPath);
-                    const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
-                    div.onclick = () => handlePhotoClick(file.fullPath, file.publicUrl);
-                    let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file.fullPath, file.publicUrl); }, 500); });
-                    div.addEventListener('touchend', () => clearTimeout(pressTimer));
-                    div.innerHTML = `<img src="${file.publicUrl}" class="w-full h-full object-cover pointer-events-none"><div class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[9px] px-2 py-1 truncate">${file.displayName}</div>`;
-                    container.appendChild(div);
-                });
-            } catch(e) {}
-        }
-        async function uploadPhoto(input) {
-            const file = input.files[0]; if(!file || !currentIndustry) return;
-            showToast("Enviando...", "loading");
-            try {
-                const blob = await resizeImage(file);
-                const now = new Date();
-                let targetDateFolder = currentDateFolder;
-                if(!targetDateFolder) targetDateFolder = now.toISOString().split('T')[0];
-                const fileName = `${currentIndustry}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`;
-                await sb.storage.from(BUCKET).upload(fileName, blob);
-                const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName);
-                await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl });
-                showToast("Salvo!", "success");
-                if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos();
-                else { currentDateFolder = targetDateFolder; openGallery(targetDateFolder); }
-            } catch(e) { showToast("Erro upload", "error"); alert(e.message); }
-            input.value = '';
-        }
-        function toggleSelectionMode() {
-            isSelectionMode = !isSelectionMode;
-            const btn=document.getElementById('selectBtn'), cam=document.getElementById('cameraControls'), selBar=document.getElementById('selectionControls'), selBarAll=document.getElementById('selectionControlsAll');
-            const isAll = document.getElementById('view-all').classList.contains('active');
-            if(isSelectionMode) { btn.innerText="Cancelar"; btn.classList.add('text-red-500','border-red-200','bg-red-50'); if(cam) cam.classList.add('hidden-bar'); if(isAll) selBarAll.classList.remove('hidden-bar'); else selBar.classList.remove('hidden-bar'); } 
-            else { btn.innerText="Selecionar"; btn.classList.remove('text-red-500','border-red-200','bg-red-50'); selectedPhotos.clear(); if(cam) cam.classList.remove('hidden-bar'); selBar.classList.add('hidden-bar'); selBarAll.classList.add('hidden-bar'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); }
-        }
-        function handlePhotoClick(fullPath, publicUrl) {
-            if(isSelectionMode) { selectedPhotos.has(fullPath) ? selectedPhotos.delete(fullPath) : selectedPhotos.add(fullPath); updateSelectionUI(); const isAll = document.getElementById('view-all').classList.contains('active'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); } 
-            else { openPhotoModal(publicUrl, fullPath); }
-        }
+
+        // --- NAVEGAÇÃO E RESTANTE ---
+        function switchMainTab(tab) { document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); if(tab === 'general') { document.getElementById('nav-general').classList.add('active'); navigateTo('view-home'); document.getElementById('configRouteBtn').classList.remove('hidden'); if(!viewSelectedDay) { const todayName = weekDays[new Date().getDay()]; selectRouteViewDay(todayName); } } else { document.getElementById('nav-routes').classList.add('active'); navigateTo('view-routes'); document.getElementById('configRouteBtn').classList.add('hidden'); } }
+        function navigateTo(viewId) { document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active')); document.getElementById(viewId).classList.add('active'); const backBtn=document.getElementById('backBtn'), selectBtn=document.getElementById('selectBtn'), title=document.getElementById('pageTitle'), subtitle=document.getElementById('pageSubtitle'), navBar=document.getElementById('mainNavBar'), editBtn = document.getElementById('editIndBtn'); isSelectionMode = false; selectedPhotos.clear(); updateSelectionUI(); backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editBtn.classList.add('hidden'); if (viewId === 'view-home') { title.innerText = "Cronograma"; subtitle.innerHTML = 'Visão Semanal'; navBar.classList.remove('hidden-nav'); } else if (viewId === 'view-routes') { title.innerText = "Locais"; subtitle.innerHTML = 'Lista Completa'; navBar.classList.remove('hidden-nav'); } else { navBar.classList.add('hidden-nav'); backBtn.classList.remove('hidden'); if (viewId === 'view-dates') { title.innerText = currentIndustry.nome; subtitle.innerText = "Pastas"; editBtn.classList.remove('hidden'); } else if (viewId === 'view-gallery') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria"; } else if (viewId === 'view-all') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral"; } } }
+        function goBack() { const active = document.querySelector('.view-section.active').id; if (active === 'view-gallery') navigateTo('view-dates'); else if (active === 'view-all') navigateTo('view-home'); else if (active === 'view-dates') { if (document.getElementById('nav-routes').classList.contains('active')) switchMainTab('routes'); else switchMainTab('general'); } }
+        function filterIndustries() { const term = document.getElementById('searchInput').value.toLowerCase(); const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term)); renderIndustries(filtered); }
+        function openIndustry(ind) { currentIndustry = ind; loadDates(ind.nome); }
+        async function loadDates(indName) { navigateTo('view-dates'); const list = document.getElementById('datesList'); list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>'; try { const safeName = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const search = `${safeName}/%`; const { data } = await sb.from('fotos').select('*').like('nome_arquivo', search).order('created_at', { ascending: false }); industryPhotos = data; list.innerHTML = ''; if(data.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; } const datesMap = {}; data.forEach(f => { const date = new Date(f.created_at); const dateKey = date.toLocaleDateString('pt-BR'); if(!datesMap[dateKey]) datesMap[dateKey] = 0; datesMap[dateKey]++; }); Object.keys(datesMap).forEach(dateLabel => { const count = datesMap[dateLabel]; const el = document.createElement('div'); el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group'; el.onclick = () => openGallery(dateLabel); el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} fotos</p></div></div>`; list.appendChild(el); }); } catch(e) {} }
+        function openGallery(dateLabel) { currentDateFolder = dateLabel; navigateTo('view-gallery'); loadGalleryPhotos(); }
+        function loadGalleryPhotos() { const container = document.getElementById('photosContainer'); container.innerHTML = ''; const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); if(photos.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; } photos.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); }
+        async function openAllPhotos() { navigateTo('view-all'); const container = document.getElementById('allPhotosContainer'); container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>'; try { const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); industryPhotos = data; container.innerHTML = ''; data.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); } catch(e) {} }
+        async function uploadPhoto(input) { const file = input.files[0]; if(!file || !currentIndustry) return; showToast("Enviando...", "loading"); try { const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const blob = await resizeImage(file); const now = new Date(); let targetDateFolder = currentDateFolder; if(!targetDateFolder) targetDateFolder = now.toISOString().split('T')[0]; const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; const { error: upErr } = await sb.storage.from(BUCKET).upload(fileName, blob); if(upErr) throw upErr; const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName); await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl }); showToast("Salvo!", "success"); if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); else { currentDateFolder = new Date().toLocaleDateString('pt-BR'); openGallery(currentDateFolder); } } catch(e) { showToast("Erro", "error"); } input.value = ''; }
+        function toggleSelectionMode() { isSelectionMode = !isSelectionMode; const btn=document.getElementById('selectBtn'), cam=document.getElementById('cameraControls'), selBar=document.getElementById('selectionControls'), selBarAll=document.getElementById('selectionControlsAll'); const isAll = document.getElementById('view-all').classList.contains('active'); if(isSelectionMode) { btn.innerText = "Cancelar"; btn.classList.add('text-red-500','border-red-200','bg-red-50'); if(cam) cam.classList.add('hidden-bar'); if(isAll) selBarAll.classList.remove('hidden-bar'); else selBar.classList.remove('hidden-bar'); } else { btn.innerText = "Selecionar"; btn.classList.remove('text-red-500','border-red-200','bg-red-50'); selectedPhotos.clear(); if(cam) cam.classList.remove('hidden-bar'); selBar.classList.add('hidden-bar'); selBarAll.classList.add('hidden-bar'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); } }
+        function handlePhotoClick(file) { if(isSelectionMode) { selectedPhotos.has(file.id) ? selectedPhotos.delete(file.id) : selectedPhotos.add(file.id); updateSelectionUI(); const isAll = document.getElementById('view-all').classList.contains('active'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); } else openPhotoModal(file.url_publica, file.id); }
         function updateSelectionUI() { const count = selectedPhotos.size; if(document.getElementById('selCount')) document.getElementById('selCount').innerText = count; if(document.getElementById('selCountAll')) document.getElementById('selCountAll').innerText = count; }
-        async function deleteSelected() {
-            if(selectedPhotos.size === 0) return; if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return;
-            showToast("Apagando...", "loading");
-            try { const paths = Array.from(selectedPhotos); await sb.storage.from(BUCKET).remove(paths); await sb.from('fotos').delete().in('nome_arquivo', paths); selectedPhotos.clear(); toggleSelectionMode(); showToast("Apagado!", "success"); } catch(e) { showToast("Erro", "error"); }
-        }
-        async function deleteSinglePhoto() {
-            if(!currentModalPhoto || !confirm("Apagar?")) return;
-            showToast("Apagando...", "loading");
-            try { await sb.storage.from(BUCKET).remove([currentModalPhoto]); await sb.from('fotos').delete().eq('nome_arquivo', currentModalPhoto); closePhotoModal(); showToast("Apagado!", "success"); if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); else openAllPhotos(); } catch(e) { showToast("Erro", "error"); }
-        }
-        async function shareSelected() {
-            if(selectedPhotos.size === 0) return; showToast(`Baixando...`, 'loading');
-            try {
-                const caption = `> 🛒 *Loja 438* - Camiño Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🏭 *Registro Fotográfico*`;
-                const filesArray = [];
-                const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.fullPath));
-                for(let i=0; i<selectedData.length; i++) { const p = selectedData[i]; const resp = await fetch(p.publicUrl); const blob = await resp.blob(); const file = new File([blob], `Foto_${i+1}.jpg`, { type: blob.type }); filesArray.push(file); }
-                if(navigator.share) { await navigator.share({ files: filesArray, text: caption }); toggleSelectionMode(); showToast('Enviado!', 'success'); } else { alert("Legenda:\n\n" + caption); }
-            } catch(e) { showToast("Erro share", 'error'); }
-        }
-        function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('addModal').classList.remove('hidden'); }
+        async function deleteSelected() { if(selectedPhotos.size === 0) return; if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return; showToast("Apagando...", "loading"); try { const ids = Array.from(selectedPhotos); await sb.from('fotos').delete().in('id', ids); selectedPhotos.clear(); toggleSelectionMode(); showToast("Apagado!", "success"); } catch(e) { showToast("Erro", "error"); } }
+        async function deleteSinglePhoto() { if(!currentModalPhoto || !confirm("Apagar?")) return; try { await sb.from('fotos').delete().eq('id', currentModalPhoto); closePhotoModal(); showToast("Apagado!", "success"); if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); else openAllPhotos(); } catch(e) { showToast("Erro", "error"); } }
+        async function shareSelected() { if(selectedPhotos.size === 0) return; showToast(`Baixando...`, 'loading'); try { const caption = `> 🛒 *Loja 438* - Camiño Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🏭 *Registro Fotográfico*`; const filesArray = []; const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id)); for(let i=0; i<selectedData.length; i++) { const p = selectedData[i]; const resp = await fetch(p.publicUrl); const blob = await resp.blob(); const file = new File([blob], `Foto_${i+1}.jpg`, { type: blob.type }); filesArray.push(file); } if(navigator.share) { await navigator.share({ files: filesArray, text: caption }); toggleSelectionMode(); showToast('Enviado!', 'success'); } else { alert("Legenda:\n\n" + caption); } } catch(e) { showToast("Erro share", 'error'); } }
+        function selectRouteViewDay(day) { viewSelectedDay = day; const container = document.getElementById('routeTabsContainer'); container.innerHTML = ''; weekDays.forEach(d => { const btn = document.createElement('button'); btn.innerText = d.substring(0, 3); let className = `day-tab ${d === day ? 'active' : ''}`; if (d === 'Domingo') className += ' sunday'; btn.className = className; btn.onclick = () => selectRouteViewDay(d); container.appendChild(btn); }); renderRouteList(day); }
+        function renderRouteList(day) { const container = document.getElementById('routeListContent'); const industriesNames = routes[day] || []; container.innerHTML = ''; if (industriesNames.length === 0) { container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Nenhuma rota definida.</div>'; return; } const fullIndustries = industriesNames.map(name => allIndustries.find(i => i.nome === name)).filter(Boolean); fullIndustries.forEach(ind => { const row = document.createElement('div'); row.className = 'route-row group'; row.onclick = () => openIndustry(ind); const catName = ind.categorias ? `<span class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded ml-2">${ind.categorias.nome}</span>` : ''; row.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-folder text-blue-400 text-lg"></i><div class="flex flex-col"><span class="font-bold text-sm text-slate-600">${ind.nome}</span></div>${catName}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-active:translate-x-1 transition"></i>`; container.appendChild(row); }); }
+        function openRouteConfig() { document.getElementById('routeConfigModal').classList.remove('hidden'); selectRouteConfigDay('Segunda'); }
+        function selectRouteConfigDay(day) { configSelectedDay = day; document.querySelectorAll('.day-cfg-btn').forEach(btn => { if(btn.innerText.startsWith(day.substring(0,3))) { btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'; } else { btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full'; } }); document.getElementById('currentConfigDay').innerText = day; renderChecklist(); }
+        function renderChecklist() { const list = document.getElementById('routeChecklist'); list.innerHTML = ''; if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; return; } const currentRoute = routes[configSelectedDay] || []; allIndustries.forEach(ind => { const isChecked = currentRoute.includes(ind.nome); const item = document.createElement('label'); item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" value="${ind.nome}" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; list.appendChild(item); }); }
+        function toggleRouteItem(indName) { if(!routes[configSelectedDay]) routes[configSelectedDay] = []; const idx = routes[configSelectedDay].indexOf(indName); if(idx > -1) routes[configSelectedDay].splice(idx, 1); else routes[configSelectedDay].push(indName); }
+        function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('editIndId').value = ''; document.getElementById('catSelect').value = ''; document.getElementById('modalTitle').innerText = "Nova Indústria"; document.getElementById('addModal').classList.remove('hidden'); }
+        function openEditIndustryModal() { if(!currentIndustry) return; document.getElementById('modalTitle').innerText = "Editar Indústria"; document.getElementById('newIndName').value = currentIndustry.nome; document.getElementById('editIndId').value = currentIndustry.id; document.getElementById('catSelect').value = currentIndustry.categoria_id || ''; document.getElementById('addModal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
-        function openPhotoModal(url, fullPath) { currentModalPhoto = fullPath; document.getElementById('previewImg').src = url; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10); }
+        function openPhotoModal(url, id) { currentModalPhoto = id; document.getElementById('previewImg').src = url; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10); }
         function closePhotoModal() { const m = document.getElementById('photoModal'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
         function showToast(msg, type) { const t=document.getElementById('statusToast'), i=document.getElementById('toastIcon'); document.getElementById('toastMsg').innerText=msg; t.classList.remove('opacity-0', '-translate-y-10'); if(type==='success') { i.className='fas fa-check text-green-400'; setTimeout(()=>t.classList.add('opacity-0'), 2000); } else if(type==='error') { i.className='fas fa-times text-red-400'; setTimeout(()=>t.classList.add('opacity-0'), 3000); } else i.className='loader w-3 h-3 border-slate-200 border-t-blue-500'; }
         function resizeImage(file) { return new Promise(resolve => { const r = new FileReader(); r.readAsDataURL(file); r.onload = e => { const i = new Image(); i.src = e.target.result; i.onload = () => { const c = document.createElement('canvas'), max = 1200, s = max/i.width, w = (i.width>max)?max:i.width, h = (i.width>max)?i.height*s:i.height; c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); c.toBlob(b=>resolve(b), 'image/jpeg', 0.8); }; }; }); }
