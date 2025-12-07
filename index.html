@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#ffffff">
@@ -26,9 +24,10 @@
             padding-bottom: calc(100px + env(safe-area-inset-bottom)); 
         }
         
-        .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        .glass-bar { background: rgba(255, 255, 255, 0.98); border-top: 1px solid #e2e8f0; }
         
-        /* ABAS */
+        /* ABAS DE DIAS */
         .day-tab {
             font-weight: 800; font-size: 11px; color: #94a3b8; background: #e2e8f0;
             padding: 8px 0; width: 100%; border-radius: 6px 6px 0 0; 
@@ -42,39 +41,30 @@
         .day-tab.sunday.active::after { background: #dc2626; }
 
         /* CARDS */
-        .route-list-card { background: #ffffff; border-radius: 0 12px 12px 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; min-height: 300px; position: relative; z-index: 5; }
+        .route-list-card { background: #ffffff; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; min-height: 300px; position: relative; z-index: 5; border: 1px solid #e2e8f0; border-top: none; }
         .route-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.1s; }
         .route-row:active { background: #f8fafc; }
 
         .ind-card { 
             background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; 
             transition: transform 0.1s; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 10px 6px; height: 90px;
+            align-items: center; justify-content: center; padding: 10px 6px; height: 90px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative;
         }
         .ind-card:active { transform: scale(0.96); border-color: #2563eb; }
-        
-        .cat-badge {
-            font-size: 8px; font-weight: 700; text-transform: uppercase;
-            background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px;
-            margin-top: 2px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
+        .ind-card.selected { border: 2px solid #2563eb; background: #eff6ff; }
+        .ind-card.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 4px; right: 4px; color: #2563eb; font-size: 12px; }
+
+        /* Badge Categoria */
+        .cat-badge { font-size: 8px; font-weight: 800; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-top: 4px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .folder-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.2s; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .folder-card:active { background: #f8fafc; transform: scale(0.98); }
 
         .photo-item { position: relative; overflow: hidden; border-radius: 12px; background: #cbd5e1; aspect-ratio: 1/1; transition: transform 0.1s; }
-        .photo-item:active { transform: scale(0.98); }
         .photo-item.selected { border: 4px solid #2563eb; }
         .photo-item.selected img { opacity: 0.7; }
-        .photo-item.selected::after { 
-            content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            color: white; font-size: 20px; z-index: 10; 
-            background: #2563eb; width: 36px; height: 36px; display: flex; 
-            align-items: center; justify-content: center; border-radius: 50%; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
-        }
+        .photo-item.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 20px; z-index: 10; background: #2563eb; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
 
         /* BARRAS */
         .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background: rgba(255, 255, 255, 0.98); border-top: 1px solid #e2e8f0; z-index: 60; padding-bottom: calc(20px + env(safe-area-inset-bottom)); padding-top: 20px; padding-left: 16px; padding-right: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); transition: transform 0.3s ease; }
@@ -114,7 +104,9 @@
         
         <div class="flex items-center gap-2">
             <button id="installBtn" onclick="triggerInstall()" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
+            
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
+            
             <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
             <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
             <button onclick="window.location.reload()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
@@ -146,6 +138,12 @@
                 <div class="col-span-3 flex flex-col items-center justify-center py-20 opacity-50"><div class="loader mb-2"></div><span class="text-xs text-slate-400">Lendo pastas...</span></div>
             </div>
             <button onclick="openAddModal()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full text-white shadow-xl shadow-blue-200 flex items-center justify-center text-2xl active:scale-90 transition z-40 transform hover:-translate-y-1"><i class="fas fa-plus"></i></button>
+            
+            <!-- Barra de Ação de Indústria (Mudar Categoria / Excluir) -->
+            <div id="industryActions" class="fixed-bottom-bar flex gap-3 hidden-bar">
+                <button onclick="deleteSelectedIndustries()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
+                <button onclick="openBulkCategoryModal()" class="flex-1 bg-blue-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95">Mudar Categoria (<span id="selIndCount">0</span>)</button>
+            </div>
         </div>
 
         <!-- VIEW 2: DATAS -->
@@ -199,7 +197,7 @@
     <!-- MODAL ROTA CONFIG -->
     <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col"><h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3><div class="grid grid-cols-7 gap-1 mb-4 pb-2"><button onclick="selectRouteConfigDay('Domingo')" class="day-cfg-btn bg-red-50 px-0 py-1 rounded text-[10px] text-red-500 font-bold border border-red-200 flex justify-center">DOM</button><button onclick="selectRouteConfigDay('Segunda')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEG</button><button onclick="selectRouteConfigDay('Terça')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">TER</button><button onclick="selectRouteConfigDay('Quarta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUA</button><button onclick="selectRouteConfigDay('Quinta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUI</button><button onclick="selectRouteConfigDay('Sexta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEX</button><button onclick="selectRouteConfigDay('Sábado')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SÁB</button></div><div class="text-xs text-slate-400 mb-2">Indústrias para <span id="currentConfigDay" class="text-blue-600 font-bold">...</span>:</div><div id="routeChecklist" class="flex-1 overflow-y-auto space-y-1 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100"></div><div class="flex gap-3 mt-auto"><button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Fechar</button><button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div></div></div>
 
-    <!-- MODAL ADD/EDIT INDÚSTRIA (COM CATEGORIA) -->
+    <!-- MODAL ADD/EDIT INDÚSTRIA -->
     <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
             <h3 id="modalTitle" class="text-sm font-bold text-slate-700 mb-4 uppercase">Nova Indústria</h3>
@@ -214,6 +212,19 @@
             </div>
             <div id="newCatContainer" class="hidden mb-4 flex gap-2"><input type="text" id="newCatName" placeholder="Nova Categoria..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs"><button onclick="addNewCategory()" class="bg-green-500 text-white px-3 rounded-lg text-xs font-bold">OK</button></div>
             <div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button id="btnSaveInd" onclick="saveIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div>
+        </div>
+    </div>
+    
+    <!-- MODAL BULK CATEGORY -->
+    <div id="bulkCatModal" class="fixed inset-0 bg-black/50 z-[90] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
+            <h3 class="text-sm font-bold text-slate-700 mb-4 uppercase">Mudar Categoria</h3>
+            <p class="text-xs text-slate-500 mb-2">Aplicar para <span id="bulkCountDisplay" class="font-bold">0</span> indústrias:</p>
+            <div class="relative w-full mb-4">
+                <select id="bulkCatSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-600 text-xs focus:outline-none appearance-none"><option value="">Sem Categoria</option></select>
+                <i class="fas fa-chevron-down absolute right-3 top-3.5 text-slate-400 text-xs"></i>
+            </div>
+            <div class="flex gap-3"><button onclick="document.getElementById('bulkCatModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button onclick="saveBulkCategory()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">APLICAR</button></div>
         </div>
     </div>
 
@@ -236,49 +247,90 @@
         let categories = [];
         let isSelectionMode = false;
         let selectedPhotos = new Set();
+        let selectedIndustries = new Set(); 
         let currentModalPhoto = null;
-        let longPressTimer;
         
-        let routes = { 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
-        const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+        let routes = { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
+        const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         let configSelectedDay = null;
         let viewSelectedDay = null;
         let deferredPrompt;
         const installModal = document.getElementById('installModal'), installBtn = document.getElementById('installBtn'), isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
+        const categoryColors = [
+            'bg-blue-100 text-blue-700', 'bg-green-100 text-green-700', 'bg-purple-100 text-purple-700',
+            'bg-orange-100 text-orange-700', 'bg-pink-100 text-pink-700', 'bg-teal-100 text-teal-700'
+        ];
+
         window.onload = () => { 
             loadIndustries(); 
             fetchRoutesFromDB();
             loadCategories();
+            window.history.pushState({ view: 'view-home' }, '', '');
         };
 
-        // --- CORE: CARREGAR INDÚSTRIAS COM SINCRONIZAÇÃO AUTOMÁTICA ---
+        window.addEventListener('popstate', (event) => {
+            if(!document.getElementById('addModal').classList.contains('hidden')) { closeAddModal(); history.pushState(null, null, location.href); return; }
+            if(!document.getElementById('photoModal').classList.contains('hidden')) { closePhotoModal(); history.pushState(null, null, location.href); return; }
+            const activeView = document.querySelector('.view-section.active').id;
+            if(activeView === 'view-gallery') navigateTo('view-dates', false);
+            else if(activeView === 'view-dates') navigateTo('view-home', false);
+            else if(activeView === 'view-all') navigateTo('view-home', false);
+            else if(activeView === 'view-routes') switchMainTab('general');
+        });
+
+        async function fetchRoutesFromDB() {
+            try {
+                const { data } = await sb.from('rotas').select('*');
+                if (data && data.length > 0) {
+                    data.forEach(row => { if(routes[row.dia]) routes[row.dia] = row.industrias; });
+                }
+                const todayIndex = new Date().getDay(); 
+                const todayName = weekDays[todayIndex];
+                selectRouteViewDay(todayName); // AUTO-SELECT HOJE
+            } catch (e) { console.error("Erro rotas:", e); }
+        }
+
+        async function saveRouteConfig() {
+            showToast("Salvando...", "loading"); try { await sb.from('rotas').upsert({ dia: configSelectedDay, industrias: routes[configSelectedDay] }, { onConflict: 'dia' }); showToast("Salvo!", "success"); if (configSelectedDay === viewSelectedDay) renderRouteList(configSelectedDay); } catch (e) { showToast("Erro", "error"); }
+        }
+
+        function switchMainTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(tab === 'general') { document.getElementById('nav-general').classList.add('active'); navigateTo('view-home'); document.getElementById('configRouteBtn').classList.remove('hidden'); if(!viewSelectedDay) { const todayName = weekDays[new Date().getDay()]; selectRouteViewDay(todayName); } } 
+            else { document.getElementById('nav-routes').classList.add('active'); navigateTo('view-routes'); document.getElementById('configRouteBtn').classList.add('hidden'); }
+        }
+
+        function navigateTo(viewId, push = true) {
+            if(push) window.history.pushState({ view: viewId }, '', '');
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            const backBtn=document.getElementById('backBtn'), selectBtn=document.getElementById('selectBtn'), title=document.getElementById('pageTitle'), subtitle=document.getElementById('pageSubtitle'), navBar=document.getElementById('mainNavBar');
+            const editIndBtn = document.getElementById('editIndBtn');
+            isSelectionMode = false; selectedPhotos.clear(); selectedIndustries.clear(); updateSelectionUI();
+            backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editIndBtn.classList.add('hidden');
+            if (viewId === 'view-home') { title.innerText = "Cronograma"; subtitle.innerHTML = 'Visão Semanal'; navBar.classList.remove('hidden-nav'); } 
+            else if (viewId === 'view-routes') { title.innerText = "Locais"; subtitle.innerHTML = 'Lista Completa'; navBar.classList.remove('hidden-nav'); selectBtn.classList.remove('hidden'); }
+            else { navBar.classList.add('hidden-nav'); backBtn.classList.remove('hidden'); if (viewId === 'view-dates') { title.innerText = currentIndustry.nome; subtitle.innerText = "Pastas"; editIndBtn.classList.remove('hidden'); } else if (viewId === 'view-gallery') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria de Fotos"; } else if (viewId === 'view-all') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral"; } }
+        }
+
+        function goBack() { window.history.back(); }
+        function filterIndustries() { const term = document.getElementById('searchInput').value.toLowerCase(); const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term)); renderIndustries(filtered); }
+
         async function loadIndustries() {
             if(document.getElementById('nav-routes').classList.contains('active')) return;
             const list = document.getElementById('industriesList');
-            
             try {
-                const { data: dbData, error: dbError } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
-                const { data: stData, error: stError } = await sb.storage.from(BUCKET).list('');
-                
-                // --- AUTO-RESGATE (SYNC) ---
-                if (stData) {
+                const { data: dbData } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
+                const { data: stData } = await sb.storage.from(BUCKET).list('');
+                if (stData) { 
                     const stFolders = stData.filter(i => i.name !== '.keep').map(i => i.name);
                     const dbNames = dbData ? dbData.map(i => i.nome) : [];
-                    const missingInDb = stFolders.filter(name => !dbNames.includes(name));
-                    
-                    if (missingInDb.length > 0) {
-                        const toInsert = missingInDb.map(name => ({ nome: name }));
-                        await sb.from('industrias').insert(toInsert);
-                        return loadIndustries();
-                    }
+                    const missing = stFolders.filter(n => !dbNames.includes(n));
+                    if (missing.length > 0) { await sb.from('industrias').insert(missing.map(n => ({ nome: n }))); return loadIndustries(); }
                 }
-                
-                if(dbError) throw dbError;
-                allIndustries = dbData;
-                document.getElementById('indCount').innerText = dbData.length;
-                renderIndustries(dbData);
-            } catch(e) { console.error("Erro loadIndustries", e); }
+                allIndustries = dbData; document.getElementById('indCount').innerText = dbData.length; renderIndustries(dbData);
+            } catch(e) {}
         }
 
         function renderIndustries(industries) {
@@ -287,24 +339,44 @@
             industries.forEach(ind => {
                 const el = document.createElement('div');
                 el.className = 'ind-card group cursor-pointer active:scale-95 relative';
-                el.onclick = () => openIndustry(ind);
-                
-                // Long press delete Industry
-                el.addEventListener('touchstart', () => { longPressTimer = setTimeout(() => deleteIndustry(ind.id, null, ind.nome), 800); });
-                el.addEventListener('touchend', () => clearTimeout(longPressTimer));
-                el.addEventListener('contextmenu', (e) => { e.preventDefault(); deleteIndustry(ind.id, null, ind.nome); });
-                
+                el.onclick = (e) => handleIndustryClick(ind, e);
                 const catName = ind.categorias ? ind.categorias.nome : '';
-                const catBadge = catName ? `<div class="cat-badge">${catName}</div>` : '';
-
+                const colorClass = ind.categorias ? categoryColors[ind.categorias.id % categoryColors.length] : 'bg-slate-100 text-slate-600';
+                const catBadge = catName ? `<div class="cat-badge ${colorClass}">${catName}</div>` : '';
                 el.innerHTML = `
                     <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700 shadow-inner mb-2"><i class="fas fa-industry text-lg"></i></div>
                     <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-2 px-1 break-words w-full">${ind.nome}</h3>
                     ${catBadge}
+                    <!-- Botão de Deletar Restaurado -->
                     <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-10" onclick="deleteIndustry('${ind.id}', event, '${ind.nome}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
                 `;
                 list.appendChild(el);
             });
+        }
+
+        async function loadCategories() { try { const { data } = await sb.from('categorias').select('*').order('nome'); if(data) { categories = data; renderCategoryOptions(); } } catch(e) {} }
+        function renderCategoryOptions() { const s = document.getElementById('catSelect'), b = document.getElementById('bulkCatSelect'); [s, b].forEach(el => { el.innerHTML = '<option value="">Sem Categoria</option>'; categories.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.innerText = c.nome; el.appendChild(o); }); }); }
+        async function addNewCategory() { const n = document.getElementById('newCatName').value.trim(); if(!n) return; try { const { data } = await sb.from('categorias').insert({ nome: n }).select(); await loadCategories(); document.getElementById('catSelect').value = data[0].id; document.getElementById('newCatContainer').classList.add('hidden'); } catch(e) { alert("Erro cat: " + e.message); } }
+
+        async function saveIndustry() {
+            const id = document.getElementById('editIndId').value; const name = document.getElementById('newIndName').value.trim(); const catId = document.getElementById('catSelect').value || null; if(!name) return;
+            showToast("Salvando...", "loading");
+            try {
+                if(id) { 
+                     const oldInd = allIndustries.find(i => i.id == id);
+                     if(oldInd && oldInd.nome !== name) {
+                         const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const newSafe = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                         const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${oldSafe}/%`);
+                         if(files) { for(const f of files) { const newPath = f.nome_arquivo.replace(`${oldSafe}/`, `${newSafe}/`); await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath); await sb.from('fotos').update({nome_arquivo: newPath}).eq('id', f.id); } }
+                         await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`);
+                     }
+                     await sb.from('industrias').update({ nome: name, categoria_id: catId }).eq('id', id);
+                } else { 
+                     const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), {upsert: true});
+                     await sb.from('industrias').insert({ nome: name, categoria_id: catId });
+                }
+                showToast("Salvo!", "success"); closeAddModal(); loadIndustries();
+            } catch(e) { showToast("Erro", "error"); alert(e.message); }
         }
 
         async function deleteIndustry(id, e, indName) {
@@ -322,49 +394,40 @@
              } catch(e) { showToast("Erro", "error"); }
         }
 
-        // --- RESTANTE (CATEGORIAS, ROTAS, ETC) ---
-        async function loadCategories() { try { const { data } = await sb.from('categorias').select('*').order('nome'); if(data) { categories = data; renderCategoryOptions(); } } catch(e) {} }
-        function renderCategoryOptions() { const select = document.getElementById('catSelect'); select.innerHTML = '<option value="">Sem Categoria</option>'; categories.forEach(cat => { const opt = document.createElement('option'); opt.value = cat.id; opt.innerText = cat.nome; select.appendChild(opt); }); }
-        async function addNewCategory() { const name = document.getElementById('newCatName').value.trim(); if(!name) return; try { const { data } = await sb.from('categorias').insert({ nome: name }).select(); await loadCategories(); document.getElementById('catSelect').value = data[0].id; document.getElementById('newCatContainer').classList.add('hidden'); } catch(e) { alert("Erro cat: " + e.message); } }
-        async function fetchRoutesFromDB() { try { const { data } = await sb.from('rotas').select('*'); if (data) data.forEach(row => { if(routes[row.dia]) routes[row.dia] = row.industrias; }); const todayIndex = new Date().getDay(); const todayName = todayIndex === 0 ? 'Segunda' : weekDays[todayIndex - 1] || 'Segunda'; selectRouteViewDay(todayName); } catch (e) {} }
-        async function saveRouteConfig() { showToast("Salvando...", "loading"); try { const day = configSelectedDay; const industries = routes[day]; const { error } = await sb.from('rotas').upsert({ dia: day, industrias: industries }, { onConflict: 'dia' }); if (error) throw error; showToast("Salvo!", "success"); if (day === viewSelectedDay) renderRouteList(day); } catch (e) { showToast("Erro", "error"); } }
-        async function saveIndustry() {
-            const id = document.getElementById('editIndId').value;
-            const name = document.getElementById('newIndName').value.trim();
-            const catId = document.getElementById('catSelect').value || null;
-            if(!name) return;
-            showToast("Salvando...", "loading");
+        function openIndustry(ind) { currentIndustry = ind; loadDates(ind.nome); }
+
+        async function loadDates(indName) {
+            navigateTo('view-dates');
+            const list = document.getElementById('datesList');
+            list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
             try {
-                if(id) { 
-                     const oldInd = allIndustries.find(i => i.id == id);
-                     if(oldInd && oldInd.nome !== name) {
-                         const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                         const newSafe = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                         const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${oldSafe}/%`);
-                         if(files) { for(const f of files) { const newPath = f.nome_arquivo.replace(`${oldSafe}/`, `${newSafe}/`); await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath); await sb.from('fotos').update({nome_arquivo: newPath}).eq('id', f.id); } }
-                         await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`);
-                     }
-                     const { error } = await sb.from('industrias').update({ nome: name, categoria_id: catId }).eq('id', id); if(error) throw error;
-                } else { 
-                     const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                     await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), {upsert: true});
-                     const { error } = await sb.from('industrias').insert({ nome: name, categoria_id: catId }); if(error) throw error;
-                }
-                showToast("Salvo!", "success"); closeAddModal(); loadIndustries();
-            } catch(e) { showToast("Erro", "error"); alert(e.message); }
+                const safeName = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                const search = `${safeName}/%`;
+                const { data } = await sb.from('fotos').select('*').like('nome_arquivo', search).order('created_at', { ascending: false });
+                industryPhotos = data;
+                list.innerHTML = '';
+                if(data.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; }
+                const datesMap = {};
+                data.forEach(f => {
+                    const date = new Date(f.created_at);
+                    const dateKey = date.toLocaleDateString('pt-BR');
+                    if(!datesMap[dateKey]) datesMap[dateKey] = 0; datesMap[dateKey]++;
+                });
+                Object.keys(datesMap).forEach(dateLabel => {
+                    const count = datesMap[dateLabel];
+                    const el = document.createElement('div');
+                    el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
+                    el.onclick = () => openGallery(dateLabel);
+                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} fotos</p></div></div>`;
+                    list.appendChild(el);
+                });
+            } catch(e) {}
         }
 
-        // --- NAVEGAÇÃO E RESTANTE ---
-        function switchMainTab(tab) { document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); if(tab === 'general') { document.getElementById('nav-general').classList.add('active'); navigateTo('view-home'); document.getElementById('configRouteBtn').classList.remove('hidden'); if(!viewSelectedDay) { const todayName = weekDays[new Date().getDay()]; selectRouteViewDay(todayName); } } else { document.getElementById('nav-routes').classList.add('active'); navigateTo('view-routes'); document.getElementById('configRouteBtn').classList.add('hidden'); } }
-        function navigateTo(viewId) { document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active')); document.getElementById(viewId).classList.add('active'); const backBtn=document.getElementById('backBtn'), selectBtn=document.getElementById('selectBtn'), title=document.getElementById('pageTitle'), subtitle=document.getElementById('pageSubtitle'), navBar=document.getElementById('mainNavBar'), editBtn = document.getElementById('editIndBtn'); isSelectionMode = false; selectedPhotos.clear(); updateSelectionUI(); backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editBtn.classList.add('hidden'); if (viewId === 'view-home') { title.innerText = "Cronograma"; subtitle.innerHTML = 'Visão Semanal'; navBar.classList.remove('hidden-nav'); } else if (viewId === 'view-routes') { title.innerText = "Locais"; subtitle.innerHTML = 'Lista Completa'; navBar.classList.remove('hidden-nav'); } else { navBar.classList.add('hidden-nav'); backBtn.classList.remove('hidden'); if (viewId === 'view-dates') { title.innerText = currentIndustry.nome; subtitle.innerText = "Pastas"; editBtn.classList.remove('hidden'); } else if (viewId === 'view-gallery') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria"; } else if (viewId === 'view-all') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral"; } } }
-        function goBack() { const active = document.querySelector('.view-section.active').id; if (active === 'view-gallery') navigateTo('view-dates'); else if (active === 'view-all') navigateTo('view-home'); else if (active === 'view-dates') { if (document.getElementById('nav-routes').classList.contains('active')) switchMainTab('routes'); else switchMainTab('general'); } }
-        function filterIndustries() { const term = document.getElementById('searchInput').value.toLowerCase(); const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term)); renderIndustries(filtered); }
-        function openIndustry(ind) { currentIndustry = ind; loadDates(ind.nome); }
-        async function loadDates(indName) { navigateTo('view-dates'); const list = document.getElementById('datesList'); list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>'; try { const safeName = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const search = `${safeName}/%`; const { data } = await sb.from('fotos').select('*').like('nome_arquivo', search).order('created_at', { ascending: false }); industryPhotos = data; list.innerHTML = ''; if(data.length === 0) { list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; } const datesMap = {}; data.forEach(f => { const date = new Date(f.created_at); const dateKey = date.toLocaleDateString('pt-BR'); if(!datesMap[dateKey]) datesMap[dateKey] = 0; datesMap[dateKey]++; }); Object.keys(datesMap).forEach(dateLabel => { const count = datesMap[dateLabel]; const el = document.createElement('div'); el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group'; el.onclick = () => openGallery(dateLabel); el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} fotos</p></div></div>`; list.appendChild(el); }); } catch(e) {} }
         function openGallery(dateLabel) { currentDateFolder = dateLabel; navigateTo('view-gallery'); loadGalleryPhotos(); }
         function loadGalleryPhotos() { const container = document.getElementById('photosContainer'); container.innerHTML = ''; const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); if(photos.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; } photos.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); }
         async function openAllPhotos() { navigateTo('view-all'); const container = document.getElementById('allPhotosContainer'); container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>'; try { const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); industryPhotos = data; container.innerHTML = ''; data.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); } catch(e) {} }
-        async function uploadPhoto(input) { const file = input.files[0]; if(!file || !currentIndustry) return; showToast("Enviando...", "loading"); try { const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const blob = await resizeImage(file); const now = new Date(); let targetDateFolder = currentDateFolder; if(!targetDateFolder) targetDateFolder = now.toISOString().split('T')[0]; const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; const { error: upErr } = await sb.storage.from(BUCKET).upload(fileName, blob); if(upErr) throw upErr; const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName); await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl }); showToast("Salvo!", "success"); if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); else { currentDateFolder = new Date().toLocaleDateString('pt-BR'); openGallery(currentDateFolder); } } catch(e) { showToast("Erro", "error"); } input.value = ''; }
+        async function uploadPhoto(input) { const file = input.files[0]; if(!file || !currentIndustry) return; showToast("Enviando...", "loading"); try { const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const blob = await resizeImage(file); const now = new Date(); let targetDateFolder = currentDateFolder; if(!targetDateFolder) targetDateFolder = now.toLocaleDateString('pt-BR'); const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; await sb.storage.from(BUCKET).upload(fileName, blob); const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName); await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl }); showToast("Salvo!", "success"); if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); else { currentDateFolder = new Date().toLocaleDateString('pt-BR'); openGallery(currentDateFolder); } } catch(e) { showToast("Erro", "error"); } input.value = ''; }
         function toggleSelectionMode() { isSelectionMode = !isSelectionMode; const btn=document.getElementById('selectBtn'), cam=document.getElementById('cameraControls'), selBar=document.getElementById('selectionControls'), selBarAll=document.getElementById('selectionControlsAll'); const isAll = document.getElementById('view-all').classList.contains('active'); if(isSelectionMode) { btn.innerText = "Cancelar"; btn.classList.add('text-red-500','border-red-200','bg-red-50'); if(cam) cam.classList.add('hidden-bar'); if(isAll) selBarAll.classList.remove('hidden-bar'); else selBar.classList.remove('hidden-bar'); } else { btn.innerText = "Selecionar"; btn.classList.remove('text-red-500','border-red-200','bg-red-50'); selectedPhotos.clear(); if(cam) cam.classList.remove('hidden-bar'); selBar.classList.add('hidden-bar'); selBarAll.classList.add('hidden-bar'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); } }
         function handlePhotoClick(file) { if(isSelectionMode) { selectedPhotos.has(file.id) ? selectedPhotos.delete(file.id) : selectedPhotos.add(file.id); updateSelectionUI(); const isAll = document.getElementById('view-all').classList.contains('active'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); } else openPhotoModal(file.url_publica, file.id); }
         function updateSelectionUI() { const count = selectedPhotos.size; if(document.getElementById('selCount')) document.getElementById('selCount').innerText = count; if(document.getElementById('selCountAll')) document.getElementById('selCountAll').innerText = count; }
@@ -377,6 +440,20 @@
         function selectRouteConfigDay(day) { configSelectedDay = day; document.querySelectorAll('.day-cfg-btn').forEach(btn => { if(btn.innerText.startsWith(day.substring(0,3))) { btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'; } else { btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full'; } }); document.getElementById('currentConfigDay').innerText = day; renderChecklist(); }
         function renderChecklist() { const list = document.getElementById('routeChecklist'); list.innerHTML = ''; if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; return; } const currentRoute = routes[configSelectedDay] || []; allIndustries.forEach(ind => { const isChecked = currentRoute.includes(ind.nome); const item = document.createElement('label'); item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" value="${ind.nome}" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; list.appendChild(item); }); }
         function toggleRouteItem(indName) { if(!routes[configSelectedDay]) routes[configSelectedDay] = []; const idx = routes[configSelectedDay].indexOf(indName); if(idx > -1) routes[configSelectedDay].splice(idx, 1); else routes[configSelectedDay].push(indName); }
+        
+        // SELEÇÃO EM MASSA E EDITAR
+        function handleIndustryClick(ind, e) {
+            if(isSelectionMode) {
+                const el = e.currentTarget; 
+                if(selectedIndustries.has(ind.id)) { selectedIndustries.delete(ind.id); el.classList.remove('selected'); }
+                else { selectedIndustries.add(ind.id); el.classList.add('selected'); }
+                document.getElementById('selIndCount').innerText = selectedIndustries.size;
+            } else { openIndustry(ind); }
+        }
+        function openBulkCategoryModal() { if(selectedIndustries.size === 0) return; document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size; const select = document.getElementById('bulkCatSelect'); select.innerHTML = '<option value="">Sem Categoria</option>'; categories.forEach(cat => { const opt = document.createElement('option'); opt.value = cat.id; opt.innerText = cat.nome; select.appendChild(opt); }); document.getElementById('bulkCatModal').classList.remove('hidden'); }
+        async function saveBulkCategory() { const catId = document.getElementById('bulkCatSelect').value || null; const ids = Array.from(selectedIndustries); showToast("Atualizando...", "loading"); try { const { error } = await sb.from('industrias').update({ categoria_id: catId }).in('id', ids); if(error) throw error; showToast("Atualizado!", "success"); document.getElementById('bulkCatModal').classList.add('hidden'); toggleSelectionMode(); loadIndustries(); } catch(e) { showToast("Erro", "error"); } }
+        async function deleteSelectedIndustries() { if(selectedIndustries.size===0)return; if(!confirm(`Apagar ${selectedIndustries.size} indústrias?`)) return; showToast("Apagando...", "loading"); try { const ids = Array.from(selectedIndustries); await sb.from('industrias').delete().in('id', ids); selectedIndustries.clear(); toggleSelectionMode(); loadIndustries(); showToast("Apagado!", "success"); } catch(e) { showToast("Erro", "error"); } }
+        
         function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('editIndId').value = ''; document.getElementById('catSelect').value = ''; document.getElementById('modalTitle').innerText = "Nova Indústria"; document.getElementById('addModal').classList.remove('hidden'); }
         function openEditIndustryModal() { if(!currentIndustry) return; document.getElementById('modalTitle').innerText = "Editar Indústria"; document.getElementById('newIndName').value = currentIndustry.nome; document.getElementById('editIndId').value = currentIndustry.id; document.getElementById('catSelect').value = currentIndustry.categoria_id || ''; document.getElementById('addModal').classList.remove('hidden'); }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
