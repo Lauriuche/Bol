@@ -456,13 +456,74 @@
         function openGallery(dateLabel) { currentDateFolder = dateLabel; navigateTo('view-gallery'); loadGalleryPhotos(); }
         function loadGalleryPhotos() { const container = document.getElementById('photosContainer'); container.innerHTML = ''; const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); if(photos.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; } photos.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); }
         async function openAllPhotos() { navigateTo('view-all'); const container = document.getElementById('allPhotosContainer'); container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>'; try { const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); industryPhotos = data; container.innerHTML = ''; data.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); } catch(e) {} }
-        async function uploadPhoto(input) { const file = input.files[0]; if(!file || !currentIndustry) return; showToast("Enviando...", "loading"); try { const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const blob = await resizeImage(file); const now = new Date(); let targetDateFolder = currentDateFolder; if(!targetDateFolder) targetDateFolder = now.toLocaleDateString('pt-BR'); const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; await sb.storage.from(BUCKET).upload(fileName, blob); const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName); await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl }); showToast("Salvo!", "success"); if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); else { currentDateFolder = new Date().toLocaleDateString('pt-BR'); openGallery(currentDateFolder); } } catch(e) { showToast("Erro", "error"); } input.value = ''; }
+        
+        // --- FUNÇÃO DE UPLOAD CORRIGIDA ---
+        async function uploadPhoto(input) { 
+            const file = input.files[0]; 
+            if(!file || !currentIndustry) return; 
+            showToast("Enviando...", "loading"); 
+            try { 
+                const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); 
+                const blob = await resizeImage(file); 
+                const now = new Date(); 
+                let targetDateFolder = currentDateFolder; 
+                if(!targetDateFolder) targetDateFolder = now.toLocaleDateString('pt-BR'); 
+                const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; 
+                
+                // CORREÇÃO: Definir explicitamente o Content-Type como image/jpeg
+                const { data, error } = await sb.storage.from(BUCKET).upload(fileName, blob, { 
+                    upsert: true,
+                    contentType: 'image/jpeg' 
+                });
+                
+                if (error) throw error;
+
+                const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName); 
+                await sb.from('fotos').insert({ created_at: new Date(), nome_arquivo: fileName, url_publica: publicUrl }); 
+                showToast("Salvo!", "success"); 
+                if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); 
+                else { currentDateFolder = new Date().toLocaleDateString('pt-BR'); openGallery(currentDateFolder); } 
+            } catch(e) { 
+                console.error(e);
+                showToast("Erro no envio", "error"); 
+            } 
+            input.value = ''; 
+        }
+
         function toggleSelectionMode() { isSelectionMode = !isSelectionMode; const btn=document.getElementById('selectBtn'), cam=document.getElementById('cameraControls'), selBar=document.getElementById('selectionControls'), selBarAll=document.getElementById('selectionControlsAll'); const isAll = document.getElementById('view-all').classList.contains('active'); if(isSelectionMode) { btn.innerText = "Cancelar"; btn.classList.add('text-red-500','border-red-200','bg-red-50'); if(cam) cam.classList.add('hidden-bar'); if(isAll) selBarAll.classList.remove('hidden-bar'); else selBar.classList.remove('hidden-bar'); } else { btn.innerText = "Selecionar"; btn.classList.remove('text-red-500','border-red-200','bg-red-50'); selectedPhotos.clear(); if(cam) cam.classList.remove('hidden-bar'); selBar.classList.add('hidden-bar'); selBarAll.classList.add('hidden-bar'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); } }
         function handlePhotoClick(file) { if(isSelectionMode) { selectedPhotos.has(file.id) ? selectedPhotos.delete(file.id) : selectedPhotos.add(file.id); updateSelectionUI(); const isAll = document.getElementById('view-all').classList.contains('active'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); } else openPhotoModal(file.url_publica, file.id); }
         function updateSelectionUI() { const count = selectedPhotos.size; if(document.getElementById('selCount')) document.getElementById('selCount').innerText = count; if(document.getElementById('selCountAll')) document.getElementById('selCountAll').innerText = count; }
         async function deleteSelected() { if(selectedPhotos.size === 0) return; if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return; showToast("Apagando...", "loading"); try { const ids = Array.from(selectedPhotos); await sb.from('fotos').delete().in('id', ids); selectedPhotos.clear(); toggleSelectionMode(); showToast("Apagado!", "success"); } catch(e) { showToast("Erro", "error"); } }
         async function deleteSinglePhoto() { if(!currentModalPhoto || !confirm("Apagar?")) return; try { await sb.from('fotos').delete().eq('id', currentModalPhoto); closePhotoModal(); showToast("Apagado!", "success"); if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); else openAllPhotos(); } catch(e) { showToast("Erro", "error"); } }
-        async function shareSelected() { if(selectedPhotos.size === 0) return; showToast(`Baixando...`, 'loading'); try { const caption = `> 🛒 *Loja 438* - Camiño Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🏭 *Registro Fotográfico*`; const filesArray = []; const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id)); for(let i=0; i<selectedData.length; i++) { const p = selectedData[i]; const resp = await fetch(p.publicUrl); const blob = await resp.blob(); const file = new File([blob], `Foto_${i+1}.jpg`, { type: blob.type }); filesArray.push(file); } if(navigator.share) { await navigator.share({ files: filesArray, text: caption }); toggleSelectionMode(); showToast('Enviado!', 'success'); } else { alert("Legenda:\n\n" + caption); } } catch(e) { showToast("Erro share", 'error'); } }
+        
+        // --- FUNÇÃO SHARE CORRIGIDA (SEM LEGENDA) ---
+        async function shareSelected() { 
+            if(selectedPhotos.size === 0) return; 
+            showToast(`Baixando...`, 'loading'); 
+            try { 
+                const filesArray = []; 
+                const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id)); 
+                for(let i=0; i<selectedData.length; i++) { 
+                    const p = selectedData[i]; 
+                    const resp = await fetch(p.url_publica); // Usei url_publica diretamente
+                    const blob = await resp.blob(); 
+                    const file = new File([blob], `Foto_${i+1}.jpg`, { type: blob.type }); 
+                    filesArray.push(file); 
+                } 
+                if(navigator.share) { 
+                    // CORREÇÃO: Removido propriedade 'text'
+                    await navigator.share({ files: filesArray }); 
+                    toggleSelectionMode(); 
+                    showToast('Enviado!', 'success'); 
+                } else { 
+                    alert("Seu navegador não suporta compartilhamento direto de arquivos."); 
+                } 
+            } catch(e) { 
+                console.error(e);
+                showToast("Erro share", 'error'); 
+            } 
+        }
+
         function openRouteConfig() { document.getElementById('routeConfigModal').classList.remove('hidden'); selectRouteConfigDay('Segunda'); }
         function selectRouteConfigDay(day) { configSelectedDay = day; document.querySelectorAll('.day-cfg-btn').forEach(btn => { if(btn.innerText.startsWith(day.substring(0,3))) { btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'; } else { btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full'; } }); document.getElementById('currentConfigDay').innerText = day; renderChecklist(); }
         function renderChecklist() { const list = document.getElementById('routeChecklist'); list.innerHTML = ''; if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; return; } const currentRoute = routes[configSelectedDay] || []; allIndustries.forEach(ind => { const isChecked = currentRoute.includes(ind.nome); const item = document.createElement('label'); item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" value="${ind.nome}" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; list.appendChild(item); }); }
@@ -482,4 +543,5 @@
     </script>
 </body>
 </html>
+
 
