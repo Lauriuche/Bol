@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -254,15 +253,35 @@
             'bg-orange-100 text-orange-700', 'bg-pink-100 text-pink-700', 'bg-teal-100 text-teal-700'
         ];
 
-        // --- INICIALIZAÇÃO CORRIGIDA (PROMISE ALL) ---
+        // --- INIT: Handle URL hash for persistent view after reload ---
         window.onload = async () => { 
             await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
-            window.history.pushState({ view: 'view-home' }, '', '');
             
-            // Auto-Select Today
-            const todayIndex = new Date().getDay();
-            const todayName = weekDays[todayIndex];
-            selectRouteViewDay(todayName);
+            // Handle view from URL hash (ex: #view-routes)
+            const hash = window.location.hash.replace('#', '');
+            if (hash && document.getElementById(hash)) {
+                navigateTo(hash, false);
+                // If it's the home or routes view, update bottom nav highlight accordingly
+                if(hash === 'view-home') {
+                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                    document.getElementById('nav-general').classList.add('active');
+                    document.getElementById('configRouteBtn').classList.remove('hidden');
+                } else if(hash === 'view-routes') {
+                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                    document.getElementById('nav-routes').classList.add('active');
+                    document.getElementById('configRouteBtn').classList.add('hidden');
+                }
+            } else {
+                // Default behavior: Home view + highlight geral nav + select today
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('nav-general').classList.add('active');
+                document.getElementById('configRouteBtn').classList.remove('hidden');
+
+                // Auto-Select Today
+                const todayIndex = new Date().getDay();
+                const todayName = weekDays[todayIndex];
+                selectRouteViewDay(todayName);
+            }
         };
 
         window.addEventListener('popstate', (event) => {
@@ -287,19 +306,34 @@
         }
 
         async function saveRouteConfig() {
-            showToast("Salvando...", "loading"); try { await sb.from('rotas').upsert({ dia: configSelectedDay, industrias: routes[configSelectedDay] }, { onConflict: 'dia' }); showToast("Salvo!", "success"); if (configSelectedDay === viewSelectedDay) renderRouteList(configSelectedDay); } catch (e) { showToast("Erro", "error"); }
+            showToast("Salvando...", "loading");
+            try {
+                await sb.from('rotas').upsert({ dia: configSelectedDay, industrias: routes[configSelectedDay] }, { onConflict: 'dia' });
+                showToast("Salvo!", "success");
+                if (configSelectedDay === viewSelectedDay) renderRouteList(configSelectedDay);
+            } catch (e) { showToast("Erro", "error"); }
         }
 
         // --- NAVEGAÇÃO ---
         function switchMainTab(tab) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            if(tab === 'general') { document.getElementById('nav-general').classList.add('active'); navigateTo('view-home'); document.getElementById('configRouteBtn').classList.remove('hidden'); } 
-            else { document.getElementById('nav-routes').classList.add('active'); navigateTo('view-routes'); document.getElementById('configRouteBtn').classList.add('hidden'); }
+            if(tab === 'general') {
+                document.getElementById('nav-general').classList.add('active');
+                navigateTo('view-home');
+                document.getElementById('configRouteBtn').classList.remove('hidden');
+            } 
+            else {
+                document.getElementById('nav-routes').classList.add('active');
+                navigateTo('view-routes');
+                document.getElementById('configRouteBtn').classList.add('hidden');
+            }
         }
 
+        // Alterado para usar hash na URL para preservar estado após reload
         function navigateTo(viewId, push = true) {
-            if(push) window.history.pushState({ view: viewId }, '', '');
-
+            if(push) {
+                window.location.hash = viewId;
+            }
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
             const backBtn=document.getElementById('backBtn'), selectBtn=document.getElementById('selectBtn'), title=document.getElementById('pageTitle'), subtitle=document.getElementById('pageSubtitle'), navBar=document.getElementById('mainNavBar');
@@ -308,13 +342,43 @@
             isSelectionMode = false; selectedPhotos.clear(); selectedIndustries.clear(); updateSelectionUI();
             backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editIndBtn.classList.add('hidden');
 
-            if (viewId === 'view-home') { title.innerText = "Cronograma"; subtitle.innerHTML = 'Visão Semanal'; navBar.classList.remove('hidden-nav'); } 
-            else if (viewId === 'view-routes') { title.innerText = "Locais"; subtitle.innerHTML = 'Lista Completa'; navBar.classList.remove('hidden-nav'); selectBtn.classList.remove('hidden'); }
+            if (viewId === 'view-home') { 
+                title.innerText = "Cronograma"; 
+                subtitle.innerHTML = 'Visão Semanal'; 
+                navBar.classList.remove('hidden-nav'); 
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('nav-general').classList.add('active');
+                document.getElementById('configRouteBtn').classList.remove('hidden');
+            } 
+            else if (viewId === 'view-routes') { 
+                title.innerText = "Locais"; 
+                subtitle.innerHTML = 'Lista Completa'; 
+                navBar.classList.remove('hidden-nav'); 
+                selectBtn.classList.remove('hidden');
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('nav-routes').classList.add('active');
+                document.getElementById('configRouteBtn').classList.add('hidden');
+            }
             else {
-                navBar.classList.add('hidden-nav'); backBtn.classList.remove('hidden'); 
-                if (viewId === 'view-dates') { title.innerText = currentIndustry.nome; subtitle.innerText = "Pastas"; editIndBtn.classList.remove('hidden'); }
-                else if (viewId === 'view-gallery') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria de Fotos"; }
-                else if (viewId === 'view-all') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral"; }
+                navBar.classList.add('hidden-nav'); 
+                backBtn.classList.remove('hidden'); 
+                if (viewId === 'view-dates') { 
+                    title.innerText = currentIndustry.nome; 
+                    subtitle.innerText = "Pastas"; 
+                    editIndBtn.classList.remove('hidden'); 
+                }
+                else if (viewId === 'view-gallery') { 
+                    selectBtn.classList.remove('hidden'); 
+                    selectBtn.innerText = "Selecionar"; 
+                    title.innerText = currentDateFolder; 
+                    subtitle.innerText = "Galeria de Fotos"; 
+                }
+                else if (viewId === 'view-all') { 
+                    selectBtn.classList.remove('hidden'); 
+                    selectBtn.innerText = "Selecionar"; 
+                    title.innerText = "Todas as Fotos"; 
+                    subtitle.innerText = "Feed Geral"; 
+                }
             }
         }
 
@@ -354,7 +418,6 @@
                     <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700 shadow-inner mb-2"><i class="fas fa-industry text-lg"></i></div>
                     <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-2 px-1 break-words w-full">${ind.nome}</h3>
                     ${catBadge}
-                    <!-- ÍCONE LIXEIRA RESTAURADO -->
                     <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center z-10" onclick="deleteIndustry('${ind.id}', event, '${ind.nome}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
                 `;
                 list.appendChild(el);
@@ -389,8 +452,7 @@
             });
         }
 
-        // --- RESTANTE (MANTER IGUAL V37) ---
-        // (Código compactado por segurança para garantir que tudo cabe)
+        // --- RESTANTE (MANTIDO IGUAL V37 PARA REDUÇÃO) ---
         async function loadCategories() { try { const { data } = await sb.from('categorias').select('*').order('nome'); if(data) { categories = data; renderCategoryOptions(); } } catch(e) {} }
         function renderCategoryOptions() { const s = document.getElementById('catSelect'), b = document.getElementById('bulkCatSelect'); [s, b].forEach(el => { el.innerHTML = '<option value="">Sem Categoria</option>'; categories.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.innerText = c.nome; el.appendChild(o); }); }); }
         async function addNewCategory() { const n = document.getElementById('newCatName').value.trim(); if(!n) return; try { const { data } = await sb.from('categorias').insert({ nome: n }).select(); await loadCategories(); document.getElementById('catSelect').value = data[0].id; document.getElementById('newCatContainer').classList.add('hidden'); } catch(e) {} }
@@ -457,7 +519,7 @@
         function loadGalleryPhotos() { const container = document.getElementById('photosContainer'); container.innerHTML = ''; const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); if(photos.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; } photos.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); }
         async function openAllPhotos() { navigateTo('view-all'); const container = document.getElementById('allPhotosContainer'); container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>'; try { const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); industryPhotos = data; container.innerHTML = ''; data.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); } catch(e) {} }
         
-        // --- FUNÇÃO DE UPLOAD CORRIGIDA ---
+        // --- FUNÇÃO DE UPLOAD ---
         async function uploadPhoto(input) { 
             const file = input.files[0]; 
             if(!file || !currentIndustry) return; 
@@ -470,7 +532,7 @@
                 if(!targetDateFolder) targetDateFolder = now.toLocaleDateString('pt-BR'); 
                 const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; 
                 
-                // CORREÇÃO: Definir explicitamente o Content-Type como image/jpeg
+                // Definir explicitamente o Content-Type como image/jpeg
                 const { data, error } = await sb.storage.from(BUCKET).upload(fileName, blob, { 
                     upsert: true,
                     contentType: 'image/jpeg' 
@@ -490,13 +552,64 @@
             input.value = ''; 
         }
 
-        function toggleSelectionMode() { isSelectionMode = !isSelectionMode; const btn=document.getElementById('selectBtn'), cam=document.getElementById('cameraControls'), selBar=document.getElementById('selectionControls'), selBarAll=document.getElementById('selectionControlsAll'); const isAll = document.getElementById('view-all').classList.contains('active'); if(isSelectionMode) { btn.innerText = "Cancelar"; btn.classList.add('text-red-500','border-red-200','bg-red-50'); if(cam) cam.classList.add('hidden-bar'); if(isAll) selBarAll.classList.remove('hidden-bar'); else selBar.classList.remove('hidden-bar'); } else { btn.innerText = "Selecionar"; btn.classList.remove('text-red-500','border-red-200','bg-red-50'); selectedPhotos.clear(); if(cam) cam.classList.remove('hidden-bar'); selBar.classList.add('hidden-bar'); selBarAll.classList.add('hidden-bar'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); } }
-        function handlePhotoClick(file) { if(isSelectionMode) { selectedPhotos.has(file.id) ? selectedPhotos.delete(file.id) : selectedPhotos.add(file.id); updateSelectionUI(); const isAll = document.getElementById('view-all').classList.contains('active'); if(isAll) openAllPhotos(); else loadGalleryPhotos(); } else openPhotoModal(file.url_publica, file.id); }
-        function updateSelectionUI() { const count = selectedPhotos.size; if(document.getElementById('selCount')) document.getElementById('selCount').innerText = count; if(document.getElementById('selCountAll')) document.getElementById('selCountAll').innerText = count; }
-        async function deleteSelected() { if(selectedPhotos.size === 0) return; if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return; showToast("Apagando...", "loading"); try { const ids = Array.from(selectedPhotos); await sb.from('fotos').delete().in('id', ids); selectedPhotos.clear(); toggleSelectionMode(); showToast("Apagado!", "success"); } catch(e) { showToast("Erro", "error"); } }
-        async function deleteSinglePhoto() { if(!currentModalPhoto || !confirm("Apagar?")) return; try { await sb.from('fotos').delete().eq('id', currentModalPhoto); closePhotoModal(); showToast("Apagado!", "success"); if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); else openAllPhotos(); } catch(e) { showToast("Erro", "error"); } }
+        function toggleSelectionMode() { 
+            isSelectionMode = !isSelectionMode; 
+            const btn=document.getElementById('selectBtn'), cam=document.getElementById('cameraControls'), selBar=document.getElementById('selectionControls'), selBarAll=document.getElementById('selectionControlsAll'); 
+            const isAll = document.getElementById('view-all').classList.contains('active'); 
+            if(isSelectionMode) { 
+                btn.innerText = "Cancelar"; 
+                btn.classList.add('text-red-500','border-red-200','bg-red-50'); 
+                if(cam) cam.classList.add('hidden-bar'); 
+                if(isAll) selBarAll.classList.remove('hidden-bar'); 
+                else selBar.classList.remove('hidden-bar'); 
+            } else { 
+                btn.innerText = "Selecionar"; 
+                btn.classList.remove('text-red-500','border-red-200','bg-red-50'); 
+                selectedPhotos.clear(); 
+                if(cam) cam.classList.remove('hidden-bar'); 
+                selBar.classList.add('hidden-bar'); 
+                selBarAll.classList.add('hidden-bar'); 
+                if(isAll) openAllPhotos(); 
+                else loadGalleryPhotos(); 
+            } 
+        }
+        function handlePhotoClick(file) { 
+            if(isSelectionMode) { 
+                selectedPhotos.has(file.id) ? selectedPhotos.delete(file.id) : selectedPhotos.add(file.id); 
+                updateSelectionUI(); 
+                const isAll = document.getElementById('view-all').classList.contains('active'); 
+                if(isAll) openAllPhotos(); else loadGalleryPhotos(); 
+            } else openPhotoModal(file.url_publica, file.id); 
+        }
+        function updateSelectionUI() { 
+            const count = selectedPhotos.size; 
+            if(document.getElementById('selCount')) document.getElementById('selCount').innerText = count; 
+            if(document.getElementById('selCountAll')) document.getElementById('selCountAll').innerText = count; 
+        }
+        async function deleteSelected() { 
+            if(selectedPhotos.size === 0) return; 
+            if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return; 
+            showToast("Apagando...", "loading"); 
+            try { 
+                const ids = Array.from(selectedPhotos); 
+                await sb.from('fotos').delete().in('id', ids); 
+                selectedPhotos.clear(); 
+                toggleSelectionMode(); 
+                showToast("Apagado!", "success"); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+        async function deleteSinglePhoto() { 
+            if(!currentModalPhoto || !confirm("Apagar?")) return; 
+            try { 
+                await sb.from('fotos').delete().eq('id', currentModalPhoto); 
+                closePhotoModal(); 
+                showToast("Apagado!", "success"); 
+                if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos(); 
+                else openAllPhotos(); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
         
-        // --- FUNÇÃO SHARE CORRIGIDA (SEM LEGENDA) ---
+        // --- SHARE ---
         async function shareSelected() { 
             if(selectedPhotos.size === 0) return; 
             showToast(`Baixando...`, 'loading'); 
@@ -505,13 +618,12 @@
                 const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id)); 
                 for(let i=0; i<selectedData.length; i++) { 
                     const p = selectedData[i]; 
-                    const resp = await fetch(p.url_publica); // Usei url_publica diretamente
+                    const resp = await fetch(p.url_publica);
                     const blob = await resp.blob(); 
                     const file = new File([blob], `Foto_${i+1}.jpg`, { type: blob.type }); 
                     filesArray.push(file); 
                 } 
                 if(navigator.share) { 
-                    // CORREÇÃO: Removido propriedade 'text'
                     await navigator.share({ files: filesArray }); 
                     toggleSelectionMode(); 
                     showToast('Enviado!', 'success'); 
@@ -525,21 +637,149 @@
         }
 
         function openRouteConfig() { document.getElementById('routeConfigModal').classList.remove('hidden'); selectRouteConfigDay('Segunda'); }
-        function selectRouteConfigDay(day) { configSelectedDay = day; document.querySelectorAll('.day-cfg-btn').forEach(btn => { if(btn.innerText.startsWith(day.substring(0,3))) { btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'; } else { btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full'; } }); document.getElementById('currentConfigDay').innerText = day; renderChecklist(); }
-        function renderChecklist() { const list = document.getElementById('routeChecklist'); list.innerHTML = ''; if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; return; } const currentRoute = routes[configSelectedDay] || []; allIndustries.forEach(ind => { const isChecked = currentRoute.includes(ind.nome); const item = document.createElement('label'); item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" value="${ind.nome}" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; list.appendChild(item); }); }
-        function toggleRouteItem(indName) { if(!routes[configSelectedDay]) routes[configSelectedDay] = []; const idx = routes[configSelectedDay].indexOf(indName); if(idx > -1) routes[configSelectedDay].splice(idx, 1); else routes[configSelectedDay].push(indName); }
-        function handleIndustryClick(ind, e) { if(isSelectionMode) { const el = e.currentTarget; if(selectedIndustries.has(ind.id)) { selectedIndustries.delete(ind.id); el.classList.remove('selected'); } else { selectedIndustries.add(ind.id); el.classList.add('selected'); } document.getElementById('selIndCount').innerText = selectedIndustries.size; } else { openIndustry(ind); } }
-        function openBulkCategoryModal() { if(selectedIndustries.size === 0) return; document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size; const select = document.getElementById('bulkCatSelect'); select.innerHTML = '<option value="">Sem Categoria</option>'; categories.forEach(cat => { const opt = document.createElement('option'); opt.value = cat.id; opt.innerText = cat.nome; select.appendChild(opt); }); document.getElementById('bulkCatModal').classList.remove('hidden'); }
-        async function saveBulkCategory() { const catId = document.getElementById('bulkCatSelect').value || null; const ids = Array.from(selectedIndustries); showToast("Atualizando...", "loading"); try { const { error } = await sb.from('industrias').update({ categoria_id: catId }).in('id', ids); if(error) throw error; showToast("Atualizado!", "success"); document.getElementById('bulkCatModal').classList.add('hidden'); toggleSelectionMode(); loadIndustries(); } catch(e) { showToast("Erro", "error"); } }
-        async function deleteSelectedIndustries() { if(selectedIndustries.size===0)return; if(!confirm(`Apagar ${selectedIndustries.size} indústrias?`)) return; showToast("Apagando...", "loading"); try { const ids = Array.from(selectedIndustries); await sb.from('industrias').delete().in('id', ids); selectedIndustries.clear(); toggleSelectionMode(); loadIndustries(); showToast("Apagado!", "success"); } catch(e) { showToast("Erro", "error"); } }
-        function openAddModal() { document.getElementById('newIndName').value = ''; document.getElementById('editIndId').value = ''; document.getElementById('catSelect').value = ''; document.getElementById('modalTitle').innerText = "Nova Indústria"; document.getElementById('addModal').classList.remove('hidden'); }
-        function openEditIndustryModal() { if(!currentIndustry) return; document.getElementById('modalTitle').innerText = "Editar Indústria"; document.getElementById('newIndName').value = currentIndustry.nome; document.getElementById('editIndId').value = currentIndustry.id; document.getElementById('catSelect').value = currentIndustry.categoria_id || ''; document.getElementById('addModal').classList.remove('hidden'); }
+        function selectRouteConfigDay(day) { 
+            configSelectedDay = day; 
+            document.querySelectorAll('.day-cfg-btn').forEach(btn => { 
+                if(btn.innerText.startsWith(day.substring(0,3))) { 
+                    btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'; 
+                } else { 
+                    btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full'; 
+                } 
+            }); 
+            document.getElementById('currentConfigDay').innerText = day; renderChecklist(); 
+        }
+        function renderChecklist() { 
+            const list = document.getElementById('routeChecklist'); list.innerHTML = ''; 
+            if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; return; } 
+            const currentRoute = routes[configSelectedDay] || []; 
+            allIndustries.forEach(ind => { 
+                const isChecked = currentRoute.includes(ind.nome); 
+                const item = document.createElement('label'); 
+                item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; 
+                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" value="${ind.nome}" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; 
+                list.appendChild(item); 
+            }); 
+        }
+        function toggleRouteItem(indName) { 
+            if(!routes[configSelectedDay]) routes[configSelectedDay] = []; 
+            const idx = routes[configSelectedDay].indexOf(indName); 
+            if(idx > -1) routes[configSelectedDay].splice(idx, 1); 
+            else routes[configSelectedDay].push(indName); 
+        }
+        function handleIndustryClick(ind, e) { 
+            if(isSelectionMode) { 
+                const el = e.currentTarget; 
+                if(selectedIndustries.has(ind.id)) { 
+                    selectedIndustries.delete(ind.id); 
+                    el.classList.remove('selected'); 
+                } else { 
+                    selectedIndustries.add(ind.id); 
+                    el.classList.add('selected'); 
+                } 
+                document.getElementById('selIndCount').innerText = selectedIndustries.size; 
+            } else { 
+                openIndustry(ind); 
+            } 
+        }
+        function openBulkCategoryModal() { 
+            if(selectedIndustries.size === 0) return; 
+            document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size; 
+            const select = document.getElementById('bulkCatSelect'); 
+            select.innerHTML = '<option value="">Sem Categoria</option>'; 
+            categories.forEach(cat => { 
+                const opt = document.createElement('option'); 
+                opt.value = cat.id; 
+                opt.innerText = cat.nome; 
+                select.appendChild(opt); 
+            }); 
+            document.getElementById('bulkCatModal').classList.remove('hidden'); 
+        }
+        async function saveBulkCategory() { 
+            const catId = document.getElementById('bulkCatSelect').value || null; 
+            const ids = Array.from(selectedIndustries); 
+            showToast("Atualizando...", "loading"); 
+            try { 
+                const { error } = await sb.from('industrias').update({ categoria_id: catId }).in('id', ids); 
+                if(error) throw error; 
+                showToast("Atualizado!", "success"); 
+                document.getElementById('bulkCatModal').classList.add('hidden'); 
+                toggleSelectionMode(); 
+                loadIndustries(); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+        async function deleteSelectedIndustries() { 
+            if(selectedIndustries.size===0)return; 
+            if(!confirm(`Apagar ${selectedIndustries.size} indústrias?`)) return; 
+            showToast("Apagando...", "loading"); 
+            try { 
+                const ids = Array.from(selectedIndustries); 
+                await sb.from('industrias').delete().in('id', ids); 
+                selectedIndustries.clear(); 
+                toggleSelectionMode(); 
+                loadIndustries(); 
+                showToast("Apagado!", "success"); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+        function openAddModal() { 
+            document.getElementById('newIndName').value = ''; 
+            document.getElementById('editIndId').value = ''; 
+            document.getElementById('catSelect').value = ''; 
+            document.getElementById('modalTitle').innerText = "Nova Indústria"; 
+            document.getElementById('addModal').classList.remove('hidden'); 
+        }
+        function openEditIndustryModal() { 
+            if(!currentIndustry) return; 
+            document.getElementById('modalTitle').innerText = "Editar Indústria"; 
+            document.getElementById('newIndName').value = currentIndustry.nome; 
+            document.getElementById('editIndId').value = currentIndustry.id; 
+            document.getElementById('catSelect').value = currentIndustry.categoria_id || ''; 
+            document.getElementById('addModal').classList.remove('hidden'); 
+        }
         function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
-        function openPhotoModal(url, id) { currentModalPhoto = id; document.getElementById('previewImg').src = url; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10); }
-        function closePhotoModal() { const m = document.getElementById('photoModal'); m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),300); }
-        function showToast(msg, type) { const t=document.getElementById('statusToast'), i=document.getElementById('toastIcon'); document.getElementById('toastMsg').innerText=msg; t.classList.remove('opacity-0', '-translate-y-10'); if(type==='success') { i.className='fas fa-check text-green-400'; setTimeout(()=>t.classList.add('opacity-0'), 2000); } else if(type==='error') { i.className='fas fa-times text-red-400'; setTimeout(()=>t.classList.add('opacity-0'), 3000); } else i.className='loader w-3 h-3 border-slate-200 border-t-blue-500'; }
-        function resizeImage(file) { return new Promise(resolve => { const r = new FileReader(); r.readAsDataURL(file); r.onload = e => { const i = new Image(); i.src = e.target.result; i.onload = () => { const c = document.createElement('canvas'), max = 1200, s = max/i.width, w = (i.width>max)?max:i.width, h = (i.width>max)?i.height*s:i.height; c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); c.toBlob(b=>resolve(b), 'image/jpeg', 0.8); }; }; }); }
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); }); if(isIOS) installBtn.classList.remove('hidden');
+        function openPhotoModal(url, id) { 
+            currentModalPhoto = id; 
+            document.getElementById('previewImg').src = url; 
+            const m = document.getElementById('photoModal'); 
+            m.classList.remove('hidden'); 
+            setTimeout(()=>m.classList.remove('opacity-0'),10); 
+        }
+        function closePhotoModal() { 
+            const m = document.getElementById('photoModal'); 
+            m.classList.add('opacity-0'); 
+            setTimeout(()=>m.classList.add('hidden'),300); 
+        }
+        function showToast(msg, type) { 
+            const t=document.getElementById('statusToast'), i=document.getElementById('toastIcon'); 
+            document.getElementById('toastMsg').innerText=msg; 
+            t.classList.remove('opacity-0', '-translate-y-10'); 
+            if(type==='success') { 
+                i.className='fas fa-check text-green-400'; 
+                setTimeout(()=>t.classList.add('opacity-0'), 2000); 
+            } else if(type==='error') { 
+                i.className='fas fa-times text-red-400'; 
+                setTimeout(()=>t.classList.add('opacity-0'), 3000); 
+            } else 
+                i.className='loader w-3 h-3 border-slate-200 border-t-blue-500'; 
+        }
+        function resizeImage(file) { 
+            return new Promise(resolve => { 
+                const r = new FileReader(); 
+                r.readAsDataURL(file); 
+                r.onload = e => { 
+                    const i = new Image(); 
+                    i.src = e.target.result; 
+                    i.onload = () => { 
+                        const c = document.createElement('canvas'), max = 1200, s = max/i.width, w = (i.width>max)?max:i.width, h = (i.width>max)?i.height*s:i.height; 
+                        c.width=w; 
+                        c.height=h; 
+                        c.getContext('2d').drawImage(i,0,0,w,h); 
+                        c.toBlob(b=>resolve(b), 'image/jpeg', 0.8); 
+                    }; 
+                }; 
+            }); 
+        }
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); }); 
+        if(isIOS) installBtn.classList.remove('hidden');
     </script>
 </body>
 </html>
