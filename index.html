@@ -105,7 +105,7 @@
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
             <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
             <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
-            <button onclick="refreshPage()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
+            <button onclick="window.location.reload()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
         </div>
     </header>
 
@@ -257,7 +257,12 @@
         // --- INICIALIZAÇÃO CORRIGIDA (PROMISE ALL) ---
         window.onload = async () => { 
             await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
-            restoreState();
+            window.history.pushState({ view: 'view-home' }, '', '');
+            
+            // Auto-Select Today
+            const todayIndex = new Date().getDay();
+            const todayName = weekDays[todayIndex];
+            selectRouteViewDay(todayName);
         };
 
         window.addEventListener('popstate', (event) => {
@@ -311,8 +316,6 @@
                 else if (viewId === 'view-gallery') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = currentDateFolder; subtitle.innerText = "Galeria de Fotos"; }
                 else if (viewId === 'view-all') { selectBtn.classList.remove('hidden'); selectBtn.innerText = "Selecionar"; title.innerText = "Todas as Fotos"; subtitle.innerText = "Feed Geral"; }
             }
-
-            saveState();
         }
 
         function goBack() { window.history.back(); }
@@ -345,14 +348,14 @@
                 
                 const catName = ind.categorias ? ind.categorias.nome : '';
                 const colorClass = ind.categorias ? categoryColors[ind.categorias.id % categoryColors.length] : 'bg-slate-100 text-slate-600';
-                const catBadge = catName ? `<div class="cat-badge \( {colorClass}"> \){catName}</div>` : '';
+                const catBadge = catName ? `<div class="cat-badge ${colorClass}">${catName}</div>` : '';
 
                 el.innerHTML = `
                     <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700 shadow-inner mb-2"><i class="fas fa-industry text-lg"></i></div>
                     <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-2 px-1 break-words w-full">${ind.nome}</h3>
                     ${catBadge}
                     <!-- ÍCONE LIXEIRA RESTAURADO -->
-                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center z-10" onclick="deleteIndustry('\( {ind.id}', event, ' \){ind.nome}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
+                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center z-10" onclick="deleteIndustry('${ind.id}', event, '${ind.nome}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
                 `;
                 list.appendChild(el);
             });
@@ -372,7 +375,6 @@
                 container.appendChild(btn);
             });
             renderRouteList(day);
-            saveState();
         }
 
         function renderRouteList(day) {
@@ -383,7 +385,7 @@
             fullIndustries.forEach(ind => { 
                 const row = document.createElement('div'); row.className = 'route-row group'; row.onclick = () => openIndustry(ind); 
                 const catName = ind.categorias ? `<span class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded ml-2">${ind.categorias.nome}</span>` : '';
-                row.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-folder text-blue-400 text-lg"></i><div class="flex flex-col"><span class="font-bold text-sm text-slate-600">\( {ind.nome}</span></div> \){catName}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-active:translate-x-1 transition"></i>`; container.appendChild(row); 
+                row.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-folder text-blue-400 text-lg"></i><div class="flex flex-col"><span class="font-bold text-sm text-slate-600">${ind.nome}</span></div>${catName}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-active:translate-x-1 transition"></i>`; container.appendChild(row); 
             });
         }
 
@@ -402,8 +404,8 @@
                      if(oldInd && oldInd.nome !== name) {
                          const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const newSafe = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                          const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${oldSafe}/%`);
-                         if(files) { for(const f of files) { const newPath = f.nome_arquivo.replace(`\( {oldSafe}/`, ` \){newSafe}/`); await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath); await sb.from('fotos').update({nome_arquivo: newPath}).eq('id', f.id); } }
-                         await sb.storage.from(BUCKET).move(`\( {oldSafe}/.keep`, ` \){newSafe}/.keep`);
+                         if(files) { for(const f of files) { const newPath = f.nome_arquivo.replace(`${oldSafe}/`, `${newSafe}/`); await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath); await sb.from('fotos').update({nome_arquivo: newPath}).eq('id', f.id); } }
+                         await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`);
                      }
                      await sb.from('industrias').update({ nome: name, categoria_id: catId }).eq('id', id);
                 } else { 
@@ -446,14 +448,14 @@
                     const el = document.createElement('div');
                     el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
                     el.onclick = () => openGallery(dateLabel);
-                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">\( {dateLabel}</h3><p class="text-[10px] text-slate-400"> \){count} fotos</p></div></div>`;
+                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} fotos</p></div></div>`;
                     list.appendChild(el);
                 });
             } catch(e) {}
         }
         function openGallery(dateLabel) { currentDateFolder = dateLabel; navigateTo('view-gallery'); loadGalleryPhotos(); }
-        function loadGalleryPhotos() { const container = document.getElementById('photosContainer'); container.innerHTML = ''; const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); if(photos.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; } photos.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer \( {isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src=" \){file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); }
-        async function openAllPhotos() { navigateTo('view-all'); const container = document.getElementById('allPhotosContainer'); container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>'; try { const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); industryPhotos = data; container.innerHTML = ''; data.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer \( {isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src=" \){file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); } catch(e) {} }
+        function loadGalleryPhotos() { const container = document.getElementById('photosContainer'); container.innerHTML = ''; const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); if(photos.length === 0) { container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; return; } photos.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); }
+        async function openAllPhotos() { navigateTo('view-all'); const container = document.getElementById('allPhotosContainer'); container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>'; try { const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); industryPhotos = data; container.innerHTML = ''; data.forEach(file => { const isSelected = selectedPhotos.has(file.id); const div = document.createElement('div'); div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; div.onclick = () => handlePhotoClick(file); let pressTimer; div.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { toggleSelectionMode(); handlePhotoClick(file); }, 500); }); div.addEventListener('touchend', () => clearTimeout(pressTimer)); div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; container.appendChild(div); }); } catch(e) {} }
         
         // --- FUNÇÃO DE UPLOAD CORRIGIDA ---
         async function uploadPhoto(input) { 
@@ -466,7 +468,7 @@
                 const now = new Date(); 
                 let targetDateFolder = currentDateFolder; 
                 if(!targetDateFolder) targetDateFolder = now.toLocaleDateString('pt-BR'); 
-                const fileName = `\( {safeName}/ \){targetDateFolder}/FOTO_${now.getTime()}.jpg`; 
+                const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; 
                 
                 // CORREÇÃO: Definir explicitamente o Content-Type como image/jpeg
                 const { data, error } = await sb.storage.from(BUCKET).upload(fileName, blob, { 
@@ -524,7 +526,7 @@
 
         function openRouteConfig() { document.getElementById('routeConfigModal').classList.remove('hidden'); selectRouteConfigDay('Segunda'); }
         function selectRouteConfigDay(day) { configSelectedDay = day; document.querySelectorAll('.day-cfg-btn').forEach(btn => { if(btn.innerText.startsWith(day.substring(0,3))) { btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'; } else { btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full'; } }); document.getElementById('currentConfigDay').innerText = day; renderChecklist(); }
-        function renderChecklist() { const list = document.getElementById('routeChecklist'); list.innerHTML = ''; if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; return; } const currentRoute = routes[configSelectedDay] || []; allIndustries.forEach(ind => { const isChecked = currentRoute.includes(ind.nome); const item = document.createElement('label'); item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" value="${ind.nome}" \( {isChecked ? 'checked' : ''} onchange="toggleRouteItem(' \){ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; list.appendChild(item); }); }
+        function renderChecklist() { const list = document.getElementById('routeChecklist'); list.innerHTML = ''; if(allIndustries.length === 0) { list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; return; } const currentRoute = routes[configSelectedDay] || []; allIndustries.forEach(ind => { const isChecked = currentRoute.includes(ind.nome); const item = document.createElement('label'); item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" value="${ind.nome}" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; list.appendChild(item); }); }
         function toggleRouteItem(indName) { if(!routes[configSelectedDay]) routes[configSelectedDay] = []; const idx = routes[configSelectedDay].indexOf(indName); if(idx > -1) routes[configSelectedDay].splice(idx, 1); else routes[configSelectedDay].push(indName); }
         function handleIndustryClick(ind, e) { if(isSelectionMode) { const el = e.currentTarget; if(selectedIndustries.has(ind.id)) { selectedIndustries.delete(ind.id); el.classList.remove('selected'); } else { selectedIndustries.add(ind.id); el.classList.add('selected'); } document.getElementById('selIndCount').innerText = selectedIndustries.size; } else { openIndustry(ind); } }
         function openBulkCategoryModal() { if(selectedIndustries.size === 0) return; document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size; const select = document.getElementById('bulkCatSelect'); select.innerHTML = '<option value="">Sem Categoria</option>'; categories.forEach(cat => { const opt = document.createElement('option'); opt.value = cat.id; opt.innerText = cat.nome; select.appendChild(opt); }); document.getElementById('bulkCatModal').classList.remove('hidden'); }
@@ -538,57 +540,6 @@
         function showToast(msg, type) { const t=document.getElementById('statusToast'), i=document.getElementById('toastIcon'); document.getElementById('toastMsg').innerText=msg; t.classList.remove('opacity-0', '-translate-y-10'); if(type==='success') { i.className='fas fa-check text-green-400'; setTimeout(()=>t.classList.add('opacity-0'), 2000); } else if(type==='error') { i.className='fas fa-times text-red-400'; setTimeout(()=>t.classList.add('opacity-0'), 3000); } else i.className='loader w-3 h-3 border-slate-200 border-t-blue-500'; }
         function resizeImage(file) { return new Promise(resolve => { const r = new FileReader(); r.readAsDataURL(file); r.onload = e => { const i = new Image(); i.src = e.target.result; i.onload = () => { const c = document.createElement('canvas'), max = 1200, s = max/i.width, w = (i.width>max)?max:i.width, h = (i.width>max)?i.height*s:i.height; c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); c.toBlob(b=>resolve(b), 'image/jpeg', 0.8); }; }; }); }
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); }); if(isIOS) installBtn.classList.remove('hidden');
-
-        function saveState() {
-            const activeView = document.querySelector('.view-section.active').id;
-            localStorage.setItem('currentView', activeView);
-            if (currentIndustry) localStorage.setItem('currentIndustryId', currentIndustry.id);
-            if (currentDateFolder) localStorage.setItem('currentDateFolder', currentDateFolder);
-            if (viewSelectedDay) localStorage.setItem('viewSelectedDay', viewSelectedDay);
-        }
-
-        async function restoreState() {
-            const savedView = localStorage.getItem('currentView');
-            if (!savedView) {
-                const todayIndex = new Date().getDay();
-                const todayName = weekDays[todayIndex];
-                selectRouteViewDay(todayName);
-                window.history.pushState({ view: 'view-home' }, '', '');
-                return;
-            }
-
-            if (savedView === 'view-home') {
-                const savedDay = localStorage.getItem('viewSelectedDay') || weekDays[new Date().getDay()];
-                selectRouteViewDay(savedDay);
-            } else if (savedView === 'view-routes') {
-                switchMainTab('routes');
-            } else if (savedView === 'view-dates') {
-                const savedIndId = localStorage.getItem('currentIndustryId');
-                currentIndustry = allIndustries.find(i => i.id == savedIndId);
-                if (currentIndustry) {
-                    navigateTo('view-dates');
-                    await loadDates(currentIndustry.nome);
-                }
-            } else if (savedView === 'view-gallery') {
-                const savedIndId = localStorage.getItem('currentIndustryId');
-                currentIndustry = allIndustries.find(i => i.id == savedIndId);
-                currentDateFolder = localStorage.getItem('currentDateFolder');
-                if (currentIndustry && currentDateFolder) {
-                    navigateTo('view-dates', false);
-                    openGallery(currentDateFolder);
-                }
-            } else if (savedView === 'view-all') {
-                navigateTo('view-all');
-                await openAllPhotos();
-            }
-
-            window.history.pushState({ view: savedView }, '', '');
-        }
-
-        function refreshPage() {
-            saveState();
-            window.location.reload();
-        }
     </script>
 </body>
 </html>
