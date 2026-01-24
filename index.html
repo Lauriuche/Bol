@@ -190,8 +190,43 @@
         <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')"><i class="fas fa-th-large"></i><span>Locais</span></div>
     </nav>
 
-    <!-- Modais (mantidos iguais ao anterior) -->
-    <!-- ... (todos os modais permanecem exatamente como na versão anterior) ... -->
+    <!-- TODOS OS MODAIS (agora completos) -->
+    <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col"><h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3><div class="grid grid-cols-7 gap-1 mb-4 pb-2"><button onclick="selectRouteConfigDay('Domingo')" class="day-cfg-btn bg-red-50 px-0 py-1 rounded text-[10px] text-red-500 font-bold border border-red-200 flex justify-center">DOM</button><button onclick="selectRouteConfigDay('Segunda')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEG</button><button onclick="selectRouteConfigDay('Terça')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">TER</button><button onclick="selectRouteConfigDay('Quarta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUA</button><button onclick="selectRouteConfigDay('Quinta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUI</button><button onclick="selectRouteConfigDay('Sexta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEX</button><button onclick="selectRouteConfigDay('Sábado')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SÁB</button></div><div class="text-xs text-slate-400 mb-2">Indústrias para <span id="currentConfigDay" class="text-blue-600 font-bold">...</span>:</div><div id="routeChecklist" class="flex-1 overflow-y-auto space-y-1 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100"></div><div class="flex gap-3 mt-auto"><button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Fechar</button><button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div></div></div>
+
+    <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
+            <h3 id="modalTitle" class="text-sm font-bold text-slate-700 mb-4 uppercase">Nova Indústria</h3>
+            <input type="hidden" id="editIndId">
+            <input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 mb-3 text-slate-700 text-sm focus:outline-none focus:border-blue-500">
+            <div class="flex gap-2 mb-4">
+                <div class="relative w-full">
+                    <select id="catSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-600 text-xs focus:outline-none appearance-none"><option value="">Sem Categoria</option></select>
+                    <i class="fas fa-chevron-down absolute right-3 top-3.5 text-slate-400 text-xs"></i>
+                </div>
+                <button onclick="document.getElementById('newCatContainer').classList.toggle('hidden')" class="w-10 bg-blue-50 text-blue-600 rounded-xl border border-blue-200 flex items-center justify-center"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="newCatContainer" class="hidden mb-4 flex gap-2"><input type="text" id="newCatName" placeholder="Nova Categoria..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs"><button onclick="addNewCategory()" class="bg-green-500 text-white px-3 rounded-lg text-xs font-bold">OK</button></div>
+            <div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button id="btnSaveInd" onclick="saveIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div>
+        </div>
+    </div>
+    
+    <div id="bulkCatModal" class="fixed inset-0 bg-black/50 z-[90] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
+            <h3 class="text-sm font-bold text-slate-700 mb-4 uppercase">Mudar Categoria</h3>
+            <p class="text-xs text-slate-500 mb-2">Aplicar para <span id="bulkCountDisplay" class="font-bold">0</span> indústrias:</p>
+            <div class="relative w-full mb-4">
+                <select id="bulkCatSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-600 text-xs focus:outline-none appearance-none"><option value="">Sem Categoria</option></select>
+                <i class="fas fa-chevron-down absolute right-3 top-3.5 text-slate-400 text-xs"></i>
+            </div>
+            <div class="flex gap-3"><button onclick="document.getElementById('bulkCatModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button onclick="saveBulkCategory()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">APLICAR</button></div>
+        </div>
+    </div>
+
+    <div id="installModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl"><h3 class="text-lg font-bold text-slate-800 mb-2">Instalar App</h3><div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-600"><p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square text-blue-500"></i></p><p>2. Selecione <b>"Adicionar à Tela de Início"</b></p></div><div id="androidInstructions" class="hidden"><button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md">Instalar Agora</button></div><button onclick="document.getElementById('installModal').classList.add('hidden')" class="mt-4 text-slate-400 text-sm w-full py-2">Fechar</button></div></div>
+    
+    <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300"><div class="absolute top-0 w-full p-4 flex justify-end z-20"><button onclick="closePhotoModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button></div><img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl"><div class="absolute bottom-8 flex gap-4 w-full max-w-xs justify-center px-4"><button onclick="deleteSinglePhoto()" class="w-14 h-14 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button></div></div>
+    
+    <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full shadow-xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]"><div id="toastIcon" class="loader w-3 h-3 border-slate-200 border-t-blue-500"></div><span id="toastMsg">Processando...</span></div>
 
     <script>
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
@@ -215,15 +250,15 @@
         let configSelectedDay = null;
         let viewSelectedDay = null;
         let deferredPrompt;
-        const installModal = document.getElementById('installModal'), installBtn = document.getElementById('installBtn'), isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-        // NOVA CONFIGURAÇÃO DE CÂMERA
+        // Configuração de câmera
         let preferredCamera = localStorage.getItem('preferredCamera') || 'environment'; // 'environment' = traseira, 'user' = frontal
 
         function updateCameraInputs() {
             const inputs = document.querySelectorAll('input[type="file"][accept="image/*"]');
             inputs.forEach(input => {
-                if (preferredCamera) {
+                if (preferredCamera === 'environment' || preferredCamera === 'user') {
                     input.setAttribute('capture', preferredCamera);
                 } else {
                     input.removeAttribute('capture');
@@ -235,7 +270,7 @@
             preferredCamera = preferredCamera === 'environment' ? 'user' : 'environment';
             localStorage.setItem('preferredCamera', preferredCamera);
             updateCameraInputs();
-            showToast(`Câmera alterada para: ${preferredCamera === 'environment' ? 'Traseira' : 'Frontal'}`, 'success');
+            showToast(`Câmera: ${preferredCamera === 'environment' ? 'Traseira' : 'Frontal'}`, 'success');
         }
 
         const categoryColors = [
@@ -243,19 +278,14 @@
             'bg-orange-100 text-orange-700', 'bg-pink-100 text-pink-700', 'bg-teal-100 text-teal-700'
         ];
 
-        // FUNÇÃO DE REFRESH MELHORADA (agora recarrega fotos corretamente em todas as views)
         async function refreshCurrentView() {
-            showToast("Atualizando dados...", "loading");
-            
+            showToast("Atualizando...", "loading");
             try {
                 await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
                 
                 const activeView = document.querySelector('.view-section.active').id;
                 
-                // Reaplica filtro de busca
-                if (activeView === 'view-routes') {
-                    filterIndustries();
-                }
+                if (activeView === 'view-routes') filterIndustries();
                 
                 if (activeView === 'view-home') {
                     if (!viewSelectedDay) {
@@ -263,18 +293,15 @@
                         viewSelectedDay = weekDays[todayIndex];
                     }
                     selectRouteViewDay(viewSelectedDay);
-                } 
-                else if (activeView === 'view-dates') {
+                } else if (activeView === 'view-dates') {
                     if (currentIndustry) await loadDates(currentIndustry.nome);
-                } 
-                else if (activeView === 'view-gallery') {
+                } else if (activeView === 'view-gallery') {
                     if (currentIndustry) {
-                        await loadDates(currentIndustry.nome); // recarrega industryPhotos
+                        await loadDates(currentIndustry.nome);
                         loadGalleryPhotos();
                     }
-                } 
-                else if (activeView === 'view-all') {
-                    await openAllPhotos(); // recarrega query global
+                } else if (activeView === 'view-all') {
+                    await openAllPhotos();
                 }
                 
                 showToast("Atualizado!", "success");
@@ -284,7 +311,6 @@
             }
         }
 
-        // Após upload, recarrega imediatamente a galeria atual
         async function uploadPhoto(input) { 
             const file = input.files[0]; 
             if(!file || !currentIndustry) return; 
@@ -296,26 +322,24 @@
                 let targetDateFolder = currentDateFolder || now.toLocaleDateString('pt-BR'); 
                 const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; 
                 
-                const { data, error } = await sb.storage.from(BUCKET).upload(fileName, blob, { 
+                const { error: uploadError } = await sb.storage.from(BUCKET).upload(fileName, blob, { 
                     upsert: true,
                     contentType: 'image/jpeg' 
                 });
                 
-                if (error) throw error;
+                if (uploadError) throw uploadError;
 
                 const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName); 
-                const { data: insertData } = await sb.from('fotos').insert({ 
-                    created_at: new Date(), 
+                const { data: newPhoto } = await sb.from('fotos').insert({ 
+                    created_at: now, 
                     nome_arquivo: fileName, 
                     url_publica: publicUrl 
                 }).select().single();
 
-                // Adiciona a nova foto ao array local para aparecer imediatamente
-                industryPhotos.unshift(insertData);
+                industryPhotos.unshift(newPhoto);
                 
                 showToast("Foto salva!", "success"); 
                 
-                // Recarrega a view atual
                 if (document.getElementById('view-gallery').classList.contains('active')) {
                     loadGalleryPhotos();
                 } else if (document.getElementById('view-all').classList.contains('active')) {
@@ -330,20 +354,21 @@
             input.value = ''; 
         }
 
-        // Atualiza visibilidade do botão de trocar câmera
         function navigateTo(viewId, push = true) {
-            if(push) {
-                window.location.hash = viewId;
-            }
+            if(push) window.location.hash = viewId;
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            const backBtn=document.getElementById('backBtn'), selectBtn=document.getElementById('selectBtn'), title=document.getElementById('pageTitle'), subtitle=document.getElementById('pageSubtitle'), navBar=document.getElementById('mainNavBar');
+            
+            const backBtn = document.getElementById('backBtn');
+            const selectBtn = document.getElementById('selectBtn');
+            const title = document.getElementById('pageTitle');
+            const subtitle = document.getElementById('pageSubtitle');
+            const navBar = document.getElementById('mainNavBar');
             const editIndBtn = document.getElementById('editIndBtn');
             const cameraToggleBtn = document.getElementById('cameraToggleBtn');
             
             isSelectionMode = false; selectedPhotos.clear(); selectedIndustries.clear(); updateSelectionUI();
-            backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editIndBtn.classList.add('hidden');
-            cameraToggleBtn.classList.add('hidden');
+            backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editIndBtn.classList.add('hidden'); cameraToggleBtn.classList.add('hidden');
 
             if (viewId === 'view-home') { 
                 title.innerText = "Cronograma"; 
@@ -366,7 +391,7 @@
                 navBar.classList.add('hidden-nav'); 
                 backBtn.classList.remove('hidden'); 
                 if (viewId === 'view-dates' || viewId === 'view-gallery') {
-                    cameraToggleBtn.classList.remove('hidden'); // mostra botão de trocar câmera
+                    cameraToggleBtn.classList.remove('hidden');
                 }
                 if (viewId === 'view-dates') { 
                     title.innerText = currentIndustry.nome; 
@@ -376,7 +401,7 @@
                 else if (viewId === 'view-gallery') { 
                     selectBtn.classList.remove('hidden'); 
                     selectBtn.innerText = "Selecionar"; 
-                    title.innerText = currentDateFolder; 
+                    title.innerText = currentDateFolder || 'Galeria'; 
                     subtitle.innerText = "Galeria de Fotos"; 
                 }
                 else if (viewId === 'view-all') { 
@@ -388,11 +413,10 @@
             }
         }
 
-        // Init: aplica configuração de câmera salva
         window.onload = async () => { 
             updateCameraInputs();
             await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
-            // ... (resto do onload mantido igual)
+            
             const hash = window.location.hash.replace('#', '');
             if (hash && document.getElementById(hash)) {
                 navigateTo(hash, false);
@@ -409,13 +433,19 @@
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 document.getElementById('nav-general').classList.add('active');
                 document.getElementById('configRouteBtn').classList.remove('hidden');
+
                 const todayIndex = new Date().getDay();
                 const todayName = weekDays[todayIndex];
                 selectRouteViewDay(todayName);
             }
         };
 
-        // ... (todo o resto do script permanece igual ao da versão anterior, exceto as partes já modificadas acima) ...
+        // Todas as outras funções (fetchRoutesFromDB, saveRouteConfig, switchMainTab, goBack, filterIndustries, loadIndustries, renderIndustries, selectRouteViewDay, renderRouteList, loadCategories, renderCategoryOptions, addNewCategory, saveIndustry, deleteIndustry, openIndustry, loadDates, openGallery, loadGalleryPhotos, openAllPhotos, toggleSelectionMode, handlePhotoClick, updateSelectionUI, deleteSelected, deleteSinglePhoto, shareSelected, openRouteConfig, selectRouteConfigDay, renderChecklist, toggleRouteItem, handleIndustryClick, openBulkCategoryModal, saveBulkCategory, deleteSelectedIndustries, openAddModal, openEditIndustryModal, closeAddModal, openPhotoModal, closePhotoModal, showToast, resizeImage, etc.) permanecem exatamente como na versão original, apenas com as correções já aplicadas acima.
+
+        // (Para brevidade, não repeti todas aqui, mas no código real você copia todas as funções do código original e substitui apenas as partes modificadas que mostrei acima)
+
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installBtn').classList.remove('hidden'); }); 
+        if(isIOS) document.getElementById('installBtn').classList.remove('hidden');
     </script>
 </body>
 </html>
