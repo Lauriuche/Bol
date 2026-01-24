@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -104,7 +105,7 @@
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
             <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
             <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
-            <button onclick="window.location.reload()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
+            <button onclick="refreshCurrentView()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
         </div>
     </header>
 
@@ -253,6 +254,42 @@
             'bg-orange-100 text-orange-700', 'bg-pink-100 text-pink-700', 'bg-teal-100 text-teal-700'
         ];
 
+        // NOVA FUNÇÃO: Atualiza os dados sem recarregar a página inteira (mantém a view atual)
+        async function refreshCurrentView() {
+            showToast("Atualizando dados...", "loading");
+            
+            try {
+                await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
+                
+                const activeView = document.querySelector('.view-section.active').id;
+                
+                // Reaplica filtro de busca se existir
+                filterIndustries();
+                
+                if (activeView === 'view-home') {
+                    if (!viewSelectedDay) {
+                        const todayIndex = new Date().getDay();
+                        viewSelectedDay = weekDays[todayIndex];
+                    }
+                    selectRouteViewDay(viewSelectedDay);
+                } else if (activeView === 'view-routes') {
+                    // Já foi atualizado por loadIndustries + filterIndustries
+                } else if (activeView === 'view-dates') {
+                    if (currentIndustry) {
+                        loadDates(currentIndustry.nome);
+                    }
+                } else if (activeView === 'view-gallery') {
+                    loadGalleryPhotos();
+                } else if (activeView === 'view-all') {
+                    openAllPhotos();
+                }
+                
+                showToast("Atualizado!", "success");
+            } catch (e) {
+                showToast("Erro ao atualizar", "error");
+            }
+        }
+
         // --- INIT: Handle URL hash for persistent view after reload ---
         window.onload = async () => { 
             await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
@@ -384,7 +421,11 @@
 
         function goBack() { window.history.back(); }
 
-        function filterIndustries() { const term = document.getElementById('searchInput').value.toLowerCase(); const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term)); renderIndustries(filtered); }
+        function filterIndustries() { 
+            const term = document.getElementById('searchInput').value.toLowerCase(); 
+            const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term)); 
+            renderIndustries(filtered); 
+        }
 
         async function loadIndustries() {
             try {
@@ -398,7 +439,9 @@
                     if (missing.length > 0) { await sb.from('industrias').insert(missing.map(n => ({ nome: n }))); return loadIndustries(); }
                 }
                 
-                allIndustries = dbData; document.getElementById('indCount').innerText = dbData.length; renderIndustries(dbData);
+                allIndustries = dbData; 
+                document.getElementById('indCount').innerText = dbData.length; 
+                renderIndustries(dbData);
             } catch(e) {}
         }
 
@@ -452,7 +495,7 @@
             });
         }
 
-        // --- RESTANTE (MANTIDO IGUAL V37 PARA REDUÇÃO) ---
+        // --- RESTANTE (MANTIDO) ---
         async function loadCategories() { try { const { data } = await sb.from('categorias').select('*').order('nome'); if(data) { categories = data; renderCategoryOptions(); } } catch(e) {} }
         function renderCategoryOptions() { const s = document.getElementById('catSelect'), b = document.getElementById('bulkCatSelect'); [s, b].forEach(el => { el.innerHTML = '<option value="">Sem Categoria</option>'; categories.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.innerText = c.nome; el.appendChild(o); }); }); }
         async function addNewCategory() { const n = document.getElementById('newCatName').value.trim(); if(!n) return; try { const { data } = await sb.from('categorias').insert({ nome: n }).select(); await loadCategories(); document.getElementById('catSelect').value = data[0].id; document.getElementById('newCatContainer').classList.add('hidden'); } catch(e) {} }
