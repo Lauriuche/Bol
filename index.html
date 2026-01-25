@@ -101,7 +101,7 @@
         </div>
         
         <div class="flex items-center gap-2">
-            <button id="installBtn" onclick="triggerInstall()" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
+            <button id="installBtn" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
             <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
             <button id="cameraToggleBtn" onclick="toggleCamera()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-camera-rotate text-sm"></i></button>
@@ -190,8 +190,27 @@
         <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')"><i class="fas fa-th-large"></i><span>Locais</span></div>
     </nav>
 
-    <!-- TODOS OS MODAIS (agora completos) -->
-    <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col"><h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3><div class="grid grid-cols-7 gap-1 mb-4 pb-2"><button onclick="selectRouteConfigDay('Domingo')" class="day-cfg-btn bg-red-50 px-0 py-1 rounded text-[10px] text-red-500 font-bold border border-red-200 flex justify-center">DOM</button><button onclick="selectRouteConfigDay('Segunda')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEG</button><button onclick="selectRouteConfigDay('Terça')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">TER</button><button onclick="selectRouteConfigDay('Quarta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUA</button><button onclick="selectRouteConfigDay('Quinta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUI</button><button onclick="selectRouteConfigDay('Sexta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEX</button><button onclick="selectRouteConfigDay('Sábado')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SÁB</button></div><div class="text-xs text-slate-400 mb-2">Indústrias para <span id="currentConfigDay" class="text-blue-600 font-bold">...</span>:</div><div id="routeChecklist" class="flex-1 overflow-y-auto space-y-1 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100"></div><div class="flex gap-3 mt-auto"><button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Fechar</button><button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div></div></div>
+    <!-- MODAIS COMPLETOS -->
+    <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col">
+            <h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3>
+            <div class="grid grid-cols-7 gap-1 mb-4 pb-2">
+                <button onclick="selectRouteConfigDay('Domingo')" class="day-cfg-btn bg-red-50 px-0 py-1 rounded text-[10px] text-red-500 font-bold border border-red-200 flex justify-center">DOM</button>
+                <button onclick="selectRouteConfigDay('Segunda')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEG</button>
+                <button onclick="selectRouteConfigDay('Terça')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">TER</button>
+                <button onclick="selectRouteConfigDay('Quarta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUA</button>
+                <button onclick="selectRouteConfigDay('Quinta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUI</button>
+                <button onclick="selectRouteConfigDay('Sexta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEX</button>
+                <button onclick="selectRouteConfigDay('Sábado')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SÁB</button>
+            </div>
+            <div class="text-xs text-slate-400 mb-2">Indústrias para <span id="currentConfigDay" class="text-blue-600 font-bold">...</span>:</div>
+            <div id="routeChecklist" class="flex-1 overflow-y-auto space-y-1 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
+            <div class="flex gap-3 mt-auto">
+                <button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Fechar</button>
+                <button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button>
+            </div>
+        </div>
+    </div>
 
     <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
@@ -206,10 +225,10 @@
                 <button onclick="document.getElementById('newCatContainer').classList.toggle('hidden')" class="w-10 bg-blue-50 text-blue-600 rounded-xl border border-blue-200 flex items-center justify-center"><i class="fas fa-plus"></i></button>
             </div>
             <div id="newCatContainer" class="hidden mb-4 flex gap-2"><input type="text" id="newCatName" placeholder="Nova Categoria..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs"><button onclick="addNewCategory()" class="bg-green-500 text-white px-3 rounded-lg text-xs font-bold">OK</button></div>
-            <div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button id="btnSaveInd" onclick="saveIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div>
+            <div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button onclick="saveIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div>
         </div>
     </div>
-    
+
     <div id="bulkCatModal" class="fixed inset-0 bg-black/50 z-[90] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
             <h3 class="text-sm font-bold text-slate-700 mb-4 uppercase">Mudar Categoria</h3>
@@ -222,18 +241,40 @@
         </div>
     </div>
 
-    <div id="installModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl"><h3 class="text-lg font-bold text-slate-800 mb-2">Instalar App</h3><div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-600"><p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square text-blue-500"></i></p><p>2. Selecione <b>"Adicionar à Tela de Início"</b></p></div><div id="androidInstructions" class="hidden"><button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md">Instalar Agora</button></div><button onclick="document.getElementById('installModal').classList.add('hidden')" class="mt-4 text-slate-400 text-sm w-full py-2">Fechar</button></div></div>
-    
-    <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300"><div class="absolute top-0 w-full p-4 flex justify-end z-20"><button onclick="closePhotoModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button></div><img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl"><div class="absolute bottom-8 flex gap-4 w-full max-w-xs justify-center px-4"><button onclick="deleteSinglePhoto()" class="w-14 h-14 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button></div></div>
-    
-    <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full shadow-xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]"><div id="toastIcon" class="loader w-3 h-3 border-slate-200 border-t-blue-500"></div><span id="toastMsg">Processando...</span></div>
+    <div id="installModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Instalar App</h3>
+            <div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-600">
+                <p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square text-blue-500"></i></p>
+                <p>2. Selecione <b>"Adicionar à Tela de Início"</b></p>
+            </div>
+            <div id="androidInstructions" class="hidden">
+                <button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md">Instalar Agora</button>
+            </div>
+            <button onclick="document.getElementById('installModal').classList.add('hidden')" class="mt-4 text-slate-400 text-sm w-full py-2">Fechar</button>
+        </div>
+    </div>
+
+    <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
+        <div class="absolute top-0 w-full p-4 flex justify-end z-20">
+            <button onclick="closePhotoModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl">
+        <div class="absolute bottom-8 flex gap-4 w-full max-w-xs justify-center px-4">
+            <button onclick="deleteSinglePhoto()" class="w-14 h-14 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
+        </div>
+    </div>
+
+    <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full shadow-xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]">
+        <div id="toastIcon" class="loader w-3 h-3 border-slate-200 border-t-blue-500"></div>
+        <span id="toastMsg">Processando...</span>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const BUCKET = 'galeria';
-        const DELETE_AFTER_DAYS = 45;
 
         let currentIndustry = null;
         let currentDateFolder = null;
@@ -249,20 +290,13 @@
         const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         let configSelectedDay = null;
         let viewSelectedDay = null;
-        let deferredPrompt;
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-        // Configuração de câmera
-        let preferredCamera = localStorage.getItem('preferredCamera') || 'environment'; // 'environment' = traseira, 'user' = frontal
+        let preferredCamera = localStorage.getItem('preferredCamera') || 'environment';
 
         function updateCameraInputs() {
             const inputs = document.querySelectorAll('input[type="file"][accept="image/*"]');
             inputs.forEach(input => {
-                if (preferredCamera === 'environment' || preferredCamera === 'user') {
-                    input.setAttribute('capture', preferredCamera);
-                } else {
-                    input.removeAttribute('capture');
-                }
+                input.setAttribute('capture', preferredCamera);
             });
         }
 
@@ -296,10 +330,8 @@
                 } else if (activeView === 'view-dates') {
                     if (currentIndustry) await loadDates(currentIndustry.nome);
                 } else if (activeView === 'view-gallery') {
-                    if (currentIndustry) {
-                        await loadDates(currentIndustry.nome);
-                        loadGalleryPhotos();
-                    }
+                    if (currentIndustry) await loadDates(currentIndustry.nome);
+                    loadGalleryPhotos();
                 } else if (activeView === 'view-all') {
                     await openAllPhotos();
                 }
@@ -307,7 +339,6 @@
                 showToast("Atualizado!", "success");
             } catch (e) {
                 showToast("Erro ao atualizar", "error");
-                console.error(e);
             }
         }
 
@@ -322,12 +353,12 @@
                 let targetDateFolder = currentDateFolder || now.toLocaleDateString('pt-BR'); 
                 const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; 
                 
-                const { error: uploadError } = await sb.storage.from(BUCKET).upload(fileName, blob, { 
+                const { error } = await sb.storage.from(BUCKET).upload(fileName, blob, { 
                     upsert: true,
                     contentType: 'image/jpeg' 
                 });
                 
-                if (uploadError) throw uploadError;
+                if (error) throw error;
 
                 const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName); 
                 const { data: newPhoto } = await sb.from('fotos').insert({ 
@@ -342,13 +373,10 @@
                 
                 if (document.getElementById('view-gallery').classList.contains('active')) {
                     loadGalleryPhotos();
-                } else if (document.getElementById('view-all').classList.contains('active')) {
-                    openAllPhotos();
                 } else {
                     loadDates(currentIndustry.nome);
                 }
             } catch(e) { 
-                console.error(e);
                 showToast("Erro no envio", "error"); 
             } 
             input.value = ''; 
@@ -401,7 +429,7 @@
                 else if (viewId === 'view-gallery') { 
                     selectBtn.classList.remove('hidden'); 
                     selectBtn.innerText = "Selecionar"; 
-                    title.innerText = currentDateFolder || 'Galeria'; 
+                    title.innerText = currentDateFolder; 
                     subtitle.innerText = "Galeria de Fotos"; 
                 }
                 else if (viewId === 'view-all') { 
@@ -413,39 +441,560 @@
             }
         }
 
+        async function fetchRoutesFromDB() {
+            try {
+                const { data } = await sb.from('rotas').select('*');
+                if (data) {
+                    data.forEach(row => {
+                        if (routes[row.dia]) routes[row.dia] = row.industrias || [];
+                    });
+                }
+            } catch (e) { console.error("Erro rotas:", e); }
+        }
+
+        async function saveRouteConfig() {
+            showToast("Salvando...", "loading");
+            try {
+                await sb.from('rotas').upsert({ dia: configSelectedDay, industrias: routes[configSelectedDay] }, { onConflict: 'dia' });
+                showToast("Salvo!", "success");
+                if (configSelectedDay === viewSelectedDay) renderRouteList(configSelectedDay);
+                document.getElementById('routeConfigModal').classList.add('hidden');
+            } catch (e) { showToast("Erro", "error"); }
+        }
+
+        function switchMainTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(tab === 'general') {
+                document.getElementById('nav-general').classList.add('active');
+                navigateTo('view-home');
+                document.getElementById('configRouteBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('nav-routes').classList.add('active');
+                navigateTo('view-routes');
+                document.getElementById('configRouteBtn').classList.add('hidden');
+            }
+        }
+
+        function goBack() { window.history.back(); }
+
+        function filterIndustries() { 
+            const term = document.getElementById('searchInput').value.toLowerCase(); 
+            const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term)); 
+            renderIndustries(filtered); 
+        }
+
+        async function loadIndustries() {
+            try {
+                const { data: dbData } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
+                const { data: stData } = await sb.storage.from(BUCKET).list('');
+                
+                if (stData) { 
+                    const stFolders = stData.filter(i => i.name !== '.keep').map(i => i.name);
+                    const dbNames = dbData ? dbData.map(i => i.nome) : [];
+                    const missing = stFolders.filter(n => !dbNames.includes(n));
+                    if (missing.length > 0) { 
+                        await sb.from('industrias').insert(missing.map(n => ({ nome: n }))); 
+                        return loadIndustries(); 
+                    }
+                }
+                
+                allIndustries = dbData || []; 
+                document.getElementById('indCount').innerText = allIndustries.length; 
+                renderIndustries(allIndustries);
+            } catch(e) { console.error(e); }
+        }
+
+        function renderIndustries(industries) {
+            const list = document.getElementById('industriesList'); 
+            list.innerHTML = '';
+            if(industries.length === 0) { 
+                list.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Vazio.</div>'; 
+                return; 
+            }
+            industries.forEach(ind => {
+                const el = document.createElement('div');
+                el.className = 'ind-card group cursor-pointer active:scale-95 relative';
+                el.onclick = (e) => handleIndustryClick(ind, e);
+                
+                const catName = ind.categorias ? ind.categorias.nome : '';
+                const colorClass = ind.categorias ? categoryColors[ind.categorias.id % categoryColors.length] : 'bg-slate-100 text-slate-600';
+                const catBadge = catName ? `<div class="cat-badge ${colorClass}">${catName}</div>` : '';
+
+                el.innerHTML = `
+                    <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700 shadow-inner mb-2"><i class="fas fa-industry text-lg"></i></div>
+                    <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-2 px-1 break-words w-full">${ind.nome}</h3>
+                    ${catBadge}
+                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center z-10" onclick="deleteIndustry('${ind.id}', event, '${ind.nome}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        function selectRouteViewDay(day) {
+            viewSelectedDay = day;
+            const container = document.getElementById('routeTabsContainer'); 
+            container.innerHTML = '';
+            weekDays.forEach(d => {
+                const btn = document.createElement('button');
+                btn.innerText = d.substring(0, 3); 
+                let className = `day-tab ${d === day ? 'active' : ''}`; 
+                if (d === 'Domingo') className += ' sunday';
+                btn.className = className;
+                btn.onclick = () => selectRouteViewDay(d); 
+                container.appendChild(btn);
+            });
+            renderRouteList(day);
+        }
+
+        function renderRouteList(day) {
+            const container = document.getElementById('routeListContent');
+            const industriesNames = routes[day] || []; 
+            container.innerHTML = '';
+            if (industriesNames.length === 0) { 
+                container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Nenhuma rota definida.</div>'; 
+                return; 
+            }
+            const fullIndustries = industriesNames.map(name => allIndustries.find(i => i.nome === name)).filter(Boolean);
+            fullIndustries.forEach(ind => { 
+                const row = document.createElement('div'); 
+                row.className = 'route-row group'; 
+                row.onclick = () => openIndustry(ind); 
+                const catName = ind.categorias ? `<span class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded ml-2">${ind.categorias.nome}</span>` : '';
+                row.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-folder text-blue-400 text-lg"></i><div class="flex flex-col"><span class="font-bold text-sm text-slate-600">${ind.nome}</span></div>${catName}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-active:translate-x-1 transition"></i>`; 
+                container.appendChild(row); 
+            });
+        }
+
+        async function loadCategories() { 
+            try { 
+                const { data } = await sb.from('categorias').select('*').order('nome'); 
+                if(data) { 
+                    categories = data; 
+                    renderCategoryOptions(); 
+                } 
+            } catch(e) {} 
+        }
+
+        function renderCategoryOptions() { 
+            const selects = [document.getElementById('catSelect'), document.getElementById('bulkCatSelect')];
+            selects.forEach(el => {
+                if(el) {
+                    el.innerHTML = '<option value="">Sem Categoria</option>';
+                    categories.forEach(c => {
+                        const o = document.createElement('option');
+                        o.value = c.id;
+                        o.innerText = c.nome;
+                        el.appendChild(o);
+                    });
+                }
+            });
+        }
+
+        async function addNewCategory() { 
+            const n = document.getElementById('newCatName').value.trim(); 
+            if(!n) return; 
+            try { 
+                const { data } = await sb.from('categorias').insert({ nome: n }).select(); 
+                await loadCategories(); 
+                document.getElementById('catSelect').value = data[0].id; 
+                document.getElementById('newCatContainer').classList.add('hidden'); 
+            } catch(e) {} 
+        }
+
+        async function saveIndustry() {
+            const id = document.getElementById('editIndId').value; 
+            const name = document.getElementById('newIndName').value.trim(); 
+            const catId = document.getElementById('catSelect').value || null; 
+            if(!name) return;
+            showToast("Salvando...", "loading");
+            try {
+                if(id) { 
+                    const oldInd = allIndustries.find(i => i.id == id);
+                    if(oldInd && oldInd.nome !== name) {
+                        const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); 
+                        const newSafe = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                        const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${oldSafe}/%`);
+                        if(files) { 
+                            for(const f of files) { 
+                                const newPath = f.nome_arquivo.replace(`${oldSafe}/`, `${newSafe}/`); 
+                                await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath); 
+                                await sb.from('fotos').update({nome_arquivo: newPath}).eq('id', f.id); 
+                            } 
+                        }
+                        await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`);
+                    }
+                    await sb.from('industrias').update({ nome: name, categoria_id: catId }).eq('id', id);
+                } else { 
+                    const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); 
+                    await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), {upsert: true});
+                    await sb.from('industrias').insert({ nome: name, categoria_id: catId });
+                }
+                showToast("Salvo!", "success"); 
+                closeAddModal(); 
+                await loadIndustries();
+            } catch(e) { 
+                showToast("Erro", "error"); 
+            }
+        }
+
+        async function deleteIndustry(id, e, indName) {
+            if(e) e.stopPropagation(); 
+            if(!confirm(`ATENÇÃO: Apagar indústria "${indName}"?`)) return;
+            showToast("Apagando...", "loading");
+            try { 
+                await sb.from('industrias').delete().eq('id', id); 
+                const ind = allIndustries.find(i => i.id == id);
+                if(ind) {
+                    const safeName = ind.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                    await sb.storage.from(BUCKET).remove([`${safeName}/.keep`]);
+                }
+                showToast("Removido", "success"); 
+                await loadIndustries(); 
+            } catch(e) { showToast("Erro", "error"); }
+        }
+
+        function openIndustry(ind) { currentIndustry = ind; loadDates(ind.nome); }
+
+        async function loadDates(indName) {
+            navigateTo('view-dates');
+            const list = document.getElementById('datesList');
+            list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
+            try {
+                const safe = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                const { data } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false });
+                industryPhotos = data || [];
+                list.innerHTML = '';
+                if(industryPhotos.length === 0) { 
+                    list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Vazio.</div>'; 
+                    return; 
+                }
+                const datesMap = {}; 
+                industryPhotos.forEach(f => { 
+                    const date = new Date(f.created_at); 
+                    const dateKey = date.toLocaleDateString('pt-BR'); 
+                    datesMap[dateKey] = (datesMap[dateKey] || 0) + 1;
+                });
+                Object.keys(datesMap).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(dateLabel => {
+                    const count = datesMap[dateLabel];
+                    const el = document.createElement('div');
+                    el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
+                    el.onclick = () => openGallery(dateLabel);
+                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} fotos</p></div></div>`;
+                    list.appendChild(el);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        function openGallery(dateLabel) { 
+            currentDateFolder = dateLabel; 
+            navigateTo('view-gallery'); 
+            loadGalleryPhotos(); 
+        }
+
+        function loadGalleryPhotos() { 
+            const container = document.getElementById('photosContainer'); 
+            container.innerHTML = ''; 
+            const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); 
+            if(photos.length === 0) { 
+                container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; 
+                return; 
+            } 
+            photos.forEach(file => { 
+                const isSelected = selectedPhotos.has(file.id); 
+                const div = document.createElement('div'); 
+                div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
+                div.onclick = () => handlePhotoClick(file); 
+                div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; 
+                container.appendChild(div); 
+            }); 
+        }
+
+        async function openAllPhotos() { 
+            navigateTo('view-all'); 
+            const container = document.getElementById('allPhotosContainer'); 
+            container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>'; 
+            try { 
+                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); 
+                industryPhotos = data || []; 
+                container.innerHTML = ''; 
+                industryPhotos.forEach(file => { 
+                    const isSelected = selectedPhotos.has(file.id); 
+                    const div = document.createElement('div'); 
+                    div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
+                    div.onclick = () => handlePhotoClick(file); 
+                    div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; 
+                    container.appendChild(div); 
+                }); 
+            } catch(e) {} 
+        }
+
+        function toggleSelectionMode() { 
+            isSelectionMode = !isSelectionMode; 
+            const btn = document.getElementById('selectBtn');
+            const cam = document.getElementById('cameraControls');
+            const selBar = document.getElementById('selectionControls');
+            const selBarAll = document.getElementById('selectionControlsAll'); 
+            const isAll = document.getElementById('view-all').classList.contains('active'); 
+            if(isSelectionMode) { 
+                btn.innerText = "Cancelar"; 
+                btn.classList.add('text-red-500','border-red-200','bg-red-50'); 
+                if(cam) cam.classList.add('hidden-bar'); 
+                if(isAll) selBarAll.classList.remove('hidden-bar'); 
+                else selBar.classList.remove('hidden-bar'); 
+            } else { 
+                btn.innerText = "Selecionar"; 
+                btn.classList.remove('text-red-500','border-red-200','bg-red-50'); 
+                selectedPhotos.clear(); 
+                if(cam) cam.classList.remove('hidden-bar'); 
+                selBar.classList.add('hidden-bar'); 
+                selBarAll.classList.add('hidden-bar'); 
+                if(isAll) openAllPhotos(); 
+                else loadGalleryPhotos(); 
+            } 
+            updateSelectionUI();
+        }
+
+        function handlePhotoClick(file) { 
+            if(isSelectionMode) { 
+                if (selectedPhotos.has(file.id)) selectedPhotos.delete(file.id);
+                else selectedPhotos.add(file.id);
+                updateSelectionUI();
+                if (document.getElementById('view-all').classList.contains('active')) openAllPhotos();
+                else loadGalleryPhotos();
+            } else {
+                openPhotoModal(file.url_publica, file.id);
+            }
+        }
+
+        function updateSelectionUI() { 
+            const count = selectedPhotos.size; 
+            const selCount = document.getElementById('selCount');
+            const selCountAll = document.getElementById('selCountAll');
+            if(selCount) selCount.innerText = count;
+            if(selCountAll) selCountAll.innerText = count;
+        }
+
+        async function deleteSelected() { 
+            if(selectedPhotos.size === 0) return; 
+            if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return; 
+            showToast("Apagando...", "loading"); 
+            try { 
+                await sb.from('fotos').delete().in('id', Array.from(selectedPhotos)); 
+                selectedPhotos.clear(); 
+                toggleSelectionMode(); 
+                showToast("Apagado!", "success"); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+
+        async function deleteSinglePhoto() { 
+            if(!currentModalPhoto || !confirm("Apagar?")) return; 
+            try { 
+                await sb.from('fotos').delete().eq('id', currentModalPhoto); 
+                closePhotoModal(); 
+                showToast("Apagado!", "success"); 
+                loadGalleryPhotos(); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+
+        async function shareSelected() { 
+            if(selectedPhotos.size === 0) return; 
+            showToast(`Preparando ${selectedPhotos.size} fotos...`, 'loading'); 
+            try { 
+                const filesArray = []; 
+                const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id)); 
+                for(let i = 0; i < selectedData.length; i++) { 
+                    const p = selectedData[i]; 
+                    const resp = await fetch(p.url_publica);
+                    const blob = await resp.blob(); 
+                    filesArray.push(new File([blob], `Foto_${i+1}.jpg`, { type: blob.type })); 
+                } 
+                if(navigator.share && navigator.canShare && navigator.canShare({ files: filesArray })) { 
+                    await navigator.share({ files: filesArray }); 
+                    toggleSelectionMode(); 
+                    showToast('Compartilhado!', 'success'); 
+                } else { 
+                    showToast("Compartilhamento não suportado", "error"); 
+                } 
+            } catch(e) { 
+                showToast("Erro ao compartilhar", "error"); 
+            } 
+        }
+
+        function openRouteConfig() { 
+            document.getElementById('routeConfigModal').classList.remove('hidden'); 
+            selectRouteConfigDay('Segunda'); 
+        }
+
+        function selectRouteConfigDay(day) { 
+            configSelectedDay = day; 
+            document.querySelectorAll('.day-cfg-btn').forEach(btn => { 
+                if(btn.innerText.trim().startsWith(day.substring(0,3))) { 
+                    btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'; 
+                } else { 
+                    btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full'; 
+                } 
+            }); 
+            document.getElementById('currentConfigDay').innerText = day; 
+            renderChecklist(); 
+        }
+
+        function renderChecklist() { 
+            const list = document.getElementById('routeChecklist'); 
+            list.innerHTML = ''; 
+            if(allIndustries.length === 0) { 
+                list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; 
+                return; 
+            } 
+            const currentRoute = routes[configSelectedDay] || []; 
+            allIndustries.forEach(ind => { 
+                const isChecked = currentRoute.includes(ind.nome); 
+                const item = document.createElement('label'); 
+                item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; 
+                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; 
+                list.appendChild(item); 
+            }); 
+        }
+
+        function toggleRouteItem(indName) { 
+            if(!routes[configSelectedDay]) routes[configSelectedDay] = []; 
+            const idx = routes[configSelectedDay].indexOf(indName); 
+            if(idx > -1) routes[configSelectedDay].splice(idx, 1); 
+            else routes[configSelectedDay].push(indName); 
+        }
+
+        function handleIndustryClick(ind, e) { 
+            if(isSelectionMode) { 
+                if(selectedIndustries.has(ind.id)) {
+                    selectedIndustries.delete(ind.id);
+                    e.currentTarget.classList.remove('border-blue-500');
+                } else {
+                    selectedIndustries.add(ind.id);
+                    e.currentTarget.classList.add('border-blue-500');
+                }
+                document.getElementById('selIndCount').innerText = selectedIndustries.size;
+            } else { 
+                openIndustry(ind); 
+            } 
+        }
+
+        function openBulkCategoryModal() { 
+            if(selectedIndustries.size === 0) return; 
+            document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size; 
+            document.getElementById('bulkCatModal').classList.remove('hidden'); 
+        }
+
+        async function saveBulkCategory() { 
+            const catId = document.getElementById('bulkCatSelect').value || null; 
+            const ids = Array.from(selectedIndustries); 
+            showToast("Atualizando...", "loading"); 
+            try { 
+                await sb.from('industrias').update({ categoria_id: catId }).in('id', ids); 
+                showToast("Atualizado!", "success"); 
+                document.getElementById('bulkCatModal').classList.add('hidden'); 
+                selectedIndustries.clear();
+                await loadIndustries();
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+
+        async function deleteSelectedIndustries() { 
+            if(selectedIndustries.size === 0) return; 
+            if(!confirm(`Apagar ${selectedIndustries.size} indústrias?`)) return; 
+            showToast("Apagando...", "loading"); 
+            try { 
+                await sb.from('industrias').delete().in('id', Array.from(selectedIndustries)); 
+                selectedIndustries.clear();
+                await loadIndustries();
+                showToast("Apagado!", "success"); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+
+        function openAddModal() { 
+            document.getElementById('modalTitle').innerText = "Nova Indústria"; 
+            document.getElementById('newIndName').value = ''; 
+            document.getElementById('editIndId').value = ''; 
+            document.getElementById('catSelect').value = ''; 
+            document.getElementById('addModal').classList.remove('hidden'); 
+        }
+
+        function openEditIndustryModal() { 
+            if(!currentIndustry) return; 
+            document.getElementById('modalTitle').innerText = "Editar Indústria"; 
+            document.getElementById('newIndName').value = currentIndustry.nome; 
+            document.getElementById('editIndId').value = currentIndustry.id; 
+            document.getElementById('catSelect').value = currentIndustry.categoria_id || ''; 
+            document.getElementById('addModal').classList.remove('hidden'); 
+        }
+
+        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+
+        function openPhotoModal(url, id) { 
+            currentModalPhoto = id; 
+            document.getElementById('previewImg').src = url; 
+            const m = document.getElementById('photoModal'); 
+            m.classList.remove('hidden'); 
+            setTimeout(() => m.classList.remove('opacity-0'), 10); 
+        }
+
+        function closePhotoModal() { 
+            const m = document.getElementById('photoModal'); 
+            m.classList.add('opacity-0'); 
+            setTimeout(() => m.classList.add('hidden'), 300); 
+        }
+
+        function showToast(msg, type = "loading") { 
+            const t = document.getElementById('statusToast');
+            const i = document.getElementById('toastIcon');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.remove('opacity-0', '-translate-y-10');
+            if(type === 'success') {
+                i.className = 'fas fa-check-circle text-green-500 text-lg';
+                setTimeout(() => t.classList.add('opacity-0', '-translate-y-10'), 2000);
+            } else if(type === 'error') {
+                i.className = 'fas fa-times-circle text-red-500 text-lg';
+                setTimeout(() => t.classList.add('opacity-0', '-translate-y-10'), 3000);
+            } else {
+                i.className = 'loader w-4 h-4 border-2 border-slate-200 border-t-blue-500';
+            }
+        }
+
+        function resizeImage(file) { 
+            return new Promise(resolve => { 
+                const reader = new FileReader(); 
+                reader.readAsDataURL(file); 
+                reader.onload = e => { 
+                    const img = new Image(); 
+                    img.src = e.target.result; 
+                    img.onload = () => { 
+                        const canvas = document.createElement('canvas');
+                        const max = 1200;
+                        const scale = max / Math.max(img.width, img.height);
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.85);
+                    }; 
+                }; 
+            }); 
+        }
+
         window.onload = async () => { 
             updateCameraInputs();
             await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
             
-            const hash = window.location.hash.replace('#', '');
+            const hash = window.location.hash.substring(1);
             if (hash && document.getElementById(hash)) {
                 navigateTo(hash, false);
-                if(hash === 'view-home') {
-                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                    document.getElementById('nav-general').classList.add('active');
-                    document.getElementById('configRouteBtn').classList.remove('hidden');
-                } else if(hash === 'view-routes') {
-                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                    document.getElementById('nav-routes').classList.add('active');
-                    document.getElementById('configRouteBtn').classList.add('hidden');
-                }
             } else {
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                document.getElementById('nav-general').classList.add('active');
-                document.getElementById('configRouteBtn').classList.remove('hidden');
-
                 const todayIndex = new Date().getDay();
-                const todayName = weekDays[todayIndex];
-                selectRouteViewDay(todayName);
+                viewSelectedDay = weekDays[todayIndex];
+                selectRouteViewDay(viewSelectedDay);
             }
         };
 
-        // Todas as outras funções (fetchRoutesFromDB, saveRouteConfig, switchMainTab, goBack, filterIndustries, loadIndustries, renderIndustries, selectRouteViewDay, renderRouteList, loadCategories, renderCategoryOptions, addNewCategory, saveIndustry, deleteIndustry, openIndustry, loadDates, openGallery, loadGalleryPhotos, openAllPhotos, toggleSelectionMode, handlePhotoClick, updateSelectionUI, deleteSelected, deleteSinglePhoto, shareSelected, openRouteConfig, selectRouteConfigDay, renderChecklist, toggleRouteItem, handleIndustryClick, openBulkCategoryModal, saveBulkCategory, deleteSelectedIndustries, openAddModal, openEditIndustryModal, closeAddModal, openPhotoModal, closePhotoModal, showToast, resizeImage, etc.) permanecem exatamente como na versão original, apenas com as correções já aplicadas acima.
-
-        // (Para brevidade, não repeti todas aqui, mas no código real você copia todas as funções do código original e substitui apenas as partes modificadas que mostrei acima)
-
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installBtn').classList.remove('hidden'); }); 
-        if(isIOS) document.getElementById('installBtn').classList.remove('hidden');
+        window.addEventListener('beforeinstallprompt', (e) => { 
+            e.preventDefault(); 
+            document.getElementById('installBtn').classList.remove('hidden');
+        });
     </script>
 </body>
 </html>
