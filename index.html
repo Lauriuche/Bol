@@ -26,7 +26,6 @@
         }
         
         .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
-        .glass-bar { background: rgba(255, 255, 255, 0.98); border-top: 1px solid #e2e8f0; }
         
         /* ABAS */
         .day-tab {
@@ -86,6 +85,10 @@
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilos da câmera customizada */
+        #cameraModal video { width: 100%; height: 100%; object-fit: cover; }
+        #lensLabel { font-size: 12px; background: rgba(0,0,0,0.6); padding: 6px 14px; border-radius: 20px; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -104,7 +107,7 @@
             <button id="installBtn" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
             <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
-            <button id="cameraToggleBtn" onclick="toggleCamera()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-camera-rotate text-sm"></i></button>
+            <button id="cameraToggleBtn" onclick="switchRearLens()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-camera-rotate text-sm"></i></button>
             <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
             <button onclick="refreshCurrentView()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
         </div>
@@ -129,7 +132,7 @@
             </div>
             <div class="mb-2 flex justify-between items-end px-1">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-th-large"></i> Todos os Locais</span>
-                <span id="indCount" class="text-[10px] bg-slate-200 px-2 py-1 rounded text-slate-600 font-mono font-bold">...</span>
+                <span id="indCount" class="text-[10px] bg-slate-200 px-2 py-1 rounded text-slate-600 font-mono font-bold">0</span>
             </div>
             <div id="industriesList" class="grid grid-cols-3 gap-3">
                 <div class="col-span-3 flex flex-col items-center justify-center py-20 opacity-50"><div class="loader mb-2"></div><span class="text-xs text-slate-400">Lendo pastas...</span></div>
@@ -149,22 +152,20 @@
                 <span class="text-[9px] text-slate-500 border border-slate-200 bg-white px-2 py-1 rounded">Auto-Clean: 45 dias</span>
             </div>
             <div id="datesList" class="space-y-3 pb-40"></div>
-            <div id="cameraControlsDates" class="fixed-bottom-bar flex justify-center">
-                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
+            <div class="fixed-bottom-bar flex justify-center">
+                <button onclick="openCameraModal()" class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition shadow-lg shadow-blue-200 border border-white/20">
                     <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">FOTO DE HOJE</span>
-                    <input id="cameraInputDates" type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
-                </label>
+                </button>
             </div>
         </div>
 
         <!-- VIEW 3: GALERIA -->
         <div id="view-gallery" class="view-section">
             <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
-            <div id="cameraControls" class="fixed-bottom-bar flex justify-center">
-                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
+            <div class="fixed-bottom-bar flex justify-center">
+                <button onclick="openCameraModal()" class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition shadow-lg shadow-blue-200 border border-white/20">
                     <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">ADICIONAR FOTO</span>
-                    <input id="cameraInputGallery" type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
-                </label>
+                </button>
             </div>
             <div id="selectionControls" class="fixed-bottom-bar flex gap-3 hidden-bar">
                 <button onclick="deleteSelected()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
@@ -190,7 +191,22 @@
         <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')"><i class="fas fa-th-large"></i><span>Locais</span></div>
     </nav>
 
-    <!-- MODAIS COMPLETOS -->
+    <!-- MODAL DA CÂMERA CUSTOMIZADA -->
+    <div id="cameraModal" class="fixed inset-0 bg-black z-[100] hidden flex flex-col">
+        <div class="flex-1 relative">
+            <video id="videoPreview" autoplay playsinline muted class="w-full h-full object-cover"></video>
+            <button onclick="closeCameraModal()" class="absolute top-4 left-4 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-white backdrop-blur"><i class="fas fa-times text-xl"></i></button>
+            <button onclick="switchRearLens()" class="absolute top-4 right-4 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-white backdrop-blur"><i class="fas fa-camera-rotate text-xl"></i></button>
+            <div id="lensLabel" class="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white lens-label">Principal</div>
+        </div>
+        <div class="p-8 bg-black flex justify-center">
+            <button onclick="capturePhoto()" class="w-20 h-20 bg-white rounded-full shadow-2xl active:scale-90 transition relative">
+                <div class="absolute inset-2 bg-gray-200 rounded-full border-4 border-white"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIGURAÇÃO DE ROTAS -->
     <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col">
             <h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3>
@@ -212,6 +228,7 @@
         </div>
     </div>
 
+    <!-- MODAL ADICIONAR/EDITAR INDÚSTRIA -->
     <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
             <h3 id="modalTitle" class="text-sm font-bold text-slate-700 mb-4 uppercase">Nova Indústria</h3>
@@ -229,6 +246,7 @@
         </div>
     </div>
 
+    <!-- MODAL MUDAR CATEGORIA EM MASSA -->
     <div id="bulkCatModal" class="fixed inset-0 bg-black/50 z-[90] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
             <h3 class="text-sm font-bold text-slate-700 mb-4 uppercase">Mudar Categoria</h3>
@@ -241,6 +259,7 @@
         </div>
     </div>
 
+    <!-- MODAL INSTALAÇÃO -->
     <div id="installModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
             <h3 class="text-lg font-bold text-slate-800 mb-2">Instalar App</h3>
@@ -255,6 +274,7 @@
         </div>
     </div>
 
+    <!-- MODAL VISUALIZAÇÃO DE FOTO -->
     <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
         <div class="absolute top-0 w-full p-4 flex justify-end z-20">
             <button onclick="closePhotoModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button>
@@ -265,6 +285,7 @@
         </div>
     </div>
 
+    <!-- TOAST DE STATUS -->
     <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full shadow-xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]">
         <div id="toastIcon" class="loader w-3 h-3 border-slate-200 border-t-blue-500"></div>
         <span id="toastMsg">Processando...</span>
@@ -278,49 +299,154 @@
 
         let currentIndustry = null;
         let currentDateFolder = null;
-        let industryPhotos = []; 
-        let allIndustries = []; 
+        let industryPhotos = [];
+        let allIndustries = [];
         let categories = [];
         let isSelectionMode = false;
         let selectedPhotos = new Set();
-        let selectedIndustries = new Set(); 
+        let selectedIndustries = new Set();
         let currentModalPhoto = null;
-        
+
         let routes = { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
         const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         let configSelectedDay = null;
         let viewSelectedDay = null;
 
-        let preferredCamera = localStorage.getItem('preferredCamera') || 'environment';
+        // Câmera customizada
+        let stream = null;
+        let rearCameras = [];
+        let currentLensIndex = parseInt(localStorage.getItem('preferredLensIndex')) || 0;
 
-        function updateCameraInputs() {
-            const inputs = document.querySelectorAll('input[type="file"][accept="image/*"]');
-            inputs.forEach(input => {
-                input.setAttribute('capture', preferredCamera);
-            });
+        async function initRearCameras() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                rearCameras = devices.filter(d => d.kind === 'videoinput' && (d.label.toLowerCase().includes('back') || d.facingMode === 'environment'));
+                rearCameras.sort((a, b) => {
+                    const aWide = a.label.toLowerCase().includes('ultra') || a.label.toLowerCase().includes('wide') || a.label.toLowerCase().includes('angular');
+                    const bWide = b.label.toLowerCase().includes('ultra') || b.label.toLowerCase().includes('wide') || b.label.toLowerCase().includes('angular');
+                    return aWide - bWide;
+                });
+                if (rearCameras.length === 0) rearCameras = devices.filter(d => d.kind === 'videoinput');
+                currentLensIndex = currentLensIndex < rearCameras.length ? currentLensIndex : 0;
+            } catch (e) {
+                console.error("Erro ao acessar câmeras:", e);
+            }
         }
 
-        function toggleCamera() {
-            preferredCamera = preferredCamera === 'environment' ? 'user' : 'environment';
-            localStorage.setItem('preferredCamera', preferredCamera);
-            updateCameraInputs();
-            showToast(`Câmera: ${preferredCamera === 'environment' ? 'Traseira' : 'Frontal'}`, 'success');
+        async function startCamera() {
+            if (rearCameras.length === 0) await initRearCameras();
+            if (rearCameras.length === 0) return showToast("Nenhuma câmera encontrada", "error");
+
+            stopCamera();
+            const constraints = {
+                video: {
+                    deviceId: rearCameras[currentLensIndex]?.deviceId ? { exact: rearCameras[currentLensIndex].deviceId } : undefined,
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                }
+            };
+            try {
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('videoPreview');
+                video.srcObject = stream;
+                updateLensLabel();
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao abrir câmera", "error");
+            }
         }
 
-        const categoryColors = [
-            'bg-blue-100 text-blue-700', 'bg-green-100 text-green-700', 'bg-purple-100 text-purple-700',
-            'bg-orange-100 text-orange-700', 'bg-pink-100 text-pink-700', 'bg-teal-100 text-teal-700'
-        ];
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        }
+
+        function switchRearLens() {
+            if (rearCameras.length <= 1) {
+                showToast("Apenas uma câmera traseira disponível", "error");
+                return;
+            }
+            currentLensIndex = (currentLensIndex + 1) % rearCameras.length;
+            localStorage.setItem('preferredLensIndex', currentLensIndex);
+            startCamera();
+        }
+
+        function updateLensLabel() {
+            const label = document.getElementById('lensLabel');
+            const current = rearCameras[currentLensIndex];
+            if (current && (current.label.toLowerCase().includes('ultra') || current.label.toLowerCase().includes('wide') || current.label.toLowerCase().includes('angular'))) {
+                label.innerText = "Grande Angular";
+            } else {
+                label.innerText = "Principal";
+            }
+        }
+
+        async function capturePhoto() {
+            const video = document.getElementById('videoPreview');
+            if (!video.srcObject) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 1920;
+            canvas.height = video.videoHeight || 1080;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            canvas.toBlob(async (blob) => {
+                if (!blob) return;
+                await uploadPhotoBlob(blob);
+                closeCameraModal();
+            }, 'image/jpeg', 0.9);
+        }
+
+        async function uploadPhotoBlob(blob) {
+            if (!currentIndustry) return;
+            showToast("Enviando...", "loading");
+            try {
+                const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                const now = new Date();
+                let targetDateFolder = currentDateFolder || now.toLocaleDateString('pt-BR');
+                const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`;
+
+                const { error } = await sb.storage.from(BUCKET).upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
+                if (error) throw error;
+
+                const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName);
+                const { data: newPhoto } = await sb.from('fotos').insert({
+                    created_at: now,
+                    nome_arquivo: fileName,
+                    url_publica: publicUrl
+                }).select().single();
+
+                industryPhotos.unshift(newPhoto);
+                showToast("Foto salva!", "success");
+
+                if (document.getElementById('view-gallery').classList.contains('active')) {
+                    loadGalleryPhotos();
+                } else {
+                    loadDates(currentIndustry.nome);
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Erro no envio", "error");
+            }
+        }
+
+        function openCameraModal() {
+            document.getElementById('cameraModal').classList.remove('hidden');
+            startCamera();
+        }
+
+        function closeCameraModal() {
+            document.getElementById('cameraModal').classList.add('hidden');
+            stopCamera();
+        }
 
         async function refreshCurrentView() {
             showToast("Atualizando...", "loading");
             try {
-                await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
-                
+                await Promise.all([loadIndustries(true), fetchRoutesFromDB(true), loadCategories(true)]);
                 const activeView = document.querySelector('.view-section.active').id;
-                
                 if (activeView === 'view-routes') filterIndustries();
-                
                 if (activeView === 'view-home') {
                     if (!viewSelectedDay) {
                         const todayIndex = new Date().getDay();
@@ -335,58 +461,17 @@
                 } else if (activeView === 'view-all') {
                     await openAllPhotos();
                 }
-                
                 showToast("Atualizado!", "success");
             } catch (e) {
                 showToast("Erro ao atualizar", "error");
             }
         }
 
-        async function uploadPhoto(input) { 
-            const file = input.files[0]; 
-            if(!file || !currentIndustry) return; 
-            showToast("Enviando...", "loading"); 
-            try { 
-                const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); 
-                const blob = await resizeImage(file); 
-                const now = new Date(); 
-                let targetDateFolder = currentDateFolder || now.toLocaleDateString('pt-BR'); 
-                const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`; 
-                
-                const { error } = await sb.storage.from(BUCKET).upload(fileName, blob, { 
-                    upsert: true,
-                    contentType: 'image/jpeg' 
-                });
-                
-                if (error) throw error;
-
-                const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName); 
-                const { data: newPhoto } = await sb.from('fotos').insert({ 
-                    created_at: now, 
-                    nome_arquivo: fileName, 
-                    url_publica: publicUrl 
-                }).select().single();
-
-                industryPhotos.unshift(newPhoto);
-                
-                showToast("Foto salva!", "success"); 
-                
-                if (document.getElementById('view-gallery').classList.contains('active')) {
-                    loadGalleryPhotos();
-                } else {
-                    loadDates(currentIndustry.nome);
-                }
-            } catch(e) { 
-                showToast("Erro no envio", "error"); 
-            } 
-            input.value = ''; 
-        }
-
         function navigateTo(viewId, push = true) {
-            if(push) window.location.hash = viewId;
+            if (push) window.location.hash = viewId;
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            
+
             const backBtn = document.getElementById('backBtn');
             const selectBtn = document.getElementById('selectBtn');
             const title = document.getElementById('pageTitle');
@@ -394,49 +479,45 @@
             const navBar = document.getElementById('mainNavBar');
             const editIndBtn = document.getElementById('editIndBtn');
             const cameraToggleBtn = document.getElementById('cameraToggleBtn');
-            
+
             isSelectionMode = false; selectedPhotos.clear(); selectedIndustries.clear(); updateSelectionUI();
             backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editIndBtn.classList.add('hidden'); cameraToggleBtn.classList.add('hidden');
 
-            if (viewId === 'view-home') { 
-                title.innerText = "Cronograma"; 
-                subtitle.innerHTML = 'Visão Semanal'; 
-                navBar.classList.remove('hidden-nav'); 
+            if (viewId === 'view-home') {
+                title.innerText = "Cronograma";
+                subtitle.innerHTML = 'Visão Semanal';
+                navBar.classList.remove('hidden-nav');
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 document.getElementById('nav-general').classList.add('active');
                 document.getElementById('configRouteBtn').classList.remove('hidden');
-            } 
-            else if (viewId === 'view-routes') { 
-                title.innerText = "Locais"; 
-                subtitle.innerHTML = 'Lista Completa'; 
-                navBar.classList.remove('hidden-nav'); 
+            } else if (viewId === 'view-routes') {
+                title.innerText = "Locais";
+                subtitle.innerHTML = 'Lista Completa';
+                navBar.classList.remove('hidden-nav');
                 selectBtn.classList.remove('hidden');
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 document.getElementById('nav-routes').classList.add('active');
                 document.getElementById('configRouteBtn').classList.add('hidden');
-            }
-            else {
-                navBar.classList.add('hidden-nav'); 
-                backBtn.classList.remove('hidden'); 
+            } else {
+                navBar.classList.add('hidden-nav');
+                backBtn.classList.remove('hidden');
                 if (viewId === 'view-dates' || viewId === 'view-gallery') {
                     cameraToggleBtn.classList.remove('hidden');
                 }
-                if (viewId === 'view-dates') { 
-                    title.innerText = currentIndustry.nome; 
-                    subtitle.innerText = "Pastas"; 
-                    editIndBtn.classList.remove('hidden'); 
-                }
-                else if (viewId === 'view-gallery') { 
-                    selectBtn.classList.remove('hidden'); 
-                    selectBtn.innerText = "Selecionar"; 
-                    title.innerText = currentDateFolder; 
-                    subtitle.innerText = "Galeria de Fotos"; 
-                }
-                else if (viewId === 'view-all') { 
-                    selectBtn.classList.remove('hidden'); 
-                    selectBtn.innerText = "Selecionar"; 
-                    title.innerText = "Todas as Fotos"; 
-                    subtitle.innerText = "Feed Geral"; 
+                if (viewId === 'view-dates') {
+                    title.innerText = currentIndustry ? currentIndustry.nome : "Indústria";
+                    subtitle.innerText = "Pastas";
+                    editIndBtn.classList.remove('hidden');
+                } else if (viewId === 'view-gallery') {
+                    selectBtn.classList.remove('hidden');
+                    selectBtn.innerText = "Selecionar";
+                    title.innerText = currentDateFolder || "Galeria";
+                    subtitle.innerText = "Galeria de Fotos";
+                } else if (viewId === 'view-all') {
+                    selectBtn.classList.remove('hidden');
+                    selectBtn.innerText = "Selecionar";
+                    title.innerText = "Todas as Fotos";
+                    subtitle.innerText = "Feed Geral";
                 }
             }
         }
@@ -444,12 +525,8 @@
         async function fetchRoutesFromDB() {
             try {
                 const { data } = await sb.from('rotas').select('*');
-                if (data) {
-                    data.forEach(row => {
-                        if (routes[row.dia]) routes[row.dia] = row.industrias || [];
-                    });
-                }
-            } catch (e) { console.error("Erro rotas:", e); }
+                if (data) data.forEach(row => routes[row.dia] = row.industrias || []);
+            } catch (e) {}
         }
 
         async function saveRouteConfig() {
@@ -477,10 +554,14 @@
 
         function goBack() { window.history.back(); }
 
-        function filterIndustries() { 
-            const term = document.getElementById('searchInput').value.toLowerCase(); 
-            const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term)); 
-            renderIndustries(filtered); 
+        let searchTimeout;
+        function filterIndustries() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const term = document.getElementById('searchInput').value.toLowerCase();
+                const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term));
+                renderIndustries(filtered);
+            }, 300);
         }
 
         async function loadIndustries() {
@@ -700,11 +781,10 @@
                 return; 
             } 
             photos.forEach(file => { 
-                const isSelected = selectedPhotos.has(file.id); 
                 const div = document.createElement('div'); 
-                div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
-                div.onclick = () => handlePhotoClick(file); 
-                div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; 
+                div.className = `photo-item cursor-pointer`; 
+                div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`; 
+                div.onclick = () => openPhotoModal(file.url_publica, file.id); 
                 container.appendChild(div); 
             }); 
         }
@@ -718,11 +798,10 @@
                 industryPhotos = data || []; 
                 container.innerHTML = ''; 
                 industryPhotos.forEach(file => { 
-                    const isSelected = selectedPhotos.has(file.id); 
                     const div = document.createElement('div'); 
-                    div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
-                    div.onclick = () => handlePhotoClick(file); 
-                    div.innerHTML = `<img src="${file.url_publica}" class="w-full h-full object-cover pointer-events-none">`; 
+                    div.className = `photo-item cursor-pointer`; 
+                    div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`; 
+                    div.onclick = () => openPhotoModal(file.url_publica, file.id); 
                     container.appendChild(div); 
                 }); 
             } catch(e) {} 
@@ -731,21 +810,18 @@
         function toggleSelectionMode() { 
             isSelectionMode = !isSelectionMode; 
             const btn = document.getElementById('selectBtn');
-            const cam = document.getElementById('cameraControls');
             const selBar = document.getElementById('selectionControls');
             const selBarAll = document.getElementById('selectionControlsAll'); 
             const isAll = document.getElementById('view-all').classList.contains('active'); 
             if(isSelectionMode) { 
                 btn.innerText = "Cancelar"; 
                 btn.classList.add('text-red-500','border-red-200','bg-red-50'); 
-                if(cam) cam.classList.add('hidden-bar'); 
                 if(isAll) selBarAll.classList.remove('hidden-bar'); 
                 else selBar.classList.remove('hidden-bar'); 
             } else { 
                 btn.innerText = "Selecionar"; 
                 btn.classList.remove('text-red-500','border-red-200','bg-red-50'); 
                 selectedPhotos.clear(); 
-                if(cam) cam.classList.remove('hidden-bar'); 
                 selBar.classList.add('hidden-bar'); 
                 selBarAll.classList.add('hidden-bar'); 
                 if(isAll) openAllPhotos(); 
@@ -957,30 +1033,10 @@
             }
         }
 
-        function resizeImage(file) { 
-            return new Promise(resolve => { 
-                const reader = new FileReader(); 
-                reader.readAsDataURL(file); 
-                reader.onload = e => { 
-                    const img = new Image(); 
-                    img.src = e.target.result; 
-                    img.onload = () => { 
-                        const canvas = document.createElement('canvas');
-                        const max = 1200;
-                        const scale = max / Math.max(img.width, img.height);
-                        canvas.width = img.width * scale;
-                        canvas.height = img.height * scale;
-                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.85);
-                    }; 
-                }; 
-            }); 
-        }
-
-        window.onload = async () => { 
-            updateCameraInputs();
+        window.onload = async () => {
+            await initRearCameras();
             await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
-            
+
             const hash = window.location.hash.substring(1);
             if (hash && document.getElementById(hash)) {
                 navigateTo(hash, false);
