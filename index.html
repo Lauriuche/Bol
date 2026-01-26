@@ -289,7 +289,6 @@
         let configSelectedDay = null;
         let viewSelectedDay = null;
 
-        // Stack de navegação para corrigir o botão voltar
         let viewHistory = [];
 
         const categoryColors = [
@@ -381,7 +380,7 @@
 
         function navigateTo(viewId, addToHistory = true) {
             const currentView = document.querySelector('.view-section.active')?.id || 'view-home';
-            if (addToHistory) {
+            if (addToHistory && currentView !== viewId) {
                 viewHistory.push(currentView);
             }
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -397,7 +396,6 @@
             isSelectionMode = false; selectedPhotos.clear(); selectedIndustries.clear(); updateSelectionUI();
             backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editIndBtn.classList.add('hidden');
 
-            // Mostra botão voltar se houver histórico
             if (viewHistory.length > 0) {
                 backBtn.classList.remove('hidden');
             }
@@ -437,13 +435,11 @@
                 }
             }
 
-            // Atualiza hash para reload
             window.location.hash = viewId;
         }
 
         function goBack() {
             if (viewHistory.length === 0) {
-                // Se não houver histórico, volta para home
                 navigateTo('view-home', false);
                 viewHistory = [];
                 return;
@@ -471,7 +467,7 @@
 
         function switchMainTab(tab) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            viewHistory = []; // Reseta histórico ao mudar aba principal
+            viewHistory = [];
             if(tab === 'general') {
                 document.getElementById('nav-general').classList.add('active');
                 navigateTo('view-home', false);
@@ -670,6 +666,7 @@
         }
 
         async function loadDates(indName) {
+            navigateTo('view-dates');
             const list = document.getElementById('datesList');
             list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
             try {
@@ -713,10 +710,11 @@
                 return; 
             } 
             photos.forEach(file => { 
+                const isSelected = selectedPhotos.has(file.id);
                 const div = document.createElement('div'); 
-                div.className = `photo-item cursor-pointer`; 
+                div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
                 div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`; 
-                div.onclick = () => openPhotoModal(file.url_publica, file.id); 
+                div.onclick = () => handlePhotoClick(file); 
                 container.appendChild(div); 
             }); 
         }
@@ -730,10 +728,11 @@
                 industryPhotos = data || []; 
                 container.innerHTML = ''; 
                 industryPhotos.forEach(file => { 
+                    const isSelected = selectedPhotos.has(file.id);
                     const div = document.createElement('div'); 
-                    div.className = `photo-item cursor-pointer`; 
+                    div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
                     div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`; 
-                    div.onclick = () => openPhotoModal(file.url_publica, file.id); 
+                    div.onclick = () => handlePhotoClick(file); 
                     container.appendChild(div); 
                 }); 
             } catch(e) {} 
@@ -756,19 +755,27 @@
                 selectedPhotos.clear(); 
                 selBar.classList.add('hidden-bar'); 
                 selBarAll.classList.add('hidden-bar'); 
-                if(isAll) openAllPhotos(); 
-                else loadGalleryPhotos(); 
             } 
             updateSelectionUI();
+            // Recarrega a galeria para atualizar as classes selected
+            if(isAll) openAllPhotos();
+            else loadGalleryPhotos();
         }
 
         function handlePhotoClick(file) { 
             if(isSelectionMode) { 
-                if (selectedPhotos.has(file.id)) selectedPhotos.delete(file.id);
-                else selectedPhotos.add(file.id);
+                if (selectedPhotos.has(file.id)) {
+                    selectedPhotos.delete(file.id);
+                } else {
+                    selectedPhotos.add(file.id);
+                }
                 updateSelectionUI();
-                if (document.getElementById('view-all').classList.contains('active')) openAllPhotos();
-                else loadGalleryPhotos();
+                // Recarrega para atualizar visual (checkmark)
+                if (document.getElementById('view-all').classList.contains('active')) {
+                    openAllPhotos();
+                } else {
+                    loadGalleryPhotos();
+                }
             } else {
                 openPhotoModal(file.url_publica, file.id);
             }
@@ -789,7 +796,7 @@
             try { 
                 await sb.from('fotos').delete().in('id', Array.from(selectedPhotos)); 
                 selectedPhotos.clear(); 
-                toggleSelectionMode(); 
+                toggleSelectionMode();
                 showToast("Apagado!", "success"); 
             } catch(e) { showToast("Erro", "error"); } 
         }
@@ -818,7 +825,7 @@
                 } 
                 if(navigator.share && navigator.canShare && navigator.canShare({ files: filesArray })) { 
                     await navigator.share({ files: filesArray }); 
-                    toggleSelectionMode(); 
+                    toggleSelectionMode();
                     showToast('Compartilhado!', 'success'); 
                 } else { 
                     showToast("Compartilhamento não suportado", "error"); 
