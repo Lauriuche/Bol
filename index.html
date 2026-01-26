@@ -544,4 +544,465 @@
             container.innerHTML = '';
             weekDays.forEach(d => {
                 const btn = document.createElement('button');
-                btn.innerText = d
+                btn.innerText = d.substring(0, 3); 
+                let className = `day-tab ${d === day ? 'active' : ''}`; 
+                if (d === 'Domingo') className += ' sunday';
+                btn.className = className;
+                btn.onclick = () => selectRouteViewDay(d); 
+                container.appendChild(btn);
+            });
+            renderRouteList(day);
+        }
+
+        function renderRouteList(day) {
+            const container = document.getElementById('routeListContent');
+            const industriesNames = routes[day] || []; 
+            container.innerHTML = '';
+            if (industriesNames.length === 0) { 
+                container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Nenhuma rota definida.</div>'; 
+                return; 
+            }
+            const fullIndustries = industriesNames.map(name => allIndustries.find(i => i.nome === name)).filter(Boolean);
+            fullIndustries.forEach(ind => { 
+                const row = document.createElement('div'); 
+                row.className = 'route-row group'; 
+                row.onclick = () => openIndustry(ind); 
+                const catName = ind.categorias ? `<span class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded ml-2">${ind.categorias.nome}</span>` : '';
+                row.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-folder text-blue-400 text-lg"></i><div class="flex flex-col"><span class="font-bold text-sm text-slate-600">${ind.nome}</span></div>${catName}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-active:translate-x-1 transition"></i>`; 
+                container.appendChild(row); 
+            });
+        }
+
+        async function loadCategories() { 
+            try { 
+                const { data } = await sb.from('categorias').select('*').order('nome'); 
+                if(data) { 
+                    categories = data; 
+                    renderCategoryOptions(); 
+                } 
+            } catch(e) {} 
+        }
+
+        function renderCategoryOptions() { 
+            const selects = [document.getElementById('catSelect'), document.getElementById('bulkCatSelect')];
+            selects.forEach(el => {
+                if(el) {
+                    el.innerHTML = '<option value="">Sem Categoria</option>';
+                    categories.forEach(c => {
+                        const o = document.createElement('option');
+                        o.value = c.id;
+                        o.innerText = c.nome;
+                        el.appendChild(o);
+                    });
+                }
+            });
+        }
+
+        async function addNewCategory() { 
+            const n = document.getElementById('newCatName').value.trim(); 
+            if(!n) return; 
+            try { 
+                const { data } = await sb.from('categorias').insert({ nome: n }).select(); 
+                await loadCategories(); 
+                document.getElementById('catSelect').value = data[0].id; 
+                document.getElementById('newCatContainer').classList.add('hidden'); 
+            } catch(e) {} 
+        }
+
+        async function saveIndustry() {
+            const id = document.getElementById('editIndId').value; 
+            const name = document.getElementById('newIndName').value.trim(); 
+            const catId = document.getElementById('catSelect').value || null; 
+            if(!name) return;
+            showToast("Salvando...", "loading");
+            try {
+                if(id) { 
+                    const oldInd = allIndustries.find(i => i.id == id);
+                    if(oldInd && oldInd.nome !== name) {
+                        const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); 
+                        const newSafe = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                        const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${oldSafe}/%`);
+                        if(files) { 
+                            for(const f of files) { 
+                                const newPath = f.nome_arquivo.replace(`${oldSafe}/`, `${newSafe}/`); 
+                                await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath); 
+                                await sb.from('fotos').update({nome_arquivo: newPath}).eq('id', f.id); 
+                            } 
+                        }
+                        await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`);
+                    }
+                    await sb.from('industrias').update({ nome: name, categoria_id: catId }).eq('id', id);
+                } else { 
+                    const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); 
+                    await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), {upsert: true});
+                    await sb.from('industrias').insert({ nome: name, categoria_id: catId });
+                }
+                showToast("Salvo!", "success"); 
+                closeAddModal(); 
+                await loadIndustries();
+            } catch(e) { 
+                showToast("Erro", "error"); 
+            }
+        }
+
+        async function deleteIndustry(id, e, indName) {
+            if(e) e.stopPropagation(); 
+            if(!confirm(`ATENÇÃO: Apagar indústria "${indName}"?`)) return;
+            showToast("Apagando...", "loading");
+            try { 
+                await sb.from('industrias').delete().eq('id', id); 
+                const ind = allIndustries.find(i => i.id == id);
+                if(ind) {
+                    const safeName = ind.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                    await sb.storage.from(BUCKET).remove([`${safeName}/.keep`]);
+                }
+                showToast("Removido", "success"); 
+                await loadIndustries(); 
+            } catch(e) { showToast("Erro", "error"); }
+        }
+
+        function openIndustry(ind) { 
+            currentIndustry = ind; 
+            navigateTo('view-dates');
+            loadDates(ind.nome); 
+        }
+
+        async function loadDates(indName) {
+            navigateTo('view-dates');
+            const list = document.getElementById('datesList');
+            list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
+            try {
+                const safe = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                const { data } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false });
+                industryPhotos = data || [];
+                list.innerHTML = '';
+                if(industryPhotos.length === 0) { 
+                    list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Vazio.</div>'; 
+                    return; 
+                }
+                const datesMap = {}; 
+                industryPhotos.forEach(f => { 
+                    const date = new Date(f.created_at); 
+                    const dateKey = date.toLocaleDateString('pt-BR'); 
+                    datesMap[dateKey] = (datesMap[dateKey] || 0) + 1;
+                });
+                Object.keys(datesMap).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(dateLabel => {
+                    const count = datesMap[dateLabel];
+                    const el = document.createElement('div');
+                    el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
+                    el.onclick = () => openGallery(dateLabel);
+                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} fotos</p></div></div>`;
+                    list.appendChild(el);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        function openGallery(dateLabel) { 
+            currentDateFolder = dateLabel; 
+            navigateTo('view-gallery');
+            loadGalleryPhotos(); 
+        }
+
+        function loadGalleryPhotos() { 
+            const container = document.getElementById('photosContainer'); 
+            container.innerHTML = ''; 
+            const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); 
+            if(photos.length === 0) { 
+                container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; 
+                return; 
+            } 
+            photos.forEach(file => { 
+                const isSelected = selectedPhotos.has(file.id);
+                const div = document.createElement('div'); 
+                div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
+                div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`; 
+                div.onclick = () => handlePhotoClick(file); 
+                container.appendChild(div); 
+            }); 
+        }
+
+        async function openAllPhotos() { 
+            navigateTo('view-all');
+            const container = document.getElementById('allPhotosContainer'); 
+            container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>'; 
+            try { 
+                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); 
+                industryPhotos = data || []; 
+                container.innerHTML = ''; 
+                industryPhotos.forEach(file => { 
+                    const isSelected = selectedPhotos.has(file.id);
+                    const div = document.createElement('div'); 
+                    div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
+                    div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`; 
+                    div.onclick = () => handlePhotoClick(file); 
+                    container.appendChild(div); 
+                }); 
+            } catch(e) {} 
+        }
+
+        function toggleSelectionMode() { 
+            isSelectionMode = !isSelectionMode; 
+            const btn = document.getElementById('selectBtn');
+            const selBar = document.getElementById('selectionControls');
+            const selBarAll = document.getElementById('selectionControlsAll'); 
+            const isAll = document.getElementById('view-all').classList.contains('active'); 
+            if(isSelectionMode) { 
+                btn.innerText = "Cancelar"; 
+                btn.classList.add('text-red-500','border-red-200','bg-red-50'); 
+                if(isAll) selBarAll.classList.remove('hidden-bar'); 
+                else selBar.classList.remove('hidden-bar'); 
+            } else { 
+                btn.innerText = "Selecionar"; 
+                btn.classList.remove('text-red-500','border-red-200','bg-red-50'); 
+                selectedPhotos.clear(); 
+                selBar.classList.add('hidden-bar'); 
+                selBarAll.classList.add('hidden-bar'); 
+            } 
+            updateSelectionUI();
+            if(isAll) openAllPhotos();
+            else loadGalleryPhotos();
+        }
+
+        function selectAllPhotos() {
+            const currentPhotos = industryPhotos.filter(f => {
+                if (document.getElementById('view-gallery').classList.contains('active')) {
+                    return new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder;
+                }
+                return true; // para view-all
+            });
+            currentPhotos.forEach(photo => selectedPhotos.add(photo.id));
+            updateSelectionUI();
+            if (document.getElementById('view-all').classList.contains('active')) {
+                openAllPhotos();
+            } else {
+                loadGalleryPhotos();
+            }
+        }
+
+        function handlePhotoClick(file) { 
+            if(isSelectionMode) { 
+                if (selectedPhotos.has(file.id)) {
+                    selectedPhotos.delete(file.id);
+                } else {
+                    selectedPhotos.add(file.id);
+                }
+                updateSelectionUI();
+                if (document.getElementById('view-all').classList.contains('active')) {
+                    openAllPhotos();
+                } else {
+                    loadGalleryPhotos();
+                }
+            } else {
+                openPhotoModal(file.url_publica, file.id);
+            }
+        }
+
+        function updateSelectionUI() { 
+            const count = selectedPhotos.size; 
+            const selCount = document.getElementById('selCount');
+            const selCountAll = document.getElementById('selCountAll');
+            if(selCount) selCount.innerText = count;
+            if(selCountAll) selCountAll.innerText = count;
+        }
+
+        async function deleteSelected() { 
+            if(selectedPhotos.size === 0) return; 
+            if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return; 
+            showToast("Apagando...", "loading"); 
+            try { 
+                await sb.from('fotos').delete().in('id', Array.from(selectedPhotos)); 
+                selectedPhotos.clear(); 
+                toggleSelectionMode();
+                showToast("Apagado!", "success"); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+
+        async function deleteSinglePhoto() { 
+            if(!currentModalPhoto || !confirm("Apagar?")) return; 
+            try { 
+                await sb.from('fotos').delete().eq('id', currentModalPhoto); 
+                closePhotoModal(); 
+                showToast("Apagado!", "success"); 
+                loadGalleryPhotos(); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+
+        async function shareSelected() { 
+            if(selectedPhotos.size === 0) return; 
+            showToast(`Preparando ${selectedPhotos.size} fotos...`, 'loading'); 
+            try { 
+                const filesArray = []; 
+                const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id)); 
+                for(let i = 0; i < selectedData.length; i++) { 
+                    const p = selectedData[i]; 
+                    const resp = await fetch(p.url_publica);
+                    const blob = await resp.blob(); 
+                    filesArray.push(new File([blob], `Foto_${i+1}.jpg`, { type: blob.type })); 
+                } 
+                if(navigator.share && navigator.canShare && navigator.canShare({ files: filesArray })) { 
+                    await navigator.share({ files: filesArray }); 
+                    toggleSelectionMode();
+                    showToast('Compartilhado!', 'success'); 
+                } else { 
+                    showToast("Compartilhamento não suportado", "error"); 
+                } 
+            } catch(e) { 
+                showToast("Erro ao compartilhar", "error"); 
+            } 
+        }
+
+        function openRouteConfig() { 
+            document.getElementById('routeConfigModal').classList.remove('hidden'); 
+            selectRouteConfigDay('Segunda'); 
+        }
+
+        function selectRouteConfigDay(day) { 
+            configSelectedDay = day; 
+            document.querySelectorAll('.day-cfg-btn').forEach(btn => { 
+                if(btn.innerText.trim().startsWith(day.substring(0,3))) { 
+                    btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'; 
+                } else { 
+                    btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full'; 
+                } 
+            }); 
+            document.getElementById('currentConfigDay').innerText = day; 
+            renderChecklist(); 
+        }
+
+        function renderChecklist() { 
+            const list = document.getElementById('routeChecklist'); 
+            list.innerHTML = ''; 
+            if(allIndustries.length === 0) { 
+                list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; 
+                return; 
+            } 
+            const currentRoute = routes[configSelectedDay] || []; 
+            allIndustries.forEach(ind => { 
+                const isChecked = currentRoute.includes(ind.nome); 
+                const item = document.createElement('label'); 
+                item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; 
+                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; 
+                list.appendChild(item); 
+            }); 
+        }
+
+        function toggleRouteItem(indName) { 
+            if(!routes[configSelectedDay]) routes[configSelectedDay] = []; 
+            const idx = routes[configSelectedDay].indexOf(indName); 
+            if(idx > -1) routes[configSelectedDay].splice(idx, 1); 
+            else routes[configSelectedDay].push(indName); 
+        }
+
+        function handleIndustryClick(ind, e) { 
+            if(isSelectionMode) { 
+                if(selectedIndustries.has(ind.id)) {
+                    selectedIndustries.delete(ind.id);
+                } else {
+                    selectedIndustries.add(ind.id);
+                }
+                document.getElementById('selIndCount').innerText = selectedIndustries.size;
+            } else { 
+                openIndustry(ind); 
+            } 
+        }
+
+        function openBulkCategoryModal() { 
+            if(selectedIndustries.size === 0) return; 
+            document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size; 
+            document.getElementById('bulkCatModal').classList.remove('hidden'); 
+        }
+
+        async function saveBulkCategory() { 
+            const catId = document.getElementById('bulkCatSelect').value || null; 
+            const ids = Array.from(selectedIndustries); 
+            showToast("Atualizando...", "loading"); 
+            try { 
+                await sb.from('industrias').update({ categoria_id: catId }).in('id', ids); 
+                showToast("Atualizado!", "success"); 
+                document.getElementById('bulkCatModal').classList.add('hidden'); 
+                selectedIndustries.clear();
+                await loadIndustries();
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+
+        async function deleteSelectedIndustries() { 
+            if(selectedIndustries.size === 0) return; 
+            if(!confirm(`Apagar ${selectedIndustries.size} indústrias?`)) return; 
+            showToast("Apagando...", "loading"); 
+            try { 
+                await sb.from('industrias').delete().in('id', Array.from(selectedIndustries)); 
+                selectedIndustries.clear();
+                await loadIndustries();
+                showToast("Apagado!", "success"); 
+            } catch(e) { showToast("Erro", "error"); } 
+        }
+
+        function openAddModal() { 
+            document.getElementById('modalTitle').innerText = "Nova Indústria"; 
+            document.getElementById('newIndName').value = ''; 
+            document.getElementById('editIndId').value = ''; 
+            document.getElementById('catSelect').value = ''; 
+            document.getElementById('addModal').classList.remove('hidden'); 
+        }
+
+        function openEditIndustryModal() { 
+            if(!currentIndustry) return; 
+            document.getElementById('modalTitle').innerText = "Editar Indústria"; 
+            document.getElementById('newIndName').value = currentIndustry.nome; 
+            document.getElementById('editIndId').value = currentIndustry.id; 
+            document.getElementById('catSelect').value = currentIndustry.categoria_id || ''; 
+            document.getElementById('addModal').classList.remove('hidden'); 
+        }
+
+        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+
+        function openPhotoModal(url, id) { 
+            currentModalPhoto = id; 
+            document.getElementById('previewImg').src = url; 
+            const m = document.getElementById('photoModal'); 
+            m.classList.remove('hidden'); 
+            setTimeout(() => m.classList.remove('opacity-0'), 10); 
+        }
+
+        function closePhotoModal() { 
+            const m = document.getElementById('photoModal'); 
+            m.classList.add('opacity-0'); 
+            setTimeout(() => m.classList.add('hidden'), 300); 
+        }
+
+        function showToast(msg, type = "loading") { 
+            const t = document.getElementById('statusToast');
+            const i = document.getElementById('toastIcon');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.remove('opacity-0', '-translate-y-10');
+            if(type === 'success') {
+                i.className = 'fas fa-check-circle text-green-500 text-lg';
+                setTimeout(() => t.classList.add('opacity-0', '-translate-y-10'), 2000);
+            } else if(type === 'error') {
+                i.className = 'fas fa-times-circle text-red-500 text-lg';
+                setTimeout(() => t.classList.add('opacity-0', '-translate-y-10'), 3000);
+            } else {
+                i.className = 'loader w-4 h-4 border-2 border-slate-200 border-t-blue-500';
+            }
+        }
+
+        window.onload = async () => {
+            viewHistory = [];
+            await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                navigateTo(hash, false);
+            } else {
+                const todayIndex = new Date().getDay();
+                viewSelectedDay = weekDays[todayIndex];
+                selectRouteViewDay(viewSelectedDay);
+            }
+        };
+
+        window.addEventListener('beforeinstallprompt', (e) => { 
+            e.preventDefault(); 
+            document.getElementById('installBtn').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
