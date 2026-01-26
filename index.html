@@ -85,15 +85,11 @@
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Estilos da câmera customizada */
-        #cameraModal video { width: 100%; height: 100%; object-fit: cover; }
-        #lensLabel { font-size: 12px; background: rgba(0,0,0,0.6); padding: 6px 14px; border-radius: 20px; }
     </style>
 </head>
 <body class="text-slate-800">
 
-    <!-- Header -->
+    <!-- Header (sem botão de trocar câmera) -->
     <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-sm">
         <div class="flex items-center gap-3 w-2/3">
             <button id="backBtn" onclick="goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center active:scale-90 transition"><i class="fas fa-arrow-left"></i></button>
@@ -107,7 +103,6 @@
             <button id="installBtn" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
             <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
-            <button id="cameraToggleBtn" onclick="switchRearLens()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-camera-rotate text-sm"></i></button>
             <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
             <button onclick="refreshCurrentView()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
         </div>
@@ -153,9 +148,10 @@
             </div>
             <div id="datesList" class="space-y-3 pb-40"></div>
             <div class="fixed-bottom-bar flex justify-center">
-                <button onclick="openCameraModal()" class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition shadow-lg shadow-blue-200 border border-white/20">
+                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
                     <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">FOTO DE HOJE</span>
-                </button>
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
+                </label>
             </div>
         </div>
 
@@ -163,9 +159,10 @@
         <div id="view-gallery" class="view-section">
             <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
             <div class="fixed-bottom-bar flex justify-center">
-                <button onclick="openCameraModal()" class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition shadow-lg shadow-blue-200 border border-white/20">
+                <label class="w-full max-w-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
                     <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">ADICIONAR FOTO</span>
-                </button>
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
+                </label>
             </div>
             <div id="selectionControls" class="fixed-bottom-bar flex gap-3 hidden-bar">
                 <button onclick="deleteSelected()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
@@ -191,22 +188,7 @@
         <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')"><i class="fas fa-th-large"></i><span>Locais</span></div>
     </nav>
 
-    <!-- MODAL DA CÂMERA CUSTOMIZADA -->
-    <div id="cameraModal" class="fixed inset-0 bg-black z-[100] hidden flex flex-col">
-        <div class="flex-1 relative">
-            <video id="videoPreview" autoplay playsinline muted class="w-full h-full object-cover"></video>
-            <button onclick="closeCameraModal()" class="absolute top-4 left-4 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-white backdrop-blur"><i class="fas fa-times text-xl"></i></button>
-            <button onclick="switchRearLens()" class="absolute top-4 right-4 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-white backdrop-blur"><i class="fas fa-camera-rotate text-xl"></i></button>
-            <div id="lensLabel" class="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white lens-label">Principal</div>
-        </div>
-        <div class="p-8 bg-black flex justify-center">
-            <button onclick="capturePhoto()" class="w-20 h-20 bg-white rounded-full shadow-2xl active:scale-90 transition relative">
-                <div class="absolute inset-2 bg-gray-200 rounded-full border-4 border-white"></div>
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAL CONFIGURAÇÃO DE ROTAS -->
+    <!-- TODOS OS MODAIS -->
     <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col">
             <h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3>
@@ -228,7 +210,6 @@
         </div>
     </div>
 
-    <!-- MODAL ADICIONAR/EDITAR INDÚSTRIA -->
     <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
             <h3 id="modalTitle" class="text-sm font-bold text-slate-700 mb-4 uppercase">Nova Indústria</h3>
@@ -246,7 +227,6 @@
         </div>
     </div>
 
-    <!-- MODAL MUDAR CATEGORIA EM MASSA -->
     <div id="bulkCatModal" class="fixed inset-0 bg-black/50 z-[90] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
             <h3 class="text-sm font-bold text-slate-700 mb-4 uppercase">Mudar Categoria</h3>
@@ -259,7 +239,6 @@
         </div>
     </div>
 
-    <!-- MODAL INSTALAÇÃO -->
     <div id="installModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
             <h3 class="text-lg font-bold text-slate-800 mb-2">Instalar App</h3>
@@ -274,7 +253,6 @@
         </div>
     </div>
 
-    <!-- MODAL VISUALIZAÇÃO DE FOTO -->
     <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
         <div class="absolute top-0 w-full p-4 flex justify-end z-20">
             <button onclick="closePhotoModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button>
@@ -285,7 +263,6 @@
         </div>
     </div>
 
-    <!-- TOAST DE STATUS -->
     <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full shadow-xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]">
         <div id="toastIcon" class="loader w-3 h-3 border-slate-200 border-t-blue-500"></div>
         <span id="toastMsg">Processando...</span>
@@ -312,96 +289,43 @@
         let configSelectedDay = null;
         let viewSelectedDay = null;
 
-        // Câmera customizada
-        let stream = null;
-        let rearCameras = [];
-        let currentLensIndex = parseInt(localStorage.getItem('preferredLensIndex')) || 0;
+        const categoryColors = [
+            'bg-blue-100 text-blue-700', 'bg-green-100 text-green-700', 'bg-purple-100 text-purple-700',
+            'bg-orange-100 text-orange-700', 'bg-pink-100 text-pink-700', 'bg-teal-100 text-teal-700'
+        ];
 
-        async function initRearCameras() {
+        async function refreshCurrentView() {
+            showToast("Atualizando...", "loading");
             try {
-                await navigator.mediaDevices.getUserMedia({ video: true });
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                rearCameras = devices.filter(d => d.kind === 'videoinput' && (d.label.toLowerCase().includes('back') || d.facingMode === 'environment'));
-                rearCameras.sort((a, b) => {
-                    const aWide = a.label.toLowerCase().includes('ultra') || a.label.toLowerCase().includes('wide') || a.label.toLowerCase().includes('angular');
-                    const bWide = b.label.toLowerCase().includes('ultra') || b.label.toLowerCase().includes('wide') || b.label.toLowerCase().includes('angular');
-                    return aWide - bWide;
-                });
-                if (rearCameras.length === 0) rearCameras = devices.filter(d => d.kind === 'videoinput');
-                currentLensIndex = currentLensIndex < rearCameras.length ? currentLensIndex : 0;
-            } catch (e) {
-                console.error("Erro ao acessar câmeras:", e);
-            }
-        }
-
-        async function startCamera() {
-            if (rearCameras.length === 0) await initRearCameras();
-            if (rearCameras.length === 0) return showToast("Nenhuma câmera encontrada", "error");
-
-            stopCamera();
-            const constraints = {
-                video: {
-                    deviceId: rearCameras[currentLensIndex]?.deviceId ? { exact: rearCameras[currentLensIndex].deviceId } : undefined,
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 }
+                await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
+                const activeView = document.querySelector('.view-section.active').id;
+                if (activeView === 'view-routes') filterIndustries();
+                if (activeView === 'view-home') {
+                    if (!viewSelectedDay) {
+                        const todayIndex = new Date().getDay();
+                        viewSelectedDay = weekDays[todayIndex];
+                    }
+                    selectRouteViewDay(viewSelectedDay);
+                } else if (activeView === 'view-dates') {
+                    if (currentIndustry) await loadDates(currentIndustry.nome);
+                } else if (activeView === 'view-gallery') {
+                    if (currentIndustry) await loadDates(currentIndustry.nome);
+                    loadGalleryPhotos();
+                } else if (activeView === 'view-all') {
+                    await openAllPhotos();
                 }
-            };
-            try {
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
-                const video = document.getElementById('videoPreview');
-                video.srcObject = stream;
-                updateLensLabel();
+                showToast("Atualizado!", "success");
             } catch (e) {
-                console.error(e);
-                showToast("Erro ao abrir câmera", "error");
+                showToast("Erro ao atualizar", "error");
             }
         }
 
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-        }
-
-        function switchRearLens() {
-            if (rearCameras.length <= 1) {
-                showToast("Apenas uma câmera traseira disponível", "error");
-                return;
-            }
-            currentLensIndex = (currentLensIndex + 1) % rearCameras.length;
-            localStorage.setItem('preferredLensIndex', currentLensIndex);
-            startCamera();
-        }
-
-        function updateLensLabel() {
-            const label = document.getElementById('lensLabel');
-            const current = rearCameras[currentLensIndex];
-            if (current && (current.label.toLowerCase().includes('ultra') || current.label.toLowerCase().includes('wide') || current.label.toLowerCase().includes('angular'))) {
-                label.innerText = "Grande Angular";
-            } else {
-                label.innerText = "Principal";
-            }
-        }
-
-        async function capturePhoto() {
-            const video = document.getElementById('videoPreview');
-            if (!video.srcObject) return;
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth || 1920;
-            canvas.height = video.videoHeight || 1080;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            canvas.toBlob(async (blob) => {
-                if (!blob) return;
-                await uploadPhotoBlob(blob);
-                closeCameraModal();
-            }, 'image/jpeg', 0.9);
-        }
-
-        async function uploadPhotoBlob(blob) {
-            if (!currentIndustry) return;
+        async function uploadPhoto(input) {
+            const file = input.files[0];
+            if (!file || !currentIndustry) return;
             showToast("Enviando...", "loading");
             try {
+                const blob = await resizeImage(file);
                 const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                 const now = new Date();
                 let targetDateFolder = currentDateFolder || now.toLocaleDateString('pt-BR');
@@ -429,42 +353,27 @@
                 console.error(e);
                 showToast("Erro no envio", "error");
             }
+            input.value = '';
         }
 
-        function openCameraModal() {
-            document.getElementById('cameraModal').classList.remove('hidden');
-            startCamera();
-        }
-
-        function closeCameraModal() {
-            document.getElementById('cameraModal').classList.add('hidden');
-            stopCamera();
-        }
-
-        async function refreshCurrentView() {
-            showToast("Atualizando...", "loading");
-            try {
-                await Promise.all([loadIndustries(true), fetchRoutesFromDB(true), loadCategories(true)]);
-                const activeView = document.querySelector('.view-section.active').id;
-                if (activeView === 'view-routes') filterIndustries();
-                if (activeView === 'view-home') {
-                    if (!viewSelectedDay) {
-                        const todayIndex = new Date().getDay();
-                        viewSelectedDay = weekDays[todayIndex];
-                    }
-                    selectRouteViewDay(viewSelectedDay);
-                } else if (activeView === 'view-dates') {
-                    if (currentIndustry) await loadDates(currentIndustry.nome);
-                } else if (activeView === 'view-gallery') {
-                    if (currentIndustry) await loadDates(currentIndustry.nome);
-                    loadGalleryPhotos();
-                } else if (activeView === 'view-all') {
-                    await openAllPhotos();
-                }
-                showToast("Atualizado!", "success");
-            } catch (e) {
-                showToast("Erro ao atualizar", "error");
-            }
+        function resizeImage(file) {
+            return new Promise(resolve => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = e => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const max = 1200;
+                        const scale = max / Math.max(img.width, img.height);
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.85);
+                    };
+                };
+            });
         }
 
         function navigateTo(viewId, push = true) {
@@ -478,10 +387,9 @@
             const subtitle = document.getElementById('pageSubtitle');
             const navBar = document.getElementById('mainNavBar');
             const editIndBtn = document.getElementById('editIndBtn');
-            const cameraToggleBtn = document.getElementById('cameraToggleBtn');
 
             isSelectionMode = false; selectedPhotos.clear(); selectedIndustries.clear(); updateSelectionUI();
-            backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editIndBtn.classList.add('hidden'); cameraToggleBtn.classList.add('hidden');
+            backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editIndBtn.classList.add('hidden');
 
             if (viewId === 'view-home') {
                 title.innerText = "Cronograma";
@@ -501,9 +409,6 @@
             } else {
                 navBar.classList.add('hidden-nav');
                 backBtn.classList.remove('hidden');
-                if (viewId === 'view-dates' || viewId === 'view-gallery') {
-                    cameraToggleBtn.classList.remove('hidden');
-                }
                 if (viewId === 'view-dates') {
                     title.innerText = currentIndustry ? currentIndustry.nome : "Indústria";
                     subtitle.innerText = "Pastas";
@@ -942,10 +847,8 @@
             if(isSelectionMode) { 
                 if(selectedIndustries.has(ind.id)) {
                     selectedIndustries.delete(ind.id);
-                    e.currentTarget.classList.remove('border-blue-500');
                 } else {
                     selectedIndustries.add(ind.id);
-                    e.currentTarget.classList.add('border-blue-500');
                 }
                 document.getElementById('selIndCount').innerText = selectedIndustries.size;
             } else { 
@@ -1034,9 +937,7 @@
         }
 
         window.onload = async () => {
-            await initRearCameras();
             await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
-
             const hash = window.location.hash.substring(1);
             if (hash && document.getElementById(hash)) {
                 navigateTo(hash, false);
