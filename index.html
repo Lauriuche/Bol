@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#ffffff">
+    <title>Industrial Manager</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; -webkit-tap-highlight-color: transparent; user-select: none; padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        .day-tab { font-weight: 800; font-size: 11px; color: #94a3b8; background: #e2e8f0; padding: 8px 0; width: 100%; border-radius: 6px 6px 0 0; text-transform: uppercase; transition: all 0.2s; border-bottom: 2px solid transparent; white-space: nowrap; display: flex; justify-content: center; align-items: center; }
+        .day-tab.active { background: #ffffff; color: #3b82f6; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); position: relative; z-index: 10; }
+        .day-tab.active::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #3b82f6; border-radius: 3px 3px 0 0; }
+        .day-tab.sunday { color: #ef4444; } 
+        .day-tab.sunday.active { color: #dc2626; } 
+        .day-tab.sunday.active::after { background: #dc2626; }
+        .route-list-card { background: #ffffff; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; min-height: 300px; position: relative; z-index: 5; border: 1px solid #e2e8f0; border-top: none; }
+        .route-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.1s; }
+        .route-row:active { background: #f8fafc; }
+        .route-row .route-img { width: 40px; height: 40px; border-radius: 8px; background: #cbd5e1; flex-shrink: 0; object-fit: cover; border: 1px solid #e2e8f0; margin-right: 12px; }
+        .route-row .route-name-cat { display: flex; align-items: center; gap: 6px; flex: 1; }
+        .route-row .route-name { font-weight: 700; color: #334155; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ind-card { background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 10px 6px; height: 110px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
+        .ind-card:active { transform: scale(0.96); border-color: #2563eb; }
+        .ind-card .cover-wrapper { width: 56px; height: 56px; margin-bottom: 8px; position: relative; }
+        .ind-card .cover-img { width: 100%; height: 100%; border-radius: 14px; object-fit: cover; border: 1px solid #e2e8f0; background: #f1f5f9; }
+        .cat-badge { font-size: 8px; font-weight: 700; text-transform: uppercase; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; margin-top: auto; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cat-badge.bg-blue { background: #DBEAFE; color: #2563EB; }
+        .cat-badge.bg-green { background: #D1FAE5; color: #065F46; }
+        .cat-badge.bg-purple { background: #EDE9FE; color: #5B21B6; }
+        .cat-badge.bg-orange { background: #FFEDD5; color: #C2410C; }
+        .cat-badge.bg-pink { background: #FCE7F3; color: #9D174D; }
+        .cat-badge.bg-teal { background: #CCFBF1; color: #0F766E; }
+        .folder-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.2s; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .folder-card:active { background: #f8fafc; transform: scale(0.98); }
+        .photo-item { position: relative; overflow: hidden; border-radius: 12px; background: #cbd5e1; aspect-ratio: 1/1; transition: transform 0.1s; }
+        .photo-item:active { transform: scale(0.98); }
+        .photo-item.selected { border: 4px solid #2563eb; }
+        .photo-item.selected img { opacity: 0.7; }
+        .photo-item.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 20px; z-index: 10; background: #2563eb; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background: rgba(255, 255, 255, 0.98); border-top: 1px solid #e2e8f0; z-index: 60; padding-bottom: calc(20px + env(safe-area-inset-bottom)); padding-top: 20px; padding-left: 16px; padding-right: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); transition: transform 0.3s ease; }
+        .fixed-bottom-bar.hidden-bar { transform: translateY(110%); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: calc(65px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; align-items: flex-start; padding-top: 12px; z-index: 50; transition: transform 0.3s ease; }
+        .bottom-nav.hidden-nav { transform: translateY(100%); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 10px; font-weight: 600; width: 100%; }
+        .nav-item i { font-size: 22px; margin-bottom: 4px; }
+        .nav-item.active { color: #2563eb; }
+        .search-container { position: sticky; top: 0; z-index: 30; background: #f8fafc; padding-bottom: 10px; }
+        .search-input { width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 12px 12px 40px; font-size: 14px; color: #334155; outline: none; transition: border-color 0.2s; }
+        .search-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .btn-all-photos { background: #ffffff; border: 1px solid #e2e8f0; width: 100%; padding: 16px; border-radius: 16px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; margin-top: 15px; transition: transform 0.1s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .btn-all-photos:active { transform: scale(0.98); background: #f1f5f9; }
+        .loader { border: 3px solid #e2e8f0; border-top: 3px solid #2563eb; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-sm">
+        <div class="flex items-center gap-3 w-2/3">
+            <button id="backBtn" onclick="goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center active:scale-90 transition"><i class="fas fa-arrow-left"></i></button>
+            <div class="overflow-hidden">
+                <h1 id="pageTitle" class="font-bold text-base text-slate-800 truncate tracking-tight">Cronograma</h1>
+                <p id="pageSubtitle" class="text-[11px] text-slate-500 flex items-center gap-1.5 truncate">Visão Semanal</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <button id="installBtn" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
+            <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
+            <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
+            <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-90 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
+            <button onclick="refreshCurrentView()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-90 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
+        </div>
+    </header>
+
+    <div class="h-20"></div>
+
+    <main class="max-w-md mx-auto px-4 pb-32">
+
+        <div id="view-home" class="view-section active">
+            <div class="mb-4 px-1 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Agenda Semanal</div>
+            <div class="grid grid-cols-7 gap-1 mb-0 px-1 pb-1" id="routeTabsContainer"></div>
+            <div class="route-list-card"><div id="routeListContent" class="flex flex-col"><div class="p-6 text-center text-slate-400 text-sm">Carregando...</div></div></div>
+            <button onclick="openAllPhotos()" class="btn-all-photos text-slate-500 hover:text-blue-600"><i class="fas fa-images mr-2"></i> Feed de Fotos</button>
+        </div>
+
+        <div id="view-routes" class="view-section">
+            <div class="search-container mb-4">
+                <div class="relative"><i class="fas fa-search search-icon"></i><input type="text" id="searchInput" onkeyup="filterIndustries()" placeholder="Buscar local..." class="search-input"></div>
+            </div>
+            <div class="mb-2 flex justify-between items-end px-1">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-th-large"></i> Todos os Locais</span>
+                <span id="indCount" class="text-[10px] bg-slate-200 px-2 py-1 rounded text-slate-600 font-mono font-bold">0</span>
+            </div>
+            <div id="industriesList" class="grid grid-cols-3 gap-3"></div>
+            <button onclick="openAddModal()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full text-white shadow-xl shadow-blue-200 flex items-center justify-center text-2xl active:scale-90 transition z-40 transform hover:-translate-y-1"><i class="fas fa-plus"></i></button>
+            
+            <div id="industryActions" class="fixed-bottom-bar flex gap-3 hidden-bar">
+                <button onclick="deleteSelectedIndustries()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
+                <button onclick="openBulkCategoryModal()" class="flex-1 bg-blue-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95">Mudar Categoria (<span id="selIndCount">0</span>)</button>
+            </div>
+        </div>
+
+        <div id="view-dates" class="view-section">
+            <div class="mb-4 flex justify-between items-center px-1">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pastas por Data</span>
+                <span class="text-[9px] text-slate-500 border border-slate-200 bg-white px-2 py-1 rounded">Auto-Clean: 45 dias</span>
+            </div>
+            <div id="datesList" class="space-y-3 pb-40"></div>
+            <div class="fixed-bottom-bar flex flex-col gap-4 items-center px-4">
+                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
+                    <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">TIRAR FOTO</span>
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
+                </label>
+                <label class="w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-purple-200 border border-white/20">
+                    <i class="fas fa-images text-xl"></i><span class="font-bold text-sm tracking-wide">DA GALERIA</span>
+                    <input type="file" accept="image/*" class="hidden" onchange="uploadPhoto(this)">
+                </label>
+            </div>
+        </div>
+
+        <div id="view-gallery" class="view-section">
+            <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
+            <div class="fixed-bottom-bar flex flex-col gap-4 items-center px-4">
+                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
+                    <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">TIRAR FOTO</span>
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
+                </label>
+                <label class="w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-purple-200 border border-white/20">
+                    <i class="fas fa-images text-xl"></i><span class="font-bold text-sm tracking-wide">DA GALERIA</span>
+                    <input type="file" accept="image/*" class="hidden" onchange="uploadPhoto(this)">
+                </label>
+            </div>
+            <div id="selectionControls" class="fixed-bottom-bar flex gap-3 hidden-bar">
+                <button onclick="selectAllPhotos()" class="bg-blue-600 text-white font-bold rounded-xl px-4 py-3 shadow-lg active:scale-95">Todas</button>
+                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
+                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg shadow-green-200 flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCount">0</span>)</button>
+            </div>
+        </div>
+
+        <div id="view-all" class="view-section">
+            <div class="mb-4 px-1 text-xs font-bold text-slate-400 uppercase tracking-widest">Feed Global (Recentes)</div>
+            <div id="allPhotosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
+            <div id="selectionControlsAll" class="fixed-bottom-bar flex gap-3 hidden-bar">
+                <button onclick="selectAllPhotos()" class="bg-blue-600 text-white font-bold rounded-xl px-4 py-3 shadow-lg active:scale-95">Todas</button>
+                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
+                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl shadow-lg shadow-green-200 flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCountAll">0</span>)</button>
+            </div>
+        </div>
+
+    </main>
+
+    <nav id="mainNavBar" class="bottom-nav">
+        <div id="nav-general" class="nav-item active" onclick="switchMainTab('general')"><i class="fas fa-calendar-alt"></i><span>Geral</span></div>
+        <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')"><i class="fas fa-th-large"></i><span>Locais</span></div>
+    </nav>
+
+    <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col">
+            <h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3>
+            <div class="grid grid-cols-7 gap-1 mb-4 pb-2">
+                <button onclick="selectRouteConfigDay('Domingo')" class="day-cfg-btn bg-red-50 px-0 py-1 rounded text-[10px] text-red-500 font-bold border border-red-200 flex justify-center">DOM</button>
+                <button onclick="selectRouteConfigDay('Segunda')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEG</button>
+                <button onclick="selectRouteConfigDay('Terça')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">TER</button>
+                <button onclick="selectRouteConfigDay('Quarta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUA</button>
+                <button onclick="selectRouteConfigDay('Quinta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">QUI</button>
+                <button onclick="selectRouteConfigDay('Sexta')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SEX</button>
+                <button onclick="selectRouteConfigDay('Sábado')" class="day-cfg-btn bg-slate-100 px-0 py-1 rounded text-[10px] text-slate-500 font-bold border border-slate-200 flex justify-center">SÁB</button>
+            </div>
+            <div class="text-xs text-slate-400 mb-2">Indústrias para <span id="currentConfigDay" class="text-blue-600 font-bold">...</span>:</div>
+            <div id="routeChecklist" class="flex-1 overflow-y-auto space-y-1 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100"></div>
+            <div class="flex gap-3 mt-auto">
+                <button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Fechar</button>
+                <button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
+            <h3 id="modalTitle" class="text-sm font-bold text-slate-700 mb-4 uppercase">Nova Indústria</h3>
+            <input type="hidden" id="editIndId">
+            <input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 mb-3 text-slate-700 text-sm focus:outline-none focus:border-blue-500">
+            <div class="flex gap-2 mb-4">
+                <div class="relative w-full">
+                    <select id="catSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-600 text-xs focus:outline-none appearance-none"><option value="">Sem Categoria</option></select>
+                    <i class="fas fa-chevron-down absolute right-3 top-3.5 text-slate-400 text-xs"></i>
+                </div>
+                <button onclick="document.getElementById('newCatContainer').classList.toggle('hidden')" class="w-10 bg-blue-50 text-blue-600 rounded-xl border border-blue-200 flex items-center justify-center"><i class="fas fa-plus"></i></button>
+            </div>
+            <div id="newCatContainer" class="hidden mb-4 flex gap-2"><input type="text" id="newCatName" placeholder="Nova Categoria..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs"><button onclick="addNewCategory()" class="bg-green-500 text-white px-3 rounded-lg text-xs font-bold">OK</button></div>
+
+            <div class="mb-4">
+                <label class="block mb-1 font-semibold text-sm text-slate-700">Foto de Capa</label>
+                <div class="flex items-center gap-3">
+                    <img id="coverPreview" src="" alt="Capa" class="w-20 h-20 object-cover rounded-lg bg-slate-200 border border-slate-300 hidden">
+                    <div id="coverPlaceholder" class="w-20 h-20 bg-slate-100 rounded-lg border border-slate-300 flex items-center justify-center text-slate-300"><i class="fas fa-image text-xl"></i></div>
+                    <label for="coverInput" class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-xs active:scale-95 transition shadow">Selecionar</label>
+                </div>
+                <input type="file" id="coverInput" accept="image/*" class="hidden" onchange="handleCoverChange(event)">
+            </div>
+
+            <div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button onclick="saveIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div>
+        </div>
+    </div>
+
+    <div id="bulkCatModal" class="fixed inset-0 bg-black/50 z-[90] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl">
+            <h3 class="text-sm font-bold text-slate-700 mb-4 uppercase">Mudar Categoria</h3>
+            <p class="text-xs text-slate-500 mb-2">Aplicar para <span id="bulkCountDisplay" class="font-bold">0</span> indústrias:</p>
+            <div class="relative w-full mb-4">
+                <select id="bulkCatSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-600 text-xs focus:outline-none appearance-none"><option value="">Sem Categoria</option></select>
+                <i class="fas fa-chevron-down absolute right-3 top-3.5 text-slate-400 text-xs"></i>
+            </div>
+            <div class="flex gap-3"><button onclick="document.getElementById('bulkCatModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button onclick="saveBulkCategory()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">APLICAR</button></div>
+        </div>
+    </div>
+
+    <div id="installModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex flex-col items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Instalar App</h3>
+            <div id="iosInstructions" class="hidden space-y-4 text-sm text-slate-600">
+                <p>1. Toque em <b>Compartilhar</b> <i class="fas fa-share-square text-blue-500"></i></p>
+                <p>2. Selecione <b>"Adicionar à Tela de Início"</b></p>
+            </div>
+            <div id="androidInstructions" class="hidden">
+                <button id="nativeInstallBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md">Instalar Agora</button>
+            </div>
+            <button onclick="document.getElementById('installModal').classList.add('hidden')" class="mt-4 text-slate-400 text-sm w-full py-2">Fechar</button>
+        </div>
+    </div>
+
+    <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
+        <div class="absolute top-0 w-full p-4 flex justify-end z-20">
+            <button onclick="closePhotoModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl">
+        <div class="absolute bottom-8 flex gap-4 w-full max-w-xs justify-center px-4">
+            <button onclick="deleteSinglePhoto()" class="w-14 h-14 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
+        </div>
+    </div>
+
+    <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full shadow-xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]">
+        <div id="toastIcon" class="loader w-3 h-3 border-slate-200 border-t-blue-500"></div>
+        <span id="toastMsg">Processando...</span>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const BUCKET = 'galeria';
+
+        let currentIndustry = null;
+        let currentDateFolder = null;
+        let industryPhotos = [];
+        let allIndustries = [];
+        let categories = [];
+        let isSelectionMode = false;
+        let selectedPhotos = new Set();
+        let selectedIndustries = new Set();
+        let currentModalPhoto = null;
+        let coverImageFile = null;
+
+        let routes = { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
+        const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        let configSelectedDay = null;
+        let viewSelectedDay = null;
+        let viewHistory = [];
+
+        const categoryColorsClass = ['bg-blue', 'bg-green', 'bg-purple', 'bg-orange', 'bg-pink', 'bg-teal'];
+
+        async function refreshCurrentView() {
+            showToast("Atualizando...", "loading");
+            try {
+                await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
+                const activeView = document.querySelector('.view-section.active').id;
+                if (activeView === 'view-routes') filterIndustries();
+                if (activeView === 'view-home') selectRouteViewDay(viewSelectedDay || weekDays[new Date().getDay()]);
+                if (activeView === 'view-dates' && currentIndustry) await loadDates(currentIndustry.nome);
+                if (activeView === 'view-gallery') loadGalleryPhotos();
+                if (activeView === 'view-all') await openAllPhotos();
+                showToast("Atualizado!", "success");
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao carregar dados", "error");
+            }
+        }
+
+        async function uploadPhoto(input) {
+            const file = input.files[0];
+            if (!file || !currentIndustry) {
+                showToast("Selecione uma indústria primeiro", "error");
+                return;
+            }
+            showToast("Enviando...", "loading");
+            try {
+                const blob = await resizeImage(file);
+                const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                const now = new Date();
+                const targetDateFolder = currentDateFolder || now.toLocaleDateString('pt-BR');
+                const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`;
+
+                const { error: uploadError } = await sb.storage.from(BUCKET).upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName);
+                const { data: newPhoto, error: insertError } = await sb.from('fotos').insert({
+                    created_at: now.toISOString(),
+                    nome_arquivo: fileName,
+                    url_publica: publicUrl
+                }).select().single();
+
+                if (insertError) throw insertError;
+
+                industryPhotos.unshift(newPhoto);
+                showToast("Foto salva!", "success");
+                if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos();
+                else if (document.getElementById('view-dates').classList.contains('active')) loadDates(currentIndustry.nome);
+            } catch (e) {
+                console.error(e);
+                showToast("Erro no envio", "error");
+            }
+            input.value = '';
+        }
+
+        function resizeImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const max = 1200;
+                        const scale = max / Math.max(img.width, img.height);
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function navigateTo(viewId, addToHistory = true) {
+            if (addToHistory) viewHistory.push(document.querySelector('.view-section.active')?.id || 'view-home');
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            const backBtn = document.getElementById('backBtn');
+            const selectBtn = document.getElementById('selectBtn');
+            const title = document.getElementById('pageTitle');
+            const subtitle = document.getElementById('pageSubtitle');
+            const navBar = document.getElementById('mainNavBar');
+            const editIndBtn = document.getElementById('editIndBtn');
+            const configRouteBtn = document.getElementById('configRouteBtn');
+
+            isSelectionMode = false;
+            selectedPhotos.clear();
+            selectedIndustries.clear();
+            coverImageFile = null;
+            updateSelectionUI();
+
+            backBtn.classList.add('hidden');
+            selectBtn.classList.add('hidden');
+            editIndBtn.classList.add('hidden');
+            configRouteBtn.classList.add('hidden');
+
+            if (viewHistory.length > 0) backBtn.classList.remove('hidden');
+
+            if (viewId === 'view-home') {
+                title.innerText = "Cronograma";
+                subtitle.innerHTML = 'Visão Semanal';
+                navBar.classList.remove('hidden-nav');
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('nav-general').classList.add('active');
+                configRouteBtn.classList.remove('hidden');
+            } else if (viewId === 'view-routes') {
+                title.innerText = "Locais";
+                subtitle.innerHTML = 'Lista Completa';
+                navBar.classList.remove('hidden-nav');
+                selectBtn.classList.remove('hidden');
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('nav-routes').classList.add('active');
+            } else {
+                navBar.classList.add('hidden-nav');
+                backBtn.classList.remove('hidden');
+                if (viewId === 'view-dates') {
+                    title.innerText = currentIndustry?.nome || "Indústria";
+                    subtitle.innerText = "Pastas";
+                    editIndBtn.classList.remove('hidden');
+                } else if (viewId === 'view-gallery') {
+                    selectBtn.classList.remove('hidden');
+                    selectBtn.innerText = "Selecionar";
+                    title.innerText = currentDateFolder || "Galeria";
+                    subtitle.innerText = "Galeria de Fotos";
+                } else if (viewId === 'view-all') {
+                    selectBtn.classList.remove('hidden');
+                    selectBtn.innerText = "Selecionar";
+                    title.innerText = "Todas as Fotos";
+                    subtitle.innerText = "Feed Geral";
+                }
+            }
+
+            window.location.hash = viewId;
+        }
+
+        function goBack() {
+            if (viewHistory.length === 0) {
+                navigateTo('view-home', false);
+                viewHistory = [];
+                return;
+            }
+            const previous = viewHistory.pop();
+            navigateTo(previous, false);
+        }
+
+        async function fetchRoutesFromDB() {
+            try {
+                const { data } = await sb.from('rotas').select('*');
+                if (data) data.forEach(row => routes[row.dia] = row.industrias || []);
+            } catch (e) { console.error(e); }
+        }
+
+        async function saveRouteConfig() {
+            showToast("Salvando...", "loading");
+            try {
+                await sb.from('rotas').upsert({ dia: configSelectedDay, industrias: routes[configSelectedDay] }, { onConflict: 'dia' });
+                showToast("Salvo!", "success");
+                if (configSelectedDay === viewSelectedDay) renderRouteList(configSelectedDay);
+                document.getElementById('routeConfigModal').classList.add('hidden');
+            } catch (e) { 
+                console.error(e);
+                showToast("Erro ao salvar", "error"); 
+            }
+        }
+
+        function switchMainTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            viewHistory = [];
+            if (tab === 'general') {
+                document.getElementById('nav-general').classList.add('active');
+                navigateTo('view-home', false);
+            } else {
+                document.getElementById('nav-routes').classList.add('active');
+                navigateTo('view-routes', false);
+            }
+        }
+
+        let searchTimeout;
+        function filterIndustries() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const term = document.getElementById('searchInput').value.toLowerCase();
+                const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term));
+                renderIndustries(filtered);
+            }, 300);
+        }
+
+        async function loadIndustries() {
+            try {
+                const { data: dbData } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
+                // Adicionar limit para evitar erro se houver muitas pastas
+                const { data: stData } = await sb.storage.from(BUCKET).list('', { limit: 1000 });
+
+                let stFolders = [];
+                if (stData) stFolders = stData.filter(i => i.name !== '.keep').map(i => i.name);
+                const dbNames = dbData ? dbData.map(i => i.nome) : [];
+                const missing = stFolders.filter(n => !dbNames.includes(n));
+                if (missing.length > 0) {
+                    await sb.from('industrias').insert(missing.map(n => ({ nome: n })));
+                    return loadIndustries();
+                }
+
+                allIndustries = dbData || [];
+                document.getElementById('indCount').innerText = allIndustries.length;
+                renderIndustries(allIndustries);
+            } catch (e) { 
+                console.error(e); 
+                document.getElementById('industriesList').innerHTML = '<div class="col-span-3 text-center py-20 text-red-500 text-xs">Erro ao carregar indústrias</div>';
+            }
+        }
+
+        function renderIndustries(industries) {
+            const list = document.getElementById('industriesList');
+            list.innerHTML = '';
+            if (industries.length === 0) {
+                list.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Nenhuma indústria encontrada.</div>';
+                return;
+            }
+            industries.forEach(ind => {
+                const el = document.createElement('div');
+                el.className = 'ind-card group cursor-pointer active:scale-95 relative';
+                el.onclick = (e) => handleIndustryClick(ind, e);
+
+                const catName = ind.categorias ? ind.categorias.nome : '';
+                let colorClass = 'bg-slate-100 text-slate-600';
+                if (ind.categorias) {
+                    colorClass = categoryColorsClass[(ind.categoria_id - 1) % categoryColorsClass.length];
+                    colorClass = 'cat-badge ' + colorClass;
+                }
+
+                // URL sem cache
+                const coverUrl = ind.cover_url ? `${ind.cover_url}?t=${Date.now()}` : '';
+                
+                // Fallback robusto
+                const coverEl = coverUrl 
+                    ? `<div class="cover-wrapper"><img src="${coverUrl}" loading="lazy" class="cover-img" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'cover-img flex items-center justify-center bg-slate-200 text-slate-400\\'><i class=\\'fas fa-image\\'></i></div>'"></div>`
+                    : `<div class="cover-wrapper"><div class="cover-img flex items-center justify-center bg-slate-200 text-slate-400"><i class="fas fa-industry"></i></div></div>`;
+
+                const catBadge = catName ? `<div class="${colorClass}">${catName}</div>` : '';
+                const safeName = ind.nome.replace(/'/g, "\\'");
+                
+                el.innerHTML = `
+                    ${coverEl}
+                    <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-2 px-1 break-words w-full h-8 flex items-center justify-center">${ind.nome}</h3>
+                    ${catBadge}
+                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center z-10 shadow-sm" onclick="event.stopPropagation(); deleteIndustry('${ind.id}', event, '${safeName}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        function selectRouteViewDay(day) {
+            viewSelectedDay = day;
+            const container = document.getElementById('routeTabsContainer');
+            container.innerHTML = '';
+            weekDays.forEach(d => {
+                const btn = document.createElement('button');
+                btn.innerText = d.substring(0, 3);
+                btn.className = `day-tab ${d === day ? 'active' : ''}${d === 'Domingo' ? ' sunday' : ''}`;
+                btn.onclick = () => selectRouteViewDay(d);
+                container.appendChild(btn);
+            });
+            renderRouteList(day);
+        }
+
+        function renderRouteList(day) {
+            const container = document.getElementById('routeListContent');
+            const industriesNames = routes[day] || [];
+            container.innerHTML = '';
+            if (industriesNames.length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Nenhuma rota definida para este dia.</div>';
+                return;
+            }
+            const fullIndustries = industriesNames.map(name => allIndustries.find(i => i.nome === name)).filter(Boolean);
+            if (fullIndustries.length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Indústrias não encontradas.</div>';
+                return;
+            }
+            fullIndustries.forEach(ind => {
+                const row = document.createElement('div');
+                row.className = 'route-row group';
+                row.onclick = () => openIndustry(ind);
+
+                const coverUrl = ind.cover_url ? `${ind.cover_url}?t=${Date.now()}` : '';
+                const imgEl = coverUrl 
+                    ? `<img src="${coverUrl}" alt="Capa" loading="lazy" class="route-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+                    : '';
+                const fallbackEl = `<div class="route-img flex items-center justify-center bg-slate-200 text-slate-400" ${coverUrl ? 'style="display:none"' : ''}><i class="fas fa-industry"></i></div>`;
+
+                const catName = ind.categorias ? ind.categorias.nome : '';
+                let catColorClass = 'bg-blue-100 text-blue-600';
+                if (ind.categorias) {
+                    const idx = (ind.categoria_id - 1) % categoryColorsClass.length;
+                    const bgColors = ['bg-blue-100','bg-green-100','bg-purple-100','bg-orange-100','bg-pink-100','bg-teal-100'];
+                    const textColors = ['text-blue-600','text-green-700','text-purple-700','text-orange-700','text-pink-700','text-teal-700'];
+                    catColorClass = bgColors[idx] + ' ' + textColors[idx];
+                }
+                const catBadge = catName ? `<span class="text-[9px] ${catColorClass} px-2 py-0.5 rounded ml-2">${catName}</span>` : '';
+
+                row.innerHTML = `<div class="route-name-cat">${imgEl}${fallbackEl}<div class="route-name">${ind.nome}</div>${catBadge}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-hover:translate-x-1 transition"></i>`;
+                container.appendChild(row);
+            });
+        }
+
+        async function loadCategories() {
+            try {
+                const { data } = await sb.from('categorias').select('*').order('nome');
+                categories = data || [];
+                renderCategoryOptions();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderCategoryOptions() {
+            const selects = [document.getElementById('catSelect'), document.getElementById('bulkCatSelect')];
+            selects.forEach(select => {
+                if (select) {
+                    select.innerHTML = '<option value="">Sem Categoria</option>';
+                    categories.forEach((c, i) => {
+                        const option = document.createElement('option');
+                        option.value = c.id;
+                        option.innerText = c.nome;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        async function addNewCategory() {
+            const name = document.getElementById('newCatName').value.trim();
+            if (!name) return;
+            try {
+                const { data } = await sb.from('categorias').insert({ nome: name }).select().single();
+                await loadCategories();
+                document.getElementById('catSelect').value = data.id;
+                document.getElementById('newCatContainer').classList.add('hidden');
+                document.getElementById('newCatName').value = '';
+            } catch (e) { console.error(e); }
+        }
+
+        // CORREÇÃO: Função saveIndustry otimizada
+        async function saveIndustry() {
+            const id = document.getElementById('editIndId').value;
+            const name = document.getElementById('newIndName').value.trim();
+            const catId = document.getElementById('catSelect').value || null;
+            if (!name) return showToast("Nome obrigatório", "error");
+
+            showToast("Salvando...", "loading");
+            let coverUrl = null;
+
+            try {
+                const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+
+                // Lógica de Upload da Capa
+                if (coverImageFile) {
+                    // Forçar extensão JPG e nome único
+                    const coverFileName = `${safeName}/cover_${Date.now()}.jpg`;
+                    const resizedCoverBlob = await resizeImage(coverImageFile);
+                    
+                    // Upload com Content-Type explícito
+                    const { error: uploadErr } = await sb.storage.from(BUCKET).upload(coverFileName, resizedCoverBlob, { 
+                        upsert: true, 
+                        contentType: 'image/jpeg' 
+                    });
+                    
+                    if (uploadErr) {
+                        console.error("Erro Supabase Upload:", uploadErr);
+                        throw new Error("Falha no upload da capa");
+                    }
+
+                    // Obter URL pública
+                    const { data: publicData } = sb.storage.from(BUCKET).getPublicUrl(coverFileName);
+                    if(publicData) coverUrl = publicData.publicUrl;
+                }
+
+                if (id) {
+                    // Editar existente
+                    const oldInd = allIndustries.find(i => i.id == id);
+                    
+                    // Renomear pasta se o nome mudar
+                    if (oldInd && oldInd.nome !== name) {
+                        const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                        const newSafe = safeName;
+                        const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${oldSafe}/%`);
+                        if (files && files.length > 0) {
+                            for (const f of files) {
+                                const newPath = f.nome_arquivo.replace(oldSafe + '/', newSafe + '/');
+                                await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath);
+                                await sb.from('fotos').update({ nome_arquivo: newPath }).eq('id', f.id);
+                            }
+                        }
+                        try { await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`); } catch {}
+                    }
+
+                    const updateData = { nome: name, categoria_id: catId };
+                    if (coverUrl) updateData.cover_url = coverUrl;
+                    
+                    await sb.from('industrias').update(updateData).eq('id', id);
+                    
+                    // Atualização local para evitar reload lento
+                    if(currentIndustry && currentIndustry.id == id) {
+                        currentIndustry.nome = name;
+                        currentIndustry.categoria_id = catId;
+                        if(coverUrl) currentIndustry.cover_url = coverUrl;
+                        document.getElementById('pageTitle').innerText = name;
+                    }
+
+                } else {
+                    // Criar nova
+                    await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), { upsert: true });
+
+                    const insertData = { nome: name, categoria_id: catId };
+                    if (coverUrl) insertData.cover_url = coverUrl;
+                    
+                    await sb.from('industrias').insert(insertData);
+                }
+
+                showToast("Salvo!", "success");
+                coverImageFile = null;
+                closeAddModal();
+                await loadIndustries(); // Recarrega para garantir que a imagem apareça
+            } catch (e) {
+                console.error(e);
+                showToast(e.message || "Erro ao salvar", "error");
+            }
+        }
+
+        async function deleteIndustry(id, e, indName) {
+            if (e) e.stopPropagation();
+            if (!confirm(`Apagar indústria e todas as fotos?`)) return;
+            showToast("Apagando...", "loading");
+            try {
+                await sb.from('industrias').delete().eq('id', id);
+                const ind = allIndustries.find(i => i.id == id); 
+                
+                if (ind) {
+                    const safeName = ind.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                    const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${safeName}/%`).limit(1000);
+                    if (files) {
+                        const paths = files.map(f => f.nome_arquivo);
+                        if (paths.length > 0) await sb.from('fotos').delete().in('nome_arquivo', paths);
+                    }
+                    await sb.storage.from(BUCKET).remove([`${safeName}/.keep`]);
+
+                    if (ind.cover_url) {
+                        const parts = ind.cover_url.split('/storage/v1/object/public/' + BUCKET + '/');
+                        if (parts.length > 1) {
+                            await sb.storage.from(BUCKET).remove([parts[1]]);
+                        }
+                    }
+                }
+                showToast("Removido", "success");
+                await loadIndustries();
+            } catch (e) {
+                console.error(e);
+                showToast("Erro", "error");
+            }
+        }
+
+        function openIndustry(ind) {
+            currentIndustry = ind;
+            navigateTo('view-dates');
+            loadDates(ind.nome);
+        }
+
+        async function loadDates(indName) {
+            navigateTo('view-dates');
+            const list = document.getElementById('datesList');
+            list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
+            try {
+                const safe = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                const { data } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false });
+                industryPhotos = data || [];
+                list.innerHTML = '';
+                if (industryPhotos.length === 0) {
+                    list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Nenhuma foto ainda.</div>';
+                    return;
+                }
+                const datesMap = {};
+                industryPhotos.forEach(f => {
+                    const dateKey = new Date(f.created_at).toLocaleDateString('pt-BR');
+                    datesMap[dateKey] = (datesMap[dateKey] || 0) + 1;
+                });
+                Object.keys(datesMap).sort((a, b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(dateLabel => {
+                    const count = datesMap[dateLabel];
+                    const el = document.createElement('div');
+                    el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
+                    el.onclick = () => openGallery(dateLabel);
+                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} fotos</p></div></div>`;
+                    list.appendChild(el);
+                });
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = '<div class="text-center py-20 text-red-500 text-xs">Erro ao carregar pastas</div>';
+            }
+        }
+
+        function openGallery(dateLabel) {
+            currentDateFolder = dateLabel;
+            navigateTo('view-gallery');
+            loadGalleryPhotos();
+        }
+
+        function loadGalleryPhotos() {
+            const container = document.getElementById('photosContainer');
+            container.innerHTML = '';
+            const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder);
+            if (photos.length === 0) {
+                container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Nenhuma foto nesta pasta.</div>';
+                return;
+            }
+            photos.forEach(file => {
+                const isSelected = selectedPhotos.has(file.id);
+                const div = document.createElement('div');
+                div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
+                div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`;
+                div.onclick = () => handlePhotoClick(file);
+                container.appendChild(div);
+            });
+        }
+
+        async function openAllPhotos() {
+            navigateTo('view-all');
+            const container = document.getElementById('allPhotosContainer');
+            container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>';
+            try {
+                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(300);
+                industryPhotos = data || [];
+                container.innerHTML = '';
+                if (industryPhotos.length === 0) {
+                    container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Nenhuma foto no feed.</div>';
+                    return;
+                }
+                industryPhotos.forEach(file => {
+                    const isSelected = selectedPhotos.has(file.id);
+                    const div = document.createElement('div');
+                    div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
+                    div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`;
+                    div.onclick = () => handlePhotoClick(file);
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<div class="col-span-3 text-center py-20 text-red-500 text-xs">Erro ao carregar feed</div>';
+            }
+        }
+
+        function toggleSelectionMode() {
+            isSelectionMode = !isSelectionMode;
+            const btn = document.getElementById('selectBtn');
+            const selBar = document.getElementById('selectionControls');
+            const selBarAll = document.getElementById('selectionControlsAll');
+            const isAll = document.getElementById('view-all').classList.contains('active');
+            if (isSelectionMode) {
+                btn.innerText = "Cancelar";
+                btn.classList.add('text-red-500', 'border-red-200', 'bg-red-50');
+                (isAll ? selBarAll : selBar).classList.remove('hidden-bar');
+            } else {
+                btn.innerText = "Selecionar";
+                btn.classList.remove('text-red-500', 'border-red-200', 'bg-red-50');
+                selectedPhotos.clear();
+                selBar.classList.add('hidden-bar');
+                selBarAll.classList.add('hidden-bar');
+            }
+            updateSelectionUI();
+            if (isAll) openAllPhotos();
+            else loadGalleryPhotos();
+        }
+
+        function selectAllPhotos() {
+            const photos = document.getElementById('view-gallery').classList.contains('active')
+                ? industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder)
+                : industryPhotos;
+            photos.forEach(p => selectedPhotos.add(p.id));
+            updateSelectionUI();
+            if (document.getElementById('view-all').classList.contains('active')) openAllPhotos();
+            else loadGalleryPhotos();
+        }
+
+        function handlePhotoClick(file) {
+            if (isSelectionMode) {
+                if (selectedPhotos.has(file.id)) selectedPhotos.delete(file.id);
+                else selectedPhotos.add(file.id);
+                updateSelectionUI();
+                if (document.getElementById('view-all').classList.contains('active')) openAllPhotos();
+                else loadGalleryPhotos();
+            } else {
+                openPhotoModal(file.url_publica, file.id);
+            }
+        }
+
+        function updateSelectionUI() {
+            const count = selectedPhotos.size;
+            ['selCount', 'selCountAll'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = count;
+            });
+        }
+
+        async function deleteSelected() {
+            if (selectedPhotos.size === 0) return;
+            if (!confirm(`Apagar ${selectedPhotos.size} fotos permanentemente?`)) return;
+            showToast("Apagando...", "loading");
+            try {
+                const photosToDelete = industryPhotos.filter(p => selectedPhotos.has(p.id));
+                for (const photo of photosToDelete) {
+                    try {
+                        await sb.storage.from(BUCKET).remove([photo.nome_arquivo]);
+                    } catch {}
+                }
+
+                await sb.from('fotos').delete().in('id', Array.from(selectedPhotos));
+                selectedPhotos.clear();
+                toggleSelectionMode();
+                showToast("Fotos apagadas!", "success");
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao apagar", "error");
+            }
+        }
+
+        async function deleteSinglePhoto() {
+            if (!currentModalPhoto || !confirm("Apagar esta foto?")) return;
+            try {
+                const photo = industryPhotos.find(p => p.id === currentModalPhoto);
+                if (photo) {
+                    try {
+                        await sb.storage.from(BUCKET).remove([photo.nome_arquivo]);
+                    } catch {}
+                }
+                await sb.from('fotos').delete().eq('id', currentModalPhoto);
+                closePhotoModal();
+                showToast("Foto apagada!", "success");
+                loadGalleryPhotos();
+            } catch (e) {
+                console.error(e);
+                showToast("Erro", "error");
+            }
+        }
+
+        async function shareSelected() {
+            if (selectedPhotos.size === 0) return;
+            showToast(`Preparando ${selectedPhotos.size} fotos...`, "loading");
+            try {
+                const files = [];
+                const selected = industryPhotos.filter(p => selectedPhotos.has(p.id));
+                for (const p of selected) {
+                    const resp = await fetch(p.url_publica);
+                    const blob = await resp.blob();
+                    files.push(new File([blob], `foto_${p.id}.jpg`, { type: blob.type }));
+                }
+                if (navigator.share && navigator.canShare && navigator.canShare({ files })) {
+                    await navigator.share({ files });
+                    toggleSelectionMode();
+                    showToast("Compartilhado!", "success");
+                } else {
+                    showToast("Compartilhamento não suportado neste dispositivo", "error");
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao compartilhar", "error");
+            }
+        }
+
+        function openRouteConfig() {
+            document.getElementById('routeConfigModal').classList.remove('hidden');
+            selectRouteConfigDay(viewSelectedDay || 'Segunda');
+        }
+
+        function selectRouteConfigDay(day) {
+            configSelectedDay = day;
+            document.querySelectorAll('.day-cfg-btn').forEach(btn => {
+                const startsWith = btn.innerText.trim().startsWith(day.substring(0, 3));
+                btn.className = startsWith 
+                    ? 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'
+                    : 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full';
+            });
+            document.getElementById('currentConfigDay').innerText = day;
+            renderChecklist();
+        }
+
+        function renderChecklist() {
+            const list = document.getElementById('routeChecklist');
+            list.innerHTML = '';
+            if (allIndustries.length === 0) {
+                list.innerHTML = '<div class="p-2 text-xs text-red-400">Nenhuma indústria cadastrada.</div>';
+                return;
+            }
+            const currentRoute = routes[configSelectedDay] || [];
+            allIndustries.forEach(ind => {
+                const checked = currentRoute.includes(ind.nome);
+                const item = document.createElement('label');
+                item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer';
+                const safeName = ind.nome.replace(/'/g, "\\'");
+                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" ${checked ? 'checked' : ''} onchange="toggleRouteItem('${safeName}')"><span class="text-sm text-slate-600">${ind.nome}</span>`;
+                list.appendChild(item);
+            });
+        }
+
+        function toggleRouteItem(name) {
+            if (!routes[configSelectedDay]) routes[configSelectedDay] = [];
+            const idx = routes[configSelectedDay].indexOf(name);
+            if (idx > -1) routes[configSelectedDay].splice(idx, 1);
+            else routes[configSelectedDay].push(name);
+        }
+
+        function handleIndustryClick(ind, e) {
+            if (isSelectionMode) {
+                if (selectedIndustries.has(ind.id)) selectedIndustries.delete(ind.id);
+                else selectedIndustries.add(ind.id);
+                document.getElementById('selIndCount').innerText = selectedIndustries.size;
+            } else {
+                openIndustry(ind);
+            }
+        }
+
+        function openBulkCategoryModal() {
+            if (selectedIndustries.size === 0) return;
+            document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size;
+            document.getElementById('bulkCatModal').classList.remove('hidden');
+        }
+
+        async function saveBulkCategory() {
+            const catId = document.getElementById('bulkCatSelect').value || null;
+            const ids = Array.from(selectedIndustries);
+            showToast("Atualizando...", "loading");
+            try {
+                await sb.from('industrias').update({ categoria_id: catId }).in('id', ids);
+                showToast("Atualizado!", "success");
+                document.getElementById('bulkCatModal').classList.add('hidden');
+                selectedIndustries.clear();
+                await loadIndustries();
+            } catch (e) {
+                console.error(e);
+                showToast("Erro", "error");
+            }
+        }
+
+        async function deleteSelectedIndustries() {
+            if (selectedIndustries.size === 0) return;
+            if (!confirm(`Apagar ${selectedIndustries.size} indústrias e todas as fotos?`)) return;
+            showToast("Apagando...", "loading");
+            try {
+                await sb.from('industrias').delete().in('id', Array.from(selectedIndustries));
+                selectedIndustries.clear();
+                await loadIndustries();
+                showToast("Apagado!", "success");
+            } catch (e) {
+                console.error(e);
+                showToast("Erro", "error");
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "Nova Indústria";
+            document.getElementById('newIndName').value = '';
+            document.getElementById('editIndId').value = '';
+            document.getElementById('catSelect').value = '';
+            
+            // RESET PREVIEW
+            const img = document.getElementById('coverPreview');
+            const ph = document.getElementById('coverPlaceholder');
+            img.src = '';
+            img.classList.add('hidden');
+            ph.classList.remove('hidden');
+            
+            coverImageFile = null;
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+
+        function openEditIndustryModal() {
+            if (!currentIndustry) return;
+            document.getElementById('modalTitle').innerText = "Editar Indústria";
+            document.getElementById('newIndName').value = currentIndustry.nome;
+            document.getElementById('editIndId').value = currentIndustry.id;
+            document.getElementById('catSelect').value = currentIndustry.categoria_id || '';
+            
+            // SETUP PREVIEW
+            const img = document.getElementById('coverPreview');
+            const ph = document.getElementById('coverPlaceholder');
+            if (currentIndustry.cover_url) {
+                img.src = currentIndustry.cover_url;
+                img.classList.remove('hidden');
+                ph.classList.add('hidden');
+            } else {
+                img.src = '';
+                img.classList.add('hidden');
+                ph.classList.remove('hidden');
+            }
+
+            coverImageFile = null;
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+            coverImageFile = null;
+        }
+
+        function handleCoverChange(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            coverImageFile = file;
+            
+            // INSTANT PREVIEW
+            const img = document.getElementById('coverPreview');
+            const ph = document.getElementById('coverPlaceholder');
+            
+            img.src = URL.createObjectURL(file);
+            img.classList.remove('hidden');
+            ph.classList.add('hidden');
+        }
+
+        function openPhotoModal(url, id) {
+            currentModalPhoto = id;
+            document.getElementById('previewImg').src = url;
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function showToast(msg, type = "loading") {
+            const toast = document.getElementById('statusToast');
+            const icon = document.getElementById('toastIcon');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('opacity-0', '-translate-y-10');
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle text-green-500 text-lg';
+                setTimeout(() => toast.classList.add('opacity-0', '-translate-y-10'), 2000);
+            } else if (type === 'error') {
+                icon.className = 'fas fa-times-circle text-red-500 text-lg';
+                setTimeout(() => toast.classList.add('opacity-0', '-translate-y-10'), 3000);
+            } else {
+                icon.className = 'loader w-4 h-4 border-2 border-slate-200 border-t-blue-500';
+            }
+        }
+
+        window.onload = async () => {
+            viewHistory = [];
+            try {
+                await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
+                const hash = window.location.hash.substring(1);
+                
+                if (hash && document.getElementById(hash)) {
+                    if (hash === 'view-dates' && !currentIndustry) {
+                        navigateTo('view-home', false);
+                    } else {
+                        navigateTo(hash, false);
+                    }
+                } else {
+                    const today = weekDays[new Date().getDay()];
+                    viewSelectedDay = today;
+                    selectRouteViewDay(today);
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao iniciar app", "error");
+            }
+        };
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            document.getElementById('installBtn').classList.remove('hidden');
+        });
+
+    </script>
+</body>
+</html>
