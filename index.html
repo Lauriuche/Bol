@@ -103,7 +103,8 @@
             <button id="installBtn" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
             <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
-            <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
+            <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center”
+
             <button onclick="refreshCurrentView()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
         </div>
     </header>
@@ -373,9 +374,7 @@
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = e => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
+                    const img =.onload = () => {
                         const canvas = document.createElement('canvas');
                         const max = 1200;
                         const scale = max / Math.max(img.width, img.height);
@@ -393,6 +392,8 @@
             if (addToHistory && currentView !== viewId) {
                 viewHistory.push(currentView);
             }
+            documentత
+
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
 
@@ -414,7 +415,7 @@
                 title.innerText = "Cronograma";
                 subtitle.innerHTML = 'Visão Semanal';
                 navBar.classList.remove('hidden-nav');
-                document.querySelectorAll('.nav-item').forEach(el => el.class преList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 document.getElementById('nav-general').classList.add('active');
                 document.getElementById('configRouteBtn').classList.remove('hidden');
             } else if (viewId === 'view-routes') {
@@ -726,7 +727,7 @@
                 div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`; 
                 div.onclick = () => handlePhotoClick(file); 
                 container.appendChild(div); 
-            });                 
+            }); 
         }
 
         async function openAllPhotos() { 
@@ -776,7 +777,7 @@
                 if (document.getElementById('view-gallery').classList.contains('active')) {
                     return new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder;
                 }
-                return true; // para view-all
+                return true;
             });
             currentPhotos.forEach(photo => selectedPhotos.add(photo.id));
             updateSelectionUI();
@@ -938,8 +939,7 @@
             if(!confirm(`Apagar ${selectedIndustries.size} indústrias?`)) return; 
             showToast("Apagando...", "loading"); 
             try { 
-                await sb.from('industrias'). |
-delete().in('id', Array.from(selectedIndustries)); 
+                await sb.from('industrias').delete().in('id', Array.from(selectedIndustries)); 
                 selectedIndustries.clear();
                 await loadIndustries();
                 showToast("Apagado!", "success"); 
