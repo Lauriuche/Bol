@@ -15,7 +15,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* Ajustes Globais */
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #f8fafc; 
@@ -27,7 +26,6 @@
         
         .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
         
-        /* ABAS */
         .day-tab {
             font-weight: 800; font-size: 11px; color: #94a3b8; background: #e2e8f0;
             padding: 8px 0; width: 100%; border-radius: 6px 6px 0 0; 
@@ -40,7 +38,6 @@
         .day-tab.sunday.active { color: #dc2626; } 
         .day-tab.sunday.active::after { background: #dc2626; }
 
-        /* CARDS */
         .route-list-card { background: #ffffff; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; min-height: 300px; position: relative; z-index: 5; border: 1px solid #e2e8f0; border-top: none; }
         .route-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.1s; }
         .route-row:active { background: #f8fafc; }
@@ -63,7 +60,6 @@
         .photo-item.selected img { opacity: 0.7; }
         .photo-item.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 20px; z-index: 10; background: #2563eb; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
 
-        /* BARRAS */
         .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background: rgba(255, 255, 255, 0.98); border-top: 1px solid #e2e8f0; z-index: 60; padding-bottom: calc(20px + env(safe-area-inset-bottom)); padding-top: 20px; padding-left: 16px; padding-right: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); transition: transform 0.3s ease; }
         .fixed-bottom-bar.hidden-bar { transform: translateY(110%); }
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: calc(65px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; align-items: flex-start; padding-top: 12px; z-index: 50; transition: transform 0.3s ease; }
@@ -103,9 +99,8 @@
             <button id="installBtn" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i> App</button>
             <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 text-blue-600 px-4 py-2 rounded-full border border-slate-200 active:scale-95 transition">Selecionar</button>
             <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
-            <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center”
-
-            <button onclick="refreshCurrentView()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
+            <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-90 border border-slate-200 transition"><i class="fas fa-cog text-sm"></i></button>
+            <button onclick="refreshCurrentView()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-90 border border-slate-200 transition"><i class="fas fa-sync-alt text-sm"></i></button>
         </div>
     </header>
 
@@ -130,9 +125,7 @@
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><i class="fas fa-th-large"></i> Todos os Locais</span>
                 <span id="indCount" class="text-[10px] bg-slate-200 px-2 py-1 rounded text-slate-600 font-mono font-bold">0</span>
             </div>
-            <div id="industriesList" class="grid grid-cols-3 gap-3">
-                <div class="col-span-3 flex flex-col items-center justify-center py-20 opacity-50"><div class="loader mb-2"></div><span class="text-xs text-slate-400">Lendo pastas...</span></div>
-            </div>
+            <div id="industriesList" class="grid grid-cols-3 gap-3"></div>
             <button onclick="openAddModal()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full text-white shadow-xl shadow-blue-200 flex items-center justify-center text-2xl active:scale-90 transition z-40 transform hover:-translate-y-1"><i class="fas fa-plus"></i></button>
             
             <div id="industryActions" class="fixed-bottom-bar flex gap-3 hidden-bar">
@@ -164,7 +157,7 @@
         <div id="view-gallery" class="view-section">
             <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
             <div class="fixed-bottom-bar flex flex-col gap-4 items-center px-4">
-                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
+                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow, shadow-lg shadow-blue-200 border border-white/20">
                     <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">TIRAR FOTO</span>
                     <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
                 </label>
@@ -199,7 +192,7 @@
         <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')"><i class="fas fa-th-large"></i><span>Locais</span></div>
     </nav>
 
-    <!-- TODOS OS MODAIS -->
+    <!-- MODAIS -->
     <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col">
             <h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3>
@@ -313,55 +306,47 @@
                 await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
                 const activeView = document.querySelector('.view-section.active').id;
                 if (activeView === 'view-routes') filterIndustries();
-                if (activeView === 'view-home') {
-                    if (!viewSelectedDay) {
-                        const todayIndex = new Date().getDay();
-                        viewSelectedDay = weekDays[todayIndex];
-                    }
-                    selectRouteViewDay(viewSelectedDay);
-                } else if (activeView === 'view-dates') {
-                    if (currentIndustry) await loadDates(currentIndustry.nome);
-                } else if (activeView === 'view-gallery') {
-                    if (currentIndustry) await loadDates(currentIndustry.nome);
-                    loadGalleryPhotos();
-                } else if (activeView === 'view-all') {
-                    await openAllPhotos();
-                }
+                if (activeView === 'view-home') selectRouteViewDay(viewSelectedDay || weekDays[new Date().getDay()]);
+                if (activeView === 'view-dates' && currentIndustry) await loadDates(currentIndustry.nome);
+                if (activeView === 'view-gallery') loadGalleryPhotos();
+                if (activeView === 'view-all') await openAllPhotos();
                 showToast("Atualizado!", "success");
             } catch (e) {
-                showToast("Erro ao atualizar", "error");
+                console.error(e);
+                showToast("Erro ao carregar dados", "error");
             }
         }
 
         async function uploadPhoto(input) {
             const file = input.files[0];
-            if (!file || !currentIndustry) return;
+            if (!file || !currentIndustry) {
+                showToast("Selecione uma indústria primeiro", "error");
+                return;
+            }
             showToast("Enviando...", "loading");
             try {
                 const blob = await resizeImage(file);
                 const safeName = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                 const now = new Date();
-                let targetDateFolder = currentDateFolder || now.toLocaleDateString('pt-BR');
+                const targetDateFolder = currentDateFolder || now.toLocaleDateString('pt-BR');
                 const fileName = `${safeName}/${targetDateFolder}/FOTO_${now.getTime()}.jpg`;
 
-                const { error } = await sb.storage.from(BUCKET).upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
-                if (error) throw error;
+                const { error: uploadError } = await sb.storage.from(BUCKET).upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
+                if (uploadError) throw uploadError;
 
                 const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(fileName);
-                const { data: newPhoto } = await sb.from('fotos').insert({
-                    created_at: now,
+                const { data: newPhoto, error: insertError } = await sb.from('fotos').insert({
+                    created_at: now.toISOString(),
                     nome_arquivo: fileName,
                     url_publica: publicUrl
                 }).select().single();
 
+                if (insertError) throw insertError;
+
                 industryPhotos.unshift(newPhoto);
                 showToast("Foto salva!", "success");
-
-                if (document.getElementById('view-gallery').classList.contains('active')) {
-                    loadGalleryPhotos();
-                } else {
-                    loadDates(currentIndustry.nome);
-                }
+                if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos();
+                else if (document.getElementById('view-dates').classList.contains('active')) loadDates(currentIndustry.nome);
             } catch (e) {
                 console.error(e);
                 showToast("Erro no envio", "error");
@@ -370,30 +355,28 @@
         }
 
         function resizeImage(file) {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = e => {
-                    const img =.onload = () => {
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
                         const canvas = document.createElement('canvas');
                         const max = 1200;
                         const scale = max / Math.max(img.width, img.height);
                         canvas.width = img.width * scale;
                         canvas.height = img.height * scale;
-                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.85);
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85);
                     };
+                    img.src = e.target.result;
                 };
+                reader.readAsDataURL(file);
             });
         }
 
         function navigateTo(viewId, addToHistory = true) {
-            const currentView = document.querySelector('.view-section.active')?.id || 'view-home';
-            if (addToHistory && currentView !== viewId) {
-                viewHistory.push(currentView);
-            }
-            documentత
-
+            if (addToHistory) viewHistory.push(document.querySelector('.view-section.active')?.id || 'view-home');
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
 
@@ -403,13 +386,19 @@
             const subtitle = document.getElementById('pageSubtitle');
             const navBar = document.getElementById('mainNavBar');
             const editIndBtn = document.getElementById('editIndBtn');
+            const configRouteBtn = document.getElementById('configRouteBtn');
 
-            isSelectionMode = false; selectedPhotos.clear(); selectedIndustries.clear(); updateSelectionUI();
-            backBtn.classList.add('hidden'); selectBtn.classList.add('hidden'); editIndBtn.classList.add('hidden');
+            isSelectionMode = false;
+            selectedPhotos.clear();
+            selectedIndustries.clear();
+            updateSelectionUI();
 
-            if (viewHistory.length > 0) {
-                backBtn.classList.remove('hidden');
-            }
+            backBtn.classList.add('hidden');
+            selectBtn.classList.add('hidden');
+            editIndBtn.classList.add('hidden');
+            configRouteBtn.classList.add('hidden');
+
+            if (viewHistory.length > 0) backBtn.classList.remove('hidden');
 
             if (viewId === 'view-home') {
                 title.innerText = "Cronograma";
@@ -417,7 +406,7 @@
                 navBar.classList.remove('hidden-nav');
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 document.getElementById('nav-general').classList.add('active');
-                document.getElementById('configRouteBtn').classList.remove('hidden');
+                configRouteBtn.classList.remove('hidden');
             } else if (viewId === 'view-routes') {
                 title.innerText = "Locais";
                 subtitle.innerHTML = 'Lista Completa';
@@ -425,12 +414,11 @@
                 selectBtn.classList.remove('hidden');
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 document.getElementById('nav-routes').classList.add('active');
-                document.getElementById('configRouteBtn').classList.add('hidden');
             } else {
                 navBar.classList.add('hidden-nav');
                 backBtn.classList.remove('hidden');
                 if (viewId === 'view-dates') {
-                    title.innerText = currentIndustry ? currentIndustry.nome : "Indústria";
+                    title.innerText = currentIndustry?.nome || "Indústria";
                     subtitle.innerText = "Pastas";
                     editIndBtn.classList.remove('hidden');
                 } else if (viewId === 'view-gallery') {
@@ -455,15 +443,15 @@
                 viewHistory = [];
                 return;
             }
-            const previousView = viewHistory.pop();
-            navigateTo(previousView, false);
+            const previous = viewHistory.pop();
+            navigateTo(previous, false);
         }
 
         async function fetchRoutesFromDB() {
             try {
                 const { data } = await sb.from('rotas').select('*');
                 if (data) data.forEach(row => routes[row.dia] = row.industrias || []);
-            } catch (e) {}
+            } catch (e) { console.error(e); }
         }
 
         async function saveRouteConfig() {
@@ -473,20 +461,21 @@
                 showToast("Salvo!", "success");
                 if (configSelectedDay === viewSelectedDay) renderRouteList(configSelectedDay);
                 document.getElementById('routeConfigModal').classList.add('hidden');
-            } catch (e) { showToast("Erro", "error"); }
+            } catch (e) { 
+                console.error(e);
+                showToast("Erro ao salvar", "error"); 
+            }
         }
 
         function switchMainTab(tab) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             viewHistory = [];
-            if(tab === 'general') {
+            if (tab === 'general') {
                 document.getElementById('nav-general').classList.add('active');
                 navigateTo('view-home', false);
-                document.getElementById('configRouteBtn').classList.remove('hidden');
             } else {
                 document.getElementById('nav-routes').classList.add('active');
                 navigateTo('view-routes', false);
-                document.getElementById('configRouteBtn').classList.add('hidden');
             }
         }
 
@@ -505,28 +494,30 @@
                 const { data: dbData } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
                 const { data: stData } = await sb.storage.from(BUCKET).list('');
                 
-                if (stData) { 
-                    const stFolders = stData.filter(i => i.name !== '.keep').map(i => i.name);
-                    const dbNames = dbData ? dbData.map(i => i.nome) : [];
-                    const missing = stFolders.filter(n => !dbNames.includes(n));
-                    if (missing.length > 0) { 
-                        await sb.from('industrias').insert(missing.map(n => ({ nome: n }))); 
-                        return loadIndustries(); 
-                    }
+                let stFolders = [];
+                if (stData) stFolders = stData.filter(i => i.name !== '.keep').map(i => i.name);
+                const dbNames = dbData ? dbData.map(i => i.nome) : [];
+                const missing = stFolders.filter(n => !dbNames.includes(n));
+                if (missing.length > 0) {
+                    await sb.from('industrias').insert(missing.map(n => ({ nome: n })));
+                    return loadIndustries();
                 }
                 
-                allIndustries = dbData || []; 
-                document.getElementById('indCount').innerText = allIndustries.length; 
+                allIndustries = dbData || [];
+                document.getElementById('indCount').innerText = allIndustries.length;
                 renderIndustries(allIndustries);
-            } catch(e) { console.error(e); }
+            } catch (e) { 
+                console.error(e); 
+                document.getElementById('industriesList').innerHTML = '<div class="col-span-3 text-center py-20 text-red-500 text-xs">Erro ao carregar indústrias</div>';
+            }
         }
 
         function renderIndustries(industries) {
-            const list = document.getElementById('industriesList'); 
+            const list = document.getElementById('industriesList');
             list.innerHTML = '';
-            if(industries.length === 0) { 
-                list.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Vazio.</div>'; 
-                return; 
+            if (industries.length === 0) {
+                list.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-600 text-xs">Nenhuma indústria encontrada.</div>';
+                return;
             }
             industries.forEach(ind => {
                 const el = document.createElement('div');
@@ -541,7 +532,7 @@
                     <div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-blue-500 border border-slate-700 shadow-inner mb-2"><i class="fas fa-industry text-lg"></i></div>
                     <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-2 px-1 break-words w-full">${ind.nome}</h3>
                     ${catBadge}
-                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center z-10" onclick="deleteIndustry('${ind.id}', event, '${ind.nome}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
+                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center z-10" onclick="event.stopPropagation(); deleteIndustry('${ind.id}', event, '${ind.nome}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
                 `;
                 list.appendChild(el);
             });
@@ -549,15 +540,13 @@
 
         function selectRouteViewDay(day) {
             viewSelectedDay = day;
-            const container = document.getElementById('routeTabsContainer'); 
+            const container = document.getElementById('routeTabsContainer');
             container.innerHTML = '';
             weekDays.forEach(d => {
                 const btn = document.createElement('button');
-                btn.innerText = d.substring(0, 3); 
-                let className = `day-tab ${d === day ? 'active' : ''}`; 
-                if (d === 'Domingo') className += ' sunday';
-                btn.className = className;
-                btn.onclick = () => selectRouteViewDay(d); 
+                btn.innerText = d.substring(0, 3);
+                btn.className = `day-tab ${d === day ? 'active' : ''}${d === 'Domingo' ? ' sunday' : ''}`;
+                btn.onclick = () => selectRouteViewDay(d);
                 container.appendChild(btn);
             });
             renderRouteList(day);
@@ -565,115 +554,123 @@
 
         function renderRouteList(day) {
             const container = document.getElementById('routeListContent');
-            const industriesNames = routes[day] || []; 
+            const industriesNames = routes[day] || [];
             container.innerHTML = '';
-            if (industriesNames.length === 0) { 
-                container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Nenhuma rota definida.</div>'; 
-                return; 
+            if (industriesNames.length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Nenhuma rota definida para este dia.</div>';
+                return;
             }
             const fullIndustries = industriesNames.map(name => allIndustries.find(i => i.nome === name)).filter(Boolean);
-            fullIndustries.forEach(ind => { 
-                const row = document.createElement('div'); 
-                row.className = 'route-row group'; 
-                row.onclick = () => openIndustry(ind); 
+            if (fullIndustries.length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Indústrias não encontradas.</div>';
+                return;
+            }
+            fullIndustries.forEach(ind => {
+                const row = document.createElement('div');
+                row.className = 'route-row group';
+                row.onclick = () => openIndustry(ind);
                 const catName = ind.categorias ? `<span class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded ml-2">${ind.categorias.nome}</span>` : '';
-                row.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-folder text-blue-400 text-lg"></i><div class="flex flex-col"><span class="font-bold text-sm text-slate-600">${ind.nome}</span></div>${catName}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-active:translate-x-1 transition"></i>`; 
-                container.appendChild(row); 
+                row.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-folder text-blue-400 text-lg"></i><div class="flex flex-col"><span class="font-bold text-sm text-slate-600">${ind.nome}</span></div>${catName}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-hover:translate-x-1 transition"></i>`;
+                container.appendChild(row);
             });
         }
 
-        async function loadCategories() { 
-            try { 
-                const { data } = await sb.from('categorias').select('*').order('nome'); 
-                if(data) { 
-                    categories = data; 
-                    renderCategoryOptions(); 
-                } 
-            } catch(e) {} 
+        async function loadCategories() {
+            try {
+                const { data } = await sb.from('categorias').select('*').order('nome');
+                categories = data || [];
+                renderCategoryOptions();
+            } catch (e) { console.error(e); }
         }
 
-        function renderCategoryOptions() { 
+        function renderCategoryOptions() {
             const selects = [document.getElementById('catSelect'), document.getElementById('bulkCatSelect')];
-            selects.forEach(el => {
-                if(el) {
-                    el.innerHTML = '<option value="">Sem Categoria</option>';
+            selects.forEach(select => {
+                if (select) {
+                    select.innerHTML = '<option value="">Sem Categoria</option>';
                     categories.forEach(c => {
-                        const o = document.createElement('option');
-                        o.value = c.id;
-                        o.innerText = c.nome;
-                        el.appendChild(o);
+                        const option = document.createElement('option');
+                        option.value = c.id;
+                        option.innerText = c.nome;
+                        select.appendChild(option);
                     });
                 }
             });
         }
 
-        async function addNewCategory() { 
-            const n = document.getElementById('newCatName').value.trim(); 
-            if(!n) return; 
-            try { 
-                const { data } = await sb.from('categorias').insert({ nome: n }).select(); 
-                await loadCategories(); 
-                document.getElementById('catSelect').value = data[0].id; 
-                document.getElementById('newCatContainer').classList.add('hidden'); 
-            } catch(e) {} 
+        async function addNewCategory() {
+            const name = document.getElementById('newCatName').value.trim();
+            if (!name) return;
+            try {
+                const { data } = await sb.from('categorias').insert({ nome: name }).select().single();
+                await loadCategories();
+                document.getElementById('catSelect').value = data.id;
+                document.getElementById('newCatContainer').classList.add('hidden');
+                document.getElementById('newCatName').value = '';
+            } catch (e) { console.error(e); }
         }
 
         async function saveIndustry() {
-            const id = document.getElementById('editIndId').value; 
-            const name = document.getElementById('newIndName').value.trim(); 
-            const catId = document.getElementById('catSelect').value || null; 
-            if(!name) return;
+            const id = document.getElementById('editIndId').value;
+            const name = document.getElementById('newIndName').value.trim();
+            const catId = document.getElementById('catSelect').value || null;
+            if (!name) return showToast("Nome obrigatório", "error");
+
             showToast("Salvando...", "loading");
             try {
-                if(id) { 
+                if (id) {
                     const oldInd = allIndustries.find(i => i.id == id);
-                    if(oldInd && oldInd.nome !== name) {
-                        const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); 
+                    if (oldInd && oldInd.nome !== name) {
+                        const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                         const newSafe = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                         const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${oldSafe}/%`);
-                        if(files) { 
-                            for(const f of files) { 
-                                const newPath = f.nome_arquivo.replace(`${oldSafe}/`, `${newSafe}/`); 
-                                await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath); 
-                                await sb.from('fotos').update({nome_arquivo: newPath}).eq('id', f.id); 
-                            } 
+                        if (files && files.length > 0) {
+                            for (const f of files) {
+                                const newPath = f.nome_arquivo.replace(oldSafe + '/', newSafe + '/');
+                                await sb.storage.from(BUCKET).move(f.nome_arquivo, newPath);
+                                await sb.from('fotos').update({ nome_arquivo: newPath }).eq('id', f.id);
+                            }
                         }
                         await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`);
                     }
                     await sb.from('industrias').update({ nome: name, categoria_id: catId }).eq('id', id);
-                } else { 
-                    const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); 
-                    await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), {upsert: true});
+                } else {
+                    const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+                    await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), { upsert: true });
                     await sb.from('industrias').insert({ nome: name, categoria_id: catId });
                 }
-                showToast("Salvo!", "success"); 
-                closeAddModal(); 
+                showToast("Salvo!", "success");
+                closeAddModal();
                 await loadIndustries();
-            } catch(e) { 
-                showToast("Erro", "error"); 
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao salvar", "error");
             }
         }
 
         async function deleteIndustry(id, e, indName) {
-            if(e) e.stopPropagation(); 
-            if(!confirm(`ATENÇÃO: Apagar indústria "${indName}"?`)) return;
+            if (e) e.stopPropagation();
+            if (!confirm(`Apagar indústria "${indName}" e todas as fotos?`)) return;
             showToast("Apagando...", "loading");
-            try { 
-                await sb.from('industrias').delete().eq('id', id); 
+            try {
+                await sb.from('industrias').delete().eq('id', id);
                 const ind = allIndustries.find(i => i.id == id);
-                if(ind) {
+                if (ind) {
                     const safeName = ind.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                     await sb.storage.from(BUCKET).remove([`${safeName}/.keep`]);
                 }
-                showToast("Removido", "success"); 
-                await loadIndustries(); 
-            } catch(e) { showToast("Erro", "error"); }
+                showToast("Removido", "success");
+                await loadIndustries();
+            } catch (e) {
+                console.error(e);
+                showToast("Erro", "error");
+            }
         }
 
-        function openIndustry(ind) { 
-            currentIndustry = ind; 
+        function openIndustry(ind) {
+            currentIndustry = ind;
             navigateTo('view-dates');
-            loadDates(ind.nome); 
+            loadDates(ind.nome);
         }
 
         async function loadDates(indName) {
@@ -685,17 +682,16 @@
                 const { data } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false });
                 industryPhotos = data || [];
                 list.innerHTML = '';
-                if(industryPhotos.length === 0) { 
-                    list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Vazio.</div>'; 
-                    return; 
+                if (industryPhotos.length === 0) {
+                    list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Nenhuma foto ainda.</div>';
+                    return;
                 }
-                const datesMap = {}; 
-                industryPhotos.forEach(f => { 
-                    const date = new Date(f.created_at); 
-                    const dateKey = date.toLocaleDateString('pt-BR'); 
+                const datesMap = {};
+                industryPhotos.forEach(f => {
+                    const dateKey = new Date(f.created_at).toLocaleDateString('pt-BR');
                     datesMap[dateKey] = (datesMap[dateKey] || 0) + 1;
                 });
-                Object.keys(datesMap).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(dateLabel => {
+                Object.keys(datesMap).sort((a, b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(dateLabel => {
                     const count = datesMap[dateLabel];
                     const el = document.createElement('div');
                     el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
@@ -703,313 +699,325 @@
                     el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} fotos</p></div></div>`;
                     list.appendChild(el);
                 });
-            } catch(e) { console.error(e); }
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = '<div class="text-center py-20 text-red-500 text-xs">Erro ao carregar pastas</div>';
+            }
         }
 
-        function openGallery(dateLabel) { 
-            currentDateFolder = dateLabel; 
+        function openGallery(dateLabel) {
+            currentDateFolder = dateLabel;
             navigateTo('view-gallery');
-            loadGalleryPhotos(); 
+            loadGalleryPhotos();
         }
 
-        function loadGalleryPhotos() { 
-            const container = document.getElementById('photosContainer'); 
-            container.innerHTML = ''; 
-            const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); 
-            if(photos.length === 0) { 
-                container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Vazio.</div>'; 
-                return; 
-            } 
-            photos.forEach(file => { 
+        function loadGalleryPhotos() {
+            const container = document.getElementById('photosContainer');
+            container.innerHTML = '';
+            const photos = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder);
+            if (photos.length === 0) {
+                container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Nenhuma foto nesta pasta.</div>';
+                return;
+            }
+            photos.forEach(file => {
                 const isSelected = selectedPhotos.has(file.id);
-                const div = document.createElement('div'); 
-                div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
-                div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`; 
-                div.onclick = () => handlePhotoClick(file); 
-                container.appendChild(div); 
-            }); 
+                const div = document.createElement('div');
+                div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
+                div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`;
+                div.onclick = () => handlePhotoClick(file);
+                container.appendChild(div);
+            });
         }
 
-        async function openAllPhotos() { 
+        async function openAllPhotos() {
             navigateTo('view-all');
-            const container = document.getElementById('allPhotosContainer'); 
-            container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>'; 
-            try { 
-                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); 
-                industryPhotos = data || []; 
-                container.innerHTML = ''; 
-                industryPhotos.forEach(file => { 
+            const container = document.getElementById('allPhotosContainer');
+            container.innerHTML = '<div class="col-span-3 flex justify-center py-10"><div class="loader"></div></div>';
+            try {
+                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(300);
+                industryPhotos = data || [];
+                container.innerHTML = '';
+                if (industryPhotos.length === 0) {
+                    container.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs">Nenhuma foto no feed.</div>';
+                    return;
+                }
+                industryPhotos.forEach(file => {
                     const isSelected = selectedPhotos.has(file.id);
-                    const div = document.createElement('div'); 
-                    div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`; 
-                    div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`; 
-                    div.onclick = () => handlePhotoClick(file); 
-                    container.appendChild(div); 
-                }); 
-            } catch(e) {} 
+                    const div = document.createElement('div');
+                    div.className = `photo-item cursor-pointer ${isSelected ? 'selected' : ''}`;
+                    div.innerHTML = `<img src="${file.url_publica}" loading="lazy" class="w-full h-full object-cover pointer-events-none">`;
+                    div.onclick = () => handlePhotoClick(file);
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<div class="col-span-3 text-center py-20 text-red-500 text-xs">Erro ao carregar feed</div>';
+            }
         }
 
-        function toggleSelectionMode() { 
-            isSelectionMode = !isSelectionMode; 
+        function toggleSelectionMode() {
+            isSelectionMode = !isSelectionMode;
             const btn = document.getElementById('selectBtn');
             const selBar = document.getElementById('selectionControls');
-            const selBarAll = document.getElementById('selectionControlsAll'); 
-            const isAll = document.getElementById('view-all').classList.contains('active'); 
-            if(isSelectionMode) { 
-                btn.innerText = "Cancelar"; 
-                btn.classList.add('text-red-500','border-red-200','bg-red-50'); 
-                if(isAll) selBarAll.classList.remove('hidden-bar'); 
-                else selBar.classList.remove('hidden-bar'); 
-            } else { 
-                btn.innerText = "Selecionar"; 
-                btn.classList.remove('text-red-500','border-red-200','bg-red-50'); 
-                selectedPhotos.clear(); 
-                selBar.classList.add('hidden-bar'); 
-                selBarAll.classList.add('hidden-bar'); 
-            } 
+            const selBarAll = document.getElementById('selectionControlsAll');
+            const isAll = document.getElementById('view-all').classList.contains('active');
+            if (isSelectionMode) {
+                btn.innerText = "Cancelar";
+                btn.classList.add('text-red-500', 'border-red-200', 'bg-red-50');
+                (isAll ? selBarAll : selBar).classList.remove('hidden-bar');
+            } else {
+                btn.innerText = "Selecionar";
+                btn.classList.remove('text-red-500', 'border-red-200', 'bg-red-50');
+                selectedPhotos.clear();
+                selBar.classList.add('hidden-bar');
+                selBarAll.classList.add('hidden-bar');
+            }
             updateSelectionUI();
-            if(isAll) openAllPhotos();
+            if (isAll) openAllPhotos();
             else loadGalleryPhotos();
         }
 
         function selectAllPhotos() {
-            const currentPhotos = industryPhotos.filter(f => {
-                if (document.getElementById('view-gallery').classList.contains('active')) {
-                    return new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder;
-                }
-                return true;
-            });
-            currentPhotos.forEach(photo => selectedPhotos.add(photo.id));
+            const photos = document.getElementById('view-gallery').classList.contains('active')
+                ? industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder)
+                : industryPhotos;
+            photos.forEach(p => selectedPhotos.add(p.id));
             updateSelectionUI();
-            if (document.getElementById('view-all').classList.contains('active')) {
-                openAllPhotos();
-            } else {
-                loadGalleryPhotos();
-            }
+            if (document.getElementById('view-all').classList.contains('active')) openAllPhotos();
+            else loadGalleryPhotos();
         }
 
-        function handlePhotoClick(file) { 
-            if(isSelectionMode) { 
-                if (selectedPhotos.has(file.id)) {
-                    selectedPhotos.delete(file.id);
-                } else {
-                    selectedPhotos.add(file.id);
-                }
+        function handlePhotoClick(file) {
+            if (isSelectionMode) {
+                if (selectedPhotos.has(file.id)) selectedPhotos.delete(file.id);
+                else selectedPhotos.add(file.id);
                 updateSelectionUI();
-                if (document.getElementById('view-all').classList.contains('active')) {
-                    openAllPhotos();
-                } else {
-                    loadGalleryPhotos();
-                }
+                if (document.getElementById('view-all').classList.contains('active')) openAllPhotos();
+                else loadGalleryPhotos();
             } else {
                 openPhotoModal(file.url_publica, file.id);
             }
         }
 
-        function updateSelectionUI() { 
-            const count = selectedPhotos.size; 
-            const selCount = document.getElementById('selCount');
-            const selCountAll = document.getElementById('selCountAll');
-            if(selCount) selCount.innerText = count;
-            if(selCountAll) selCountAll.innerText = count;
+        function updateSelectionUI() {
+            const count = selectedPhotos.size;
+            ['selCount', 'selCountAll'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = count;
+            });
         }
 
-        async function deleteSelected() { 
-            if(selectedPhotos.size === 0) return; 
-            if(!confirm(`Apagar ${selectedPhotos.size} fotos?`)) return; 
-            showToast("Apagando...", "loading"); 
-            try { 
-                await sb.from('fotos').delete().in('id', Array.from(selectedPhotos)); 
-                selectedPhotos.clear(); 
+        async function deleteSelected() {
+            if (selectedPhotos.size === 0) return;
+            if (!confirm(`Apagar ${selectedPhotos.size} fotos permanentemente?`)) return;
+            showToast("Apagando...", "loading");
+            try {
+                await sb.from('fotos').delete().in('id', Array.from(selectedPhotos));
+                selectedPhotos.clear();
                 toggleSelectionMode();
-                showToast("Apagado!", "success"); 
-            } catch(e) { showToast("Erro", "error"); } 
+                showToast("Fotos apagadas!", "success");
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao apagar", "error");
+            }
         }
 
-        async function deleteSinglePhoto() { 
-            if(!currentModalPhoto || !confirm("Apagar?")) return; 
-            try { 
-                await sb.from('fotos').delete().eq('id', currentModalPhoto); 
-                closePhotoModal(); 
-                showToast("Apagado!", "success"); 
-                loadGalleryPhotos(); 
-            } catch(e) { showToast("Erro", "error"); } 
+        async function deleteSinglePhoto() {
+            if (!currentModalPhoto || !confirm("Apagar esta foto?")) return;
+            try {
+                await sb.from('fotos').delete().eq('id', currentModalPhoto);
+                closePhotoModal();
+                showToast("Foto apagada!", "success");
+                loadGalleryPhotos();
+            } catch (e) {
+                console.error(e);
+                showToast("Erro", "error");
+            }
         }
 
-        async function shareSelected() { 
-            if(selectedPhotos.size === 0) return; 
-            showToast(`Preparando ${selectedPhotos.size} fotos...`, 'loading'); 
-            try { 
-                const filesArray = []; 
-                const selectedData = industryPhotos.filter(p => selectedPhotos.has(p.id)); 
-                for(let i = 0; i < selectedData.length; i++) { 
-                    const p = selectedData[i]; 
+        async function shareSelected() {
+            if (selectedPhotos.size === 0) return;
+            showToast(`Preparando ${selectedPhotos.size} fotos...`, "loading");
+            try {
+                const files = [];
+                const selected = industryPhotos.filter(p => selectedPhotos.has(p.id));
+                for (const p of selected) {
                     const resp = await fetch(p.url_publica);
-                    const blob = await resp.blob(); 
-                    filesArray.push(new File([blob], `Foto_${i+1}.jpg`, { type: blob.type })); 
-                } 
-                if(navigator.share && navigator.canShare && navigator.canShare({ files: filesArray })) { 
-                    await navigator.share({ files: filesArray }); 
-                    toggleSelectionMode();
-                    showToast('Compartilhado!', 'success'); 
-                } else { 
-                    showToast("Compartilhamento não suportado", "error"); 
-                } 
-            } catch(e) { 
-                showToast("Erro ao compartilhar", "error"); 
-            } 
-        }
-
-        function openRouteConfig() { 
-            document.getElementById('routeConfigModal').classList.remove('hidden'); 
-            selectRouteConfigDay('Segunda'); 
-        }
-
-        function selectRouteConfigDay(day) { 
-            configSelectedDay = day; 
-            document.querySelectorAll('.day-cfg-btn').forEach(btn => { 
-                if(btn.innerText.trim().startsWith(day.substring(0,3))) { 
-                    btn.className = 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'; 
-                } else { 
-                    btn.className = 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full'; 
-                } 
-            }); 
-            document.getElementById('currentConfigDay').innerText = day; 
-            renderChecklist(); 
-        }
-
-        function renderChecklist() { 
-            const list = document.getElementById('routeChecklist'); 
-            list.innerHTML = ''; 
-            if(allIndustries.length === 0) { 
-                list.innerHTML = '<div class="p-2 text-xs text-red-400">Crie indústrias na aba Locais.</div>'; 
-                return; 
-            } 
-            const currentRoute = routes[configSelectedDay] || []; 
-            allIndustries.forEach(ind => { 
-                const isChecked = currentRoute.includes(ind.nome); 
-                const item = document.createElement('label'); 
-                item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer'; 
-                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" ${isChecked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`; 
-                list.appendChild(item); 
-            }); 
-        }
-
-        function toggleRouteItem(indName) { 
-            if(!routes[configSelectedDay]) routes[configSelectedDay] = []; 
-            const idx = routes[configSelectedDay].indexOf(indName); 
-            if(idx > -1) routes[configSelectedDay].splice(idx, 1); 
-            else routes[configSelectedDay].push(indName); 
-        }
-
-        function handleIndustryClick(ind, e) { 
-            if(isSelectionMode) { 
-                if(selectedIndustries.has(ind.id)) {
-                    selectedIndustries.delete(ind.id);
-                } else {
-                    selectedIndustries.add(ind.id);
+                    const blob = await resp.blob();
+                    files.push(new File([blob], `foto_${p.id}.jpg`, { type: blob.type }));
                 }
+                if (navigator.share && navigator.canShare && navigator.canShare({ files })) {
+                    await navigator.share({ files });
+                    toggleSelectionMode();
+                    showToast("Compartilhado!", "success");
+                } else {
+                    showToast("Compartilhamento não suportado neste dispositivo", "error");
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao compartilhar", "error");
+            }
+        }
+
+        function openRouteConfig() {
+            document.getElementById('routeConfigModal').classList.remove('hidden');
+            selectRouteConfigDay(viewSelectedDay || 'Segunda');
+        }
+
+        function selectRouteConfigDay(day) {
+            configSelectedDay = day;
+            document.querySelectorAll('.day-cfg-btn').forEach(btn => {
+                const startsWith = btn.innerText.trim().startsWith(day.substring(0, 3));
+                btn.className = startsWith 
+                    ? 'day-cfg-btn bg-blue-600 text-white px-0 py-1 rounded text-[10px] font-bold shadow w-full'
+                    : 'day-cfg-btn bg-slate-100 text-slate-500 px-0 py-1 rounded text-[10px] font-bold border border-slate-200 w-full';
+            });
+            document.getElementById('currentConfigDay').innerText = day;
+            renderChecklist();
+        }
+
+        function renderChecklist() {
+            const list = document.getElementById('routeChecklist');
+            list.innerHTML = '';
+            if (allIndustries.length === 0) {
+                list.innerHTML = '<div class="p-2 text-xs text-red-400">Nenhuma indústria cadastrada.</div>';
+                return;
+            }
+            const currentRoute = routes[configSelectedDay] || [];
+            allIndustries.forEach(ind => {
+                const checked = currentRoute.includes(ind.nome);
+                const item = document.createElement('label');
+                item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer';
+                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" ${checked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`;
+                list.appendChild(item);
+            });
+        }
+
+        function toggleRouteItem(name) {
+            if (!routes[configSelectedDay]) routes[configSelectedDay] = [];
+            const idx = routes[configSelectedDay].indexOf(name);
+            if (idx > -1) routes[configSelectedDay].splice(idx, 1);
+            else routes[configSelectedDay].push(name);
+        }
+
+        function handleIndustryClick(ind, e) {
+            if (isSelectionMode) {
+                if (selectedIndustries.has(ind.id)) selectedIndustries.delete(ind.id);
+                else selectedIndustries.add(ind.id);
                 document.getElementById('selIndCount').innerText = selectedIndustries.size;
-            } else { 
-                openIndustry(ind); 
-            } 
-        }
-
-        function openBulkCategoryModal() { 
-            if(selectedIndustries.size === 0) return; 
-            document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size; 
-            document.getElementById('bulkCatModal').classList.remove('hidden'); 
-        }
-
-        async function saveBulkCategory() { 
-            const catId = document.getElementById('bulkCatSelect').value || null; 
-            const ids = Array.from(selectedIndustries); 
-            showToast("Atualizando...", "loading"); 
-            try { 
-                await sb.from('industrias').update({ categoria_id: catId }).in('id', ids); 
-                showToast("Atualizado!", "success"); 
-                document.getElementById('bulkCatModal').classList.add('hidden'); 
-                selectedIndustries.clear();
-                await loadIndustries();
-            } catch(e) { showToast("Erro", "error"); } 
-        }
-
-        async function deleteSelectedIndustries() { 
-            if(selectedIndustries.size === 0) return; 
-            if(!confirm(`Apagar ${selectedIndustries.size} indústrias?`)) return; 
-            showToast("Apagando...", "loading"); 
-            try { 
-                await sb.from('industrias').delete().in('id', Array.from(selectedIndustries)); 
-                selectedIndustries.clear();
-                await loadIndustries();
-                showToast("Apagado!", "success"); 
-            } catch(e) { showToast("Erro", "error"); } 
-        }
-
-        function openAddModal() { 
-            document.getElementById('modalTitle').innerText = "Nova Indústria"; 
-            document.getElementById('newIndName').value = ''; 
-            document.getElementById('editIndId').value = ''; 
-            document.getElementById('catSelect').value = ''; 
-            document.getElementById('addModal').classList.remove('hidden'); 
-        }
-
-        function openEditIndustryModal() { 
-            if(!currentIndustry) return; 
-            document.getElementById('modalTitle').innerText = "Editar Indústria"; 
-            document.getElementById('newIndName').value = currentIndustry.nome; 
-            document.getElementById('editIndId').value = currentIndustry.id; 
-            document.getElementById('catSelect').value = currentIndustry.categoria_id || ''; 
-            document.getElementById('addModal').classList.remove('hidden'); 
-        }
-
-        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
-
-        function openPhotoModal(url, id) { 
-            currentModalPhoto = id; 
-            document.getElementById('previewImg').src = url; 
-            const m = document.getElementById('photoModal'); 
-            m.classList.remove('hidden'); 
-            setTimeout(() => m.classList.remove('opacity-0'), 10); 
-        }
-
-        function closePhotoModal() { 
-            const m = document.getElementById('photoModal'); 
-            m.classList.add('opacity-0'); 
-            setTimeout(() => m.classList.add('hidden'), 300); 
-        }
-
-        function showToast(msg, type = "loading") { 
-            const t = document.getElementById('statusToast');
-            const i = document.getElementById('toastIcon');
-            document.getElementById('toastMsg').innerText = msg;
-            t.classList.remove('opacity-0', '-translate-y-10');
-            if(type === 'success') {
-                i.className = 'fas fa-check-circle text-green-500 text-lg';
-                setTimeout(() => t.classList.add('opacity-0', '-translate-y-10'), 2000);
-            } else if(type === 'error') {
-                i.className = 'fas fa-times-circle text-red-500 text-lg';
-                setTimeout(() => t.classList.add('opacity-0', '-translate-y-10'), 3000);
             } else {
-                i.className = 'loader w-4 h-4 border-2 border-slate-200 border-t-blue-500';
+                openIndustry(ind);
+            }
+        }
+
+        function openBulkCategoryModal() {
+            if (selectedIndustries.size === 0) return;
+            document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size;
+            document.getElementById('bulkCatModal').classList.remove('hidden');
+        }
+
+        async function saveBulkCategory() {
+            const catId = document.getElementById('bulkCatSelect').value || null;
+            const ids = Array.from(selectedIndustries);
+            showToast("Atualizando...", "loading");
+            try {
+                await sb.from('industrias').update({ categoria_id: catId }).in('id', ids);
+                showToast("Atualizado!", "success");
+                document.getElementById('bulkCatModal').classList.add('hidden');
+                selectedIndustries.clear();
+                await loadIndustries();
+            } catch (e) {
+                console.error(e);
+                showToast("Erro", "error");
+            }
+        }
+
+        async function deleteSelectedIndustries() {
+            if (selectedIndustries.size === 0) return;
+            if (!confirm(`Apagar ${selectedIndustries.size} indústrias e todas as fotos?`)) return;
+            showToast("Apagando...", "loading");
+            try {
+                await sb.from('industrias').delete().in('id', Array.from(selectedIndustries));
+                selectedIndustries.clear();
+                await loadIndustries();
+                showToast("Apagado!", "success");
+            } catch (e) {
+                console.error(e);
+                showToast("Erro", "error");
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "Nova Indústria";
+            document.getElementById('newIndName').value = '';
+            document.getElementById('editIndId').value = '';
+            document.getElementById('catSelect').value = '';
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+
+        function openEditIndustryModal() {
+            if (!currentIndustry) return;
+            document.getElementById('modalTitle').innerText = "Editar Indústria";
+            document.getElementById('newIndName').value = currentIndustry.nome;
+            document.getElementById('editIndId').value = currentIndustry.id;
+            document.getElementById('catSelect').value = currentIndustry.categoria_id || '';
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+        }
+
+        function openPhotoModal(url, id) {
+            currentModalPhoto = id;
+            document.getElementById('previewImg').src = url;
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function showToast(msg, type = "loading") {
+            const toast = document.getElementById('statusToast');
+            const icon = document.getElementById('toastIcon');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('opacity-0', '-translate-y-10');
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle text-green-500 text-lg';
+                setTimeout(() => toast.classList.add('opacity-0', '-translate-y-10'), 2000);
+            } else if (type === 'error') {
+                icon.className = 'fas fa-times-circle text-red-500 text-lg';
+                setTimeout(() => toast.classList.add('opacity-0', '-translate-y-10'), 3000);
+            } else {
+                icon.className = 'loader w-4 h-4 border-2 border-slate-200 border-t-blue-500';
             }
         }
 
         window.onload = async () => {
             viewHistory = [];
-            await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
-            const hash = window.location.hash.substring(1);
-            if (hash && document.getElementById(hash)) {
-                navigateTo(hash, false);
-            } else {
-                const todayIndex = new Date().getDay();
-                viewSelectedDay = weekDays[todayIndex];
-                selectRouteViewDay(viewSelectedDay);
+            try {
+                await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
+                const hash = window.location.hash.substring(1);
+                if (hash && document.getElementById(hash)) {
+                    navigateTo(hash, false);
+                } else {
+                    const today = weekDays[new Date().getDay()];
+                    viewSelectedDay = today;
+                    selectRouteViewDay(today);
+                }
+            } catch (e) {
+                console.error(e);
+                showToast("Erro ao iniciar app", "error");
             }
         };
 
-        window.addEventListener('beforeinstallprompt', (e) => { 
-            e.preventDefault(); 
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
             document.getElementById('installBtn').classList.remove('hidden');
         });
     </script>
