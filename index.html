@@ -39,8 +39,6 @@
         .cat-badge.bg-orange { background: #FFEDD5; color: #C2410C; }
         .cat-badge.bg-pink { background: #FCE7F3; color: #9D174D; }
         .cat-badge.bg-teal { background: #CCFBF1; color: #0F766E; }
-        .folder-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.2s; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .folder-card:active { background: #f8fafc; transform: scale(0.98); }
         .photo-item { position: relative; overflow: hidden; border-radius: 12px; background: #cbd5e1; aspect-ratio: 1/1; transition: transform 0.1s; }
         .photo-item:active { transform: scale(0.98); }
         .photo-item.selected { border: 4px solid #2563eb; }
@@ -64,6 +62,16 @@
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CALENDAR STYLES */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
+        .cal-day-header { font-size: 10px; color: #94a3b8; text-align: center; font-weight: 700; text-transform: uppercase; padding-bottom: 4px; }
+        .cal-day-btn { aspect-ratio: 1/1; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 14px; color: #cbd5e1; background: #fff; border: 1px solid #f1f5f9; position: relative; transition: all 0.2s; }
+        .cal-day-btn.active-day { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; font-weight: 700; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.1); }
+        .cal-day-btn.active-day:active { transform: scale(0.9); background: #dbeafe; }
+        .cal-day-btn.active-day .dot { width: 4px; height: 4px; background: #2563eb; border-radius: 50%; margin-top: 2px; }
+        .cal-day-btn.today { border: 1px solid #2563eb; color: #2563eb; }
+        .cal-header { display: flex; justify-content: space-between; align-items: center; padding: 0 4px; margin-bottom: 12px; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -115,12 +123,26 @@
         </div>
 
         <div id="view-dates" class="view-section">
-            <div class="mb-4 flex justify-between items-center px-1">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pastas por Data</span>
-                <span class="text-[9px] text-slate-500 border border-slate-200 bg-white px-2 py-1 rounded">Auto-Clean: 45 dias</span>
+            <div class="cal-header">
+                <button onclick="changeCalendarMonth(-1)" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center active:bg-slate-200"><i class="fas fa-chevron-left text-xs"></i></button>
+                <span id="calendarTitle" class="text-sm font-bold text-slate-700 uppercase tracking-wide">...</span>
+                <button onclick="changeCalendarMonth(1)" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center active:bg-slate-200"><i class="fas fa-chevron-right text-xs"></i></button>
             </div>
-            <div id="datesList" class="space-y-3 pb-40"></div>
-            <div class="fixed-bottom-bar flex flex-col gap-4 items-center px-4">
+            
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                <div class="grid grid-cols-7 gap-1 mb-2">
+                    <div class="cal-day-header text-red-400">D</div>
+                    <div class="cal-day-header">S</div>
+                    <div class="cal-day-header">T</div>
+                    <div class="cal-day-header">Q</div>
+                    <div class="cal-day-header">Q</div>
+                    <div class="cal-day-header">S</div>
+                    <div class="cal-day-header">S</div>
+                </div>
+                <div id="calendarGrid" class="cal-grid"></div>
+            </div>
+
+            <div id="datesList" class="hidden"></div> <div class="fixed-bottom-bar flex flex-col gap-4 items-center px-4">
                 <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
                     <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">TIRAR FOTO</span>
                     <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
@@ -275,6 +297,10 @@
         let currentModalPhoto = null;
         let coverImageFile = null;
 
+        // Calendar Vars
+        let calendarCursor = new Date();
+        let availableDates = new Set();
+
         let routes = { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
         const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         let configSelectedDay = null;
@@ -328,8 +354,14 @@
 
                 industryPhotos.unshift(newPhoto);
                 showToast("Foto salva!", "success");
-                if (document.getElementById('view-gallery').classList.contains('active')) loadGalleryPhotos();
-                else if (document.getElementById('view-dates').classList.contains('active')) loadDates(currentIndustry.nome);
+                
+                // Refresh view based on where we are
+                if (document.getElementById('view-gallery').classList.contains('active')) {
+                    loadGalleryPhotos();
+                } else if (document.getElementById('view-dates').classList.contains('active')) {
+                    // Update current industry photos list and refresh calendar
+                    loadDates(currentIndustry.nome);
+                }
             } catch (e) {
                 console.error(e);
                 showToast("Erro no envio", "error");
@@ -403,7 +435,7 @@
                 backBtn.classList.remove('hidden');
                 if (viewId === 'view-dates') {
                     title.innerText = currentIndustry?.nome || "Indústria";
-                    subtitle.innerText = "Pastas";
+                    subtitle.innerText = "Calendário";
                     editIndBtn.classList.remove('hidden');
                 } else if (viewId === 'view-gallery') {
                     selectBtn.classList.remove('hidden');
@@ -516,10 +548,8 @@
                     colorClass = 'cat-badge ' + colorClass;
                 }
 
-                // URL sem cache
                 const coverUrl = ind.cover_url ? `${ind.cover_url}?t=${Date.now()}` : '';
                 
-                // Fallback robusto
                 const coverEl = coverUrl 
                     ? `<div class="cover-wrapper"><img src="${coverUrl}" loading="lazy" class="cover-img" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'cover-img flex items-center justify-center bg-slate-200 text-slate-400\\'><i class=\\'fas fa-image\\'></i></div>'"></div>`
                     : `<div class="cover-wrapper"><div class="cover-img flex items-center justify-center bg-slate-200 text-slate-400"><i class="fas fa-industry"></i></div></div>`;
@@ -625,7 +655,6 @@
             } catch (e) { console.error(e); }
         }
 
-        // CORREÇÃO: Função saveIndustry otimizada
         async function saveIndustry() {
             const id = document.getElementById('editIndId').value;
             const name = document.getElementById('newIndName').value.trim();
@@ -638,13 +667,10 @@
             try {
                 const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
 
-                // Lógica de Upload da Capa
                 if (coverImageFile) {
-                    // Forçar extensão JPG e nome único
                     const coverFileName = `${safeName}/cover_${Date.now()}.jpg`;
                     const resizedCoverBlob = await resizeImage(coverImageFile);
                     
-                    // Upload com Content-Type explícito
                     const { error: uploadErr } = await sb.storage.from(BUCKET).upload(coverFileName, resizedCoverBlob, { 
                         upsert: true, 
                         contentType: 'image/jpeg' 
@@ -655,16 +681,12 @@
                         throw new Error("Falha no upload da capa");
                     }
 
-                    // Obter URL pública
                     const { data: publicData } = sb.storage.from(BUCKET).getPublicUrl(coverFileName);
                     if(publicData) coverUrl = publicData.publicUrl;
                 }
 
                 if (id) {
-                    // Editar existente
                     const oldInd = allIndustries.find(i => i.id == id);
-                    
-                    // Renomear pasta se o nome mudar
                     if (oldInd && oldInd.nome !== name) {
                         const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                         const newSafe = safeName;
@@ -684,7 +706,6 @@
                     
                     await sb.from('industrias').update(updateData).eq('id', id);
                     
-                    // Atualização local para evitar reload lento
                     if(currentIndustry && currentIndustry.id == id) {
                         currentIndustry.nome = name;
                         currentIndustry.categoria_id = catId;
@@ -693,7 +714,6 @@
                     }
 
                 } else {
-                    // Criar nova
                     await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), { upsert: true });
 
                     const insertData = { nome: name, categoria_id: catId };
@@ -705,7 +725,7 @@
                 showToast("Salvo!", "success");
                 coverImageFile = null;
                 closeAddModal();
-                await loadIndustries(); // Recarrega para garantir que a imagem apareça
+                await loadIndustries();
             } catch (e) {
                 console.error(e);
                 showToast(e.message || "Erro ao salvar", "error");
@@ -746,41 +766,95 @@
 
         function openIndustry(ind) {
             currentIndustry = ind;
+            // Reset calendar to current date when opening
+            calendarCursor = new Date();
             navigateTo('view-dates');
             loadDates(ind.nome);
         }
 
+        // CALENDAR LOGIC START
         async function loadDates(indName) {
-            navigateTo('view-dates');
-            const list = document.getElementById('datesList');
-            list.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
+            showToast("Carregando datas...", "loading");
             try {
                 const safe = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                const { data } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false });
-                industryPhotos = data || [];
-                list.innerHTML = '';
-                if (industryPhotos.length === 0) {
-                    list.innerHTML = '<div class="text-center py-20 text-slate-400 text-xs">Nenhuma foto ainda.</div>';
-                    return;
+                const { data } = await sb.from('fotos').select('created_at').like('nome_arquivo', `${safe}/%`);
+                
+                // Get full photo data for storage usage, but only dates for calendar
+                // (Optimized: we could just fetch dates, but for now we fetch basic data)
+                const { data: fullData } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false });
+                industryPhotos = fullData || [];
+                
+                availableDates.clear();
+                if (data) {
+                    data.forEach(item => {
+                        const d = new Date(item.created_at);
+                        const str = d.toLocaleDateString('pt-BR'); // DD/MM/YYYY
+                        availableDates.add(str);
+                    });
                 }
-                const datesMap = {};
-                industryPhotos.forEach(f => {
-                    const dateKey = new Date(f.created_at).toLocaleDateString('pt-BR');
-                    datesMap[dateKey] = (datesMap[dateKey] || 0) + 1;
-                });
-                Object.keys(datesMap).sort((a, b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-'))).forEach(dateLabel => {
-                    const count = datesMap[dateLabel];
-                    const el = document.createElement('div');
-                    el.className = 'folder-card p-4 flex items-center justify-between cursor-pointer active:scale-[0.98] group';
-                    el.onclick = () => openGallery(dateLabel);
-                    el.innerHTML = `<div class="flex items-center gap-4"><div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center border border-blue-100"><i class="fas fa-folder text-xl"></i></div><div><h3 class="font-bold text-sm text-slate-700">${dateLabel}</h3><p class="text-[10px] text-slate-400">${count} fotos</p></div></div>`;
-                    list.appendChild(el);
-                });
+                
+                renderCalendar();
+                showToast("Pronto", "success");
             } catch (e) {
                 console.error(e);
-                list.innerHTML = '<div class="text-center py-20 text-red-500 text-xs">Erro ao carregar pastas</div>';
+                showToast("Erro ao carregar", "error");
             }
         }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+            
+            const year = calendarCursor.getFullYear();
+            const month = calendarCursor.getMonth(); // 0-11
+            
+            // Set Header Title
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            document.getElementById('calendarTitle').innerText = `${monthNames[month]} ${year}`;
+
+            // Logic to draw days
+            const firstDay = new Date(year, month, 1).getDay(); // 0(Sun) - 6(Sat)
+            const daysInMonth = new Date(year, month + 1, 0).getDate(); // 28,30,31
+
+            const todayStr = new Date().toLocaleDateString('pt-BR');
+
+            // Empty cells for previous month
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                grid.appendChild(empty);
+            }
+
+            // Days
+            for (let d = 1; d <= daysInMonth; d++) {
+                const btn = document.createElement('div');
+                btn.className = 'cal-day-btn';
+                
+                // Construct Date String DD/MM/YYYY
+                const dayStr = String(d).padStart(2, '0');
+                const monStr = String(month + 1).padStart(2, '0');
+                const fullDateStr = `${dayStr}/${monStr}/${year}`;
+                
+                btn.innerText = d;
+
+                if (availableDates.has(fullDateStr)) {
+                    btn.classList.add('active-day');
+                    btn.onclick = () => openGallery(fullDateStr);
+                    btn.innerHTML = `${d}<div class="dot"></div>`;
+                }
+
+                if (fullDateStr === todayStr) {
+                    btn.classList.add('today');
+                }
+
+                grid.appendChild(btn);
+            }
+        }
+
+        function changeCalendarMonth(offset) {
+            calendarCursor.setMonth(calendarCursor.getMonth() + offset);
+            renderCalendar();
+        }
+        // CALENDAR LOGIC END
 
         function openGallery(dateLabel) {
             currentDateFolder = dateLabel;
