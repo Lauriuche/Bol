@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -6,65 +8,31 @@
     <meta name="theme-color" content="#ffffff">
     <title>Industrial Manager</title>
     
-    <!-- Dependências Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc; 
-            color: #334155; 
-            -webkit-tap-highlight-color: transparent; 
-            user-select: none;
-            padding-bottom: calc(100px + env(safe-area-inset-bottom)); 
-        }
-        
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; -webkit-tap-highlight-color: transparent; user-select: none; padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
         .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
-        
-        .day-tab {
-            font-weight: 800; font-size: 11px; color: #94a3b8; background: #e2e8f0;
-            padding: 8px 0; width: 100%; border-radius: 6px 6px 0 0; 
-            text-transform: uppercase; transition: all 0.2s; border-bottom: 2px solid transparent; 
-            white-space: nowrap; display: flex; justify-content: center; align-items: center;
-        }
+        .day-tab { font-weight: 800; font-size: 11px; color: #94a3b8; background: #e2e8f0; padding: 8px 0; width: 100%; border-radius: 6px 6px 0 0; text-transform: uppercase; transition: all 0.2s; border-bottom: 2px solid transparent; white-space: nowrap; display: flex; justify-content: center; align-items: center; }
         .day-tab.active { background: #ffffff; color: #3b82f6; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); position: relative; z-index: 10; }
         .day-tab.active::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #3b82f6; border-radius: 3px 3px 0 0; }
         .day-tab.sunday { color: #ef4444; } 
         .day-tab.sunday.active { color: #dc2626; } 
         .day-tab.sunday.active::after { background: #dc2626; }
-
         .route-list-card { background: #ffffff; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; min-height: 300px; position: relative; z-index: 5; border: 1px solid #e2e8f0; border-top: none; }
         .route-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.1s; }
         .route-row:active { background: #f8fafc; }
-        .route-row .route-img {
-            width: 40px; height: 40px; border-radius: 8px; background: #cbd5e1; flex-shrink: 0; object-fit: cover; border: 1px solid #e2e8f0;
-            margin-right: 12px;
-        }
-        .route-row .route-name-cat {
-            display: flex; align-items: center; gap: 6px; flex: 1;
-        }
-        .route-row .route-name {
-            font-weight: 700; color: #334155; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-
-        .ind-card { 
-            background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; 
-            transition: transform 0.1s; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 10px 6px; height: 90px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative;
-        }
+        .route-row .route-img { width: 40px; height: 40px; border-radius: 8px; background: #cbd5e1; flex-shrink: 0; object-fit: cover; border: 1px solid #e2e8f0; margin-right: 12px; }
+        .route-row .route-name-cat { display: flex; align-items: center; gap: 6px; flex: 1; }
+        .route-row .route-name { font-weight: 700; color: #334155; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ind-card { background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 10px 6px; height: 110px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
         .ind-card:active { transform: scale(0.96); border-color: #2563eb; }
-        .ind-card .cover-img {
-            width: 48px; height: 48px; border-radius: 12px; object-fit: cover; border: 1px solid #e2e8f0; margin-bottom: 6px;
-            background: #cbd5e1;
-        }
-        .cat-badge {
-            font-size: 8px; font-weight: 700; text-transform: uppercase; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; margin-top: 2px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        /* Colored badges for categories (will override dynamically) */
+        .ind-card .cover-wrapper { width: 56px; height: 56px; margin-bottom: 8px; position: relative; }
+        .ind-card .cover-img { width: 100%; height: 100%; border-radius: 14px; object-fit: cover; border: 1px solid #e2e8f0; background: #f1f5f9; }
+        .cat-badge { font-size: 8px; font-weight: 700; text-transform: uppercase; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; margin-top: auto; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cat-badge.bg-blue { background: #DBEAFE; color: #2563EB; }
         .cat-badge.bg-green { background: #D1FAE5; color: #065F46; }
         .cat-badge.bg-purple { background: #EDE9FE; color: #5B21B6; }
@@ -73,13 +41,11 @@
         .cat-badge.bg-teal { background: #CCFBF1; color: #0F766E; }
         .folder-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.2s; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .folder-card:active { background: #f8fafc; transform: scale(0.98); }
-
         .photo-item { position: relative; overflow: hidden; border-radius: 12px; background: #cbd5e1; aspect-ratio: 1/1; transition: transform 0.1s; }
         .photo-item:active { transform: scale(0.98); }
         .photo-item.selected { border: 4px solid #2563eb; }
         .photo-item.selected img { opacity: 0.7; }
         .photo-item.selected::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 20px; z-index: 10; background: #2563eb; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-
         .fixed-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background: rgba(255, 255, 255, 0.98); border-top: 1px solid #e2e8f0; z-index: 60; padding-bottom: calc(20px + env(safe-area-inset-bottom)); padding-top: 20px; padding-left: 16px; padding-right: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); transition: transform 0.3s ease; }
         .fixed-bottom-bar.hidden-bar { transform: translateY(110%); }
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: calc(65px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; align-items: flex-start; padding-top: 12px; z-index: 50; transition: transform 0.3s ease; }
@@ -87,26 +53,21 @@
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 10px; font-weight: 600; width: 100%; }
         .nav-item i { font-size: 22px; margin-bottom: 4px; }
         .nav-item.active { color: #2563eb; }
-
         .search-container { position: sticky; top: 0; z-index: 30; background: #f8fafc; padding-bottom: 10px; }
         .search-input { width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 12px 12px 40px; font-size: 14px; color: #334155; outline: none; transition: border-color 0.2s; }
         .search-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        
         .btn-all-photos { background: #ffffff; border: 1px solid #e2e8f0; width: 100%; padding: 16px; border-radius: 16px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; margin-top: 15px; transition: transform 0.1s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .btn-all-photos:active { transform: scale(0.98); background: #f1f5f9; }
-
         .loader { border: 3px solid #e2e8f0; border-top: 3px solid #2563eb; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
     </style>
 </head>
 <body class="text-slate-800">
 
-    <!-- Header -->
     <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-sm">
         <div class="flex items-center gap-3 w-2/3">
             <button id="backBtn" onclick="goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center active:scale-90 transition"><i class="fas fa-arrow-left"></i></button>
@@ -129,7 +90,6 @@
 
     <main class="max-w-md mx-auto px-4 pb-32">
 
-        <!-- VIEW 1: HOME (CRONOGRAMA) -->
         <div id="view-home" class="view-section active">
             <div class="mb-4 px-1 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Agenda Semanal</div>
             <div class="grid grid-cols-7 gap-1 mb-0 px-1 pb-1" id="routeTabsContainer"></div>
@@ -137,7 +97,6 @@
             <button onclick="openAllPhotos()" class="btn-all-photos text-slate-500 hover:text-blue-600"><i class="fas fa-images mr-2"></i> Feed de Fotos</button>
         </div>
 
-        <!-- VIEW 1.5: LOCAIS (LISTA GERAL) -->
         <div id="view-routes" class="view-section">
             <div class="search-container mb-4">
                 <div class="relative"><i class="fas fa-search search-icon"></i><input type="text" id="searchInput" onkeyup="filterIndustries()" placeholder="Buscar local..." class="search-input"></div>
@@ -155,7 +114,6 @@
             </div>
         </div>
 
-        <!-- VIEW 2: DATAS -->
         <div id="view-dates" class="view-section">
             <div class="mb-4 flex justify-between items-center px-1">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pastas por Data</span>
@@ -174,11 +132,10 @@
             </div>
         </div>
 
-        <!-- VIEW 3: GALERIA -->
         <div id="view-gallery" class="view-section">
             <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
             <div class="fixed-bottom-bar flex flex-col gap-4 items-center px-4">
-                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow, shadow-lg shadow-blue-200 border border-white/20">
+                <label class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer shadow-lg shadow-blue-200 border border-white/20">
                     <i class="fas fa-camera text-xl"></i><span class="font-bold text-sm tracking-wide">TIRAR FOTO</span>
                     <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
                 </label>
@@ -194,7 +151,6 @@
             </div>
         </div>
 
-        <!-- VIEW 4: TODAS AS FOTOS -->
         <div id="view-all" class="view-section">
             <div class="mb-4 px-1 text-xs font-bold text-slate-400 uppercase tracking-widest">Feed Global (Recentes)</div>
             <div id="allPhotosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
@@ -207,13 +163,11 @@
 
     </main>
 
-    <!-- NAV INFERIOR -->
     <nav id="mainNavBar" class="bottom-nav">
         <div id="nav-general" class="nav-item active" onclick="switchMainTab('general')"><i class="fas fa-calendar-alt"></i><span>Geral</span></div>
         <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')"><i class="fas fa-th-large"></i><span>Locais</span></div>
     </nav>
 
-    <!-- MODAIS -->
     <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-100 h-[80vh] flex flex-col">
             <h3 class="text-sm font-bold text-slate-700 mb-2 uppercase">Configurar Rotas</h3>
@@ -249,11 +203,11 @@
             </div>
             <div id="newCatContainer" class="hidden mb-4 flex gap-2"><input type="text" id="newCatName" placeholder="Nova Categoria..." class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs"><button onclick="addNewCategory()" class="bg-green-500 text-white px-3 rounded-lg text-xs font-bold">OK</button></div>
 
-            <!-- Cover Image Upload -->
             <div class="mb-4">
                 <label class="block mb-1 font-semibold text-sm text-slate-700">Foto de Capa</label>
                 <div class="flex items-center gap-3">
-                    <img id="coverPreview" src="" alt="Capa" class="w-20 h-20 object-cover rounded-lg bg-slate-200 border border-slate-300">
+                    <img id="coverPreview" src="" alt="Capa" class="w-20 h-20 object-cover rounded-lg bg-slate-200 border border-slate-300 hidden">
+                    <div id="coverPlaceholder" class="w-20 h-20 bg-slate-100 rounded-lg border border-slate-300 flex items-center justify-center text-slate-300"><i class="fas fa-image text-xl"></i></div>
                     <label for="coverInput" class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-xs active:scale-95 transition shadow">Selecionar</label>
                 </div>
                 <input type="file" id="coverInput" accept="image/*" class="hidden" onchange="handleCoverChange(event)">
@@ -319,19 +273,16 @@
         let selectedPhotos = new Set();
         let selectedIndustries = new Set();
         let currentModalPhoto = null;
-        let coverImageFile = null;  // For new/edit industry cover image file
+        let coverImageFile = null;
 
-        // Routes and configurations
         let routes = { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
         const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         let configSelectedDay = null;
         let viewSelectedDay = null;
         let viewHistory = [];
 
-        // Category Color classes mapped by index - used for badges color
         const categoryColorsClass = ['bg-blue', 'bg-green', 'bg-purple', 'bg-orange', 'bg-pink', 'bg-teal'];
 
-        /* Refresh current view and data */
         async function refreshCurrentView() {
             showToast("Atualizando...", "loading");
             try {
@@ -349,7 +300,6 @@
             }
         }
 
-        /* Upload photo for industry gallery */
         async function uploadPhoto(input) {
             const file = input.files[0];
             if (!file || !currentIndustry) {
@@ -387,7 +337,6 @@
             input.value = '';
         }
 
-        /* Resize image before upload */
         function resizeImage(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -409,7 +358,6 @@
             });
         }
 
-        /* Navigate between views */
         function navigateTo(viewId, addToHistory = true) {
             if (addToHistory) viewHistory.push(document.querySelector('.view-section.active')?.id || 'view-home');
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -473,7 +421,6 @@
             window.location.hash = viewId;
         }
 
-        /* Go back in history */
         function goBack() {
             if (viewHistory.length === 0) {
                 navigateTo('view-home', false);
@@ -484,7 +431,6 @@
             navigateTo(previous, false);
         }
 
-        /* Fetch routes configuration from DB */
         async function fetchRoutesFromDB() {
             try {
                 const { data } = await sb.from('rotas').select('*');
@@ -492,7 +438,6 @@
             } catch (e) { console.error(e); }
         }
 
-        /* Save routes configuration */
         async function saveRouteConfig() {
             showToast("Salvando...", "loading");
             try {
@@ -506,7 +451,6 @@
             }
         }
 
-        /* Switch main bottom tabs */
         function switchMainTab(tab) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             viewHistory = [];
@@ -519,7 +463,6 @@
             }
         }
 
-        /* Debounced filter industries */
         let searchTimeout;
         function filterIndustries() {
             clearTimeout(searchTimeout);
@@ -530,11 +473,11 @@
             }, 300);
         }
 
-        /* Load industries from DB */
         async function loadIndustries() {
             try {
                 const { data: dbData } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
-                const { data: stData } = await sb.storage.from(BUCKET).list('');
+                // Adicionar limit para evitar erro se houver muitas pastas
+                const { data: stData } = await sb.storage.from(BUCKET).list('', { limit: 1000 });
 
                 let stFolders = [];
                 if (stData) stFolders = stData.filter(i => i.name !== '.keep').map(i => i.name);
@@ -554,7 +497,6 @@
             }
         }
 
-        /* Render industries with cover image and colored category badges */
         function renderIndustries(industries) {
             const list = document.getElementById('industriesList');
             list.innerHTML = '';
@@ -567,34 +509,34 @@
                 el.className = 'ind-card group cursor-pointer active:scale-95 relative';
                 el.onclick = (e) => handleIndustryClick(ind, e);
 
-                // Category badge with colored class based on its index
                 const catName = ind.categorias ? ind.categorias.nome : '';
                 let colorClass = 'bg-slate-100 text-slate-600';
                 if (ind.categorias) {
-                    // Assign color class cyclically by categoria id (assuming id starts at 1)
                     colorClass = categoryColorsClass[(ind.categoria_id - 1) % categoryColorsClass.length];
                     colorClass = 'cat-badge ' + colorClass;
                 }
 
-                // Cover image url if any - fallback blank style div
-                const coverUrl = ind.cover_url || '';
-                const coverImgEl = coverUrl 
-                    ? `<img src="${coverUrl}" alt="Capa" loading="lazy" class="cover-img">`
-                    : `<div class="cover-img"></div>`;
+                // URL sem cache
+                const coverUrl = ind.cover_url ? `${ind.cover_url}?t=${Date.now()}` : '';
+                
+                // Fallback robusto
+                const coverEl = coverUrl 
+                    ? `<div class="cover-wrapper"><img src="${coverUrl}" loading="lazy" class="cover-img" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'cover-img flex items-center justify-center bg-slate-200 text-slate-400\\'><i class=\\'fas fa-image\\'></i></div>'"></div>`
+                    : `<div class="cover-wrapper"><div class="cover-img flex items-center justify-center bg-slate-200 text-slate-400"><i class="fas fa-industry"></i></div></div>`;
 
                 const catBadge = catName ? `<div class="${colorClass}">${catName}</div>` : '';
-
+                const safeName = ind.nome.replace(/'/g, "\\'");
+                
                 el.innerHTML = `
-                    ${coverImgEl}
-                    <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-2 px-1 break-words w-full">${ind.nome}</h3>
+                    ${coverEl}
+                    <h3 class="font-bold text-[10px] text-slate-600 text-center leading-tight line-clamp-2 px-1 break-words w-full h-8 flex items-center justify-center">${ind.nome}</h3>
                     ${catBadge}
-                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center z-10" onclick="event.stopPropagation(); deleteIndustry('${ind.id}', event, '${ind.nome}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
+                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white border border-slate-200 flex items-center justify-center z-10 shadow-sm" onclick="event.stopPropagation(); deleteIndustry('${ind.id}', event, '${safeName}')"><i class="fas fa-trash-alt text-[9px]"></i></button>
                 `;
                 list.appendChild(el);
             });
         }
 
-        /* Select day for routes view */
         function selectRouteViewDay(day) {
             viewSelectedDay = day;
             const container = document.getElementById('routeTabsContainer');
@@ -609,7 +551,6 @@
             renderRouteList(day);
         }
 
-        /* Render route list with cover images */
         function renderRouteList(day) {
             const container = document.getElementById('routeListContent');
             const industriesNames = routes[day] || [];
@@ -628,28 +569,27 @@
                 row.className = 'route-row group';
                 row.onclick = () => openIndustry(ind);
 
-                const coverUrl = ind.cover_url || '';
+                const coverUrl = ind.cover_url ? `${ind.cover_url}?t=${Date.now()}` : '';
                 const imgEl = coverUrl 
-                    ? `<img src="${coverUrl}" alt="Capa" loading="lazy" class="route-img">`
-                    : `<div class="route-img"></div>`;
+                    ? `<img src="${coverUrl}" alt="Capa" loading="lazy" class="route-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+                    : '';
+                const fallbackEl = `<div class="route-img flex items-center justify-center bg-slate-200 text-slate-400" ${coverUrl ? 'style="display:none"' : ''}><i class="fas fa-industry"></i></div>`;
 
                 const catName = ind.categorias ? ind.categorias.nome : '';
                 let catColorClass = 'bg-blue-100 text-blue-600';
                 if (ind.categorias) {
                     const idx = (ind.categoria_id - 1) % categoryColorsClass.length;
-                    // Map to corresponding Tailwind bg/text colors for route list badge
                     const bgColors = ['bg-blue-100','bg-green-100','bg-purple-100','bg-orange-100','bg-pink-100','bg-teal-100'];
                     const textColors = ['text-blue-600','text-green-700','text-purple-700','text-orange-700','text-pink-700','text-teal-700'];
                     catColorClass = bgColors[idx] + ' ' + textColors[idx];
                 }
                 const catBadge = catName ? `<span class="text-[9px] ${catColorClass} px-2 py-0.5 rounded ml-2">${catName}</span>` : '';
 
-                row.innerHTML = `<div class="route-name-cat">${imgEl}<div class="route-name">${ind.nome}</div>${catBadge}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-hover:translate-x-1 transition"></i>`;
+                row.innerHTML = `<div class="route-name-cat">${imgEl}${fallbackEl}<div class="route-name">${ind.nome}</div>${catBadge}</div><i class="fas fa-chevron-right text-slate-300 text-xs group-hover:translate-x-1 transition"></i>`;
                 container.appendChild(row);
             });
         }
 
-        /* Load categories from DB */
         async function loadCategories() {
             try {
                 const { data } = await sb.from('categorias').select('*').order('nome');
@@ -658,7 +598,6 @@
             } catch (e) { console.error(e); }
         }
 
-        /* Render options for categories select elements */
         function renderCategoryOptions() {
             const selects = [document.getElementById('catSelect'), document.getElementById('bulkCatSelect')];
             selects.forEach(select => {
@@ -674,7 +613,6 @@
             });
         }
 
-        /* Add new category */
         async function addNewCategory() {
             const name = document.getElementById('newCatName').value.trim();
             if (!name) return;
@@ -687,7 +625,7 @@
             } catch (e) { console.error(e); }
         }
 
-        /* Save industry with cover image upload */
+        // CORREÇÃO: Função saveIndustry otimizada
         async function saveIndustry() {
             const id = document.getElementById('editIndId').value;
             const name = document.getElementById('newIndName').value.trim();
@@ -695,21 +633,41 @@
             if (!name) return showToast("Nome obrigatório", "error");
 
             showToast("Salvando...", "loading");
+            let coverUrl = null;
 
             try {
                 const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                let coverUrl = null;
+
+                // Lógica de Upload da Capa
+                if (coverImageFile) {
+                    // Forçar extensão JPG e nome único
+                    const coverFileName = `${safeName}/cover_${Date.now()}.jpg`;
+                    const resizedCoverBlob = await resizeImage(coverImageFile);
+                    
+                    // Upload com Content-Type explícito
+                    const { error: uploadErr } = await sb.storage.from(BUCKET).upload(coverFileName, resizedCoverBlob, { 
+                        upsert: true, 
+                        contentType: 'image/jpeg' 
+                    });
+                    
+                    if (uploadErr) {
+                        console.error("Erro Supabase Upload:", uploadErr);
+                        throw new Error("Falha no upload da capa");
+                    }
+
+                    // Obter URL pública
+                    const { data: publicData } = sb.storage.from(BUCKET).getPublicUrl(coverFileName);
+                    if(publicData) coverUrl = publicData.publicUrl;
+                }
 
                 if (id) {
-                    // Edit existing industry
-
-                    // Fetch old industry to check if renaming folder is needed
+                    // Editar existente
                     const oldInd = allIndustries.find(i => i.id == id);
+                    
+                    // Renomear pasta se o nome mudar
                     if (oldInd && oldInd.nome !== name) {
                         const oldSafe = oldInd.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
                         const newSafe = safeName;
-
-                        // Move photos storage folders accordingly
                         const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${oldSafe}/%`);
                         if (files && files.length > 0) {
                             for (const f of files) {
@@ -718,67 +676,52 @@
                                 await sb.from('fotos').update({ nome_arquivo: newPath }).eq('id', f.id);
                             }
                         }
-                        // Also move cover image folder .keep if exists
-                        try {
-                            await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`);
-                        } catch {}
-                    }
-
-                    // Upload cover image if changed
-                    if (coverImageFile) {
-                        const coverFileName = `${safeName}/cover_${Date.now()}.jpg`;
-                        const resizedCoverBlob = await resizeImage(coverImageFile);
-                        const { error: uploadErr } = await sb.storage.from(BUCKET).upload(coverFileName, resizedCoverBlob, { upsert: true, contentType: 'image/jpeg' });
-                        if (uploadErr) throw uploadErr;
-                        const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(coverFileName);
-                        coverUrl = publicUrl;
+                        try { await sb.storage.from(BUCKET).move(`${oldSafe}/.keep`, `${newSafe}/.keep`); } catch {}
                     }
 
                     const updateData = { nome: name, categoria_id: catId };
-                    if (coverUrl !== null) updateData.cover_url = coverUrl;
+                    if (coverUrl) updateData.cover_url = coverUrl;
+                    
                     await sb.from('industrias').update(updateData).eq('id', id);
-                } else {
-                    // Add new industry
-
-                    // Create folder .keep file to simulate folder
-                    await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), { upsert: true });
-
-                    // Upload cover image if provided
-                    if (coverImageFile) {
-                        const coverFileName = `${safeName}/cover_${Date.now()}.jpg`;
-                        const resizedCoverBlob = await resizeImage(coverImageFile);
-                        const { error: uploadErr } = await sb.storage.from(BUCKET).upload(coverFileName, resizedCoverBlob, { upsert: true, contentType: 'image/jpeg' });
-                        if (uploadErr) throw uploadErr;
-                        const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(coverFileName);
-                        coverUrl = publicUrl;
+                    
+                    // Atualização local para evitar reload lento
+                    if(currentIndustry && currentIndustry.id == id) {
+                        currentIndustry.nome = name;
+                        currentIndustry.categoria_id = catId;
+                        if(coverUrl) currentIndustry.cover_url = coverUrl;
+                        document.getElementById('pageTitle').innerText = name;
                     }
 
+                } else {
+                    // Criar nova
+                    await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), { upsert: true });
+
                     const insertData = { nome: name, categoria_id: catId };
-                    if (coverUrl !== null) insertData.cover_url = coverUrl;
+                    if (coverUrl) insertData.cover_url = coverUrl;
+                    
                     await sb.from('industrias').insert(insertData);
                 }
 
                 showToast("Salvo!", "success");
                 coverImageFile = null;
                 closeAddModal();
-                await loadIndustries();
+                await loadIndustries(); // Recarrega para garantir que a imagem apareça
             } catch (e) {
                 console.error(e);
-                showToast("Erro ao salvar", "error");
+                showToast(e.message || "Erro ao salvar", "error");
             }
         }
 
-        /* Delete industry and related photos */
         async function deleteIndustry(id, e, indName) {
             if (e) e.stopPropagation();
-            if (!confirm(`Apagar indústria "${indName}" e todas as fotos?`)) return;
+            if (!confirm(`Apagar indústria e todas as fotos?`)) return;
             showToast("Apagando...", "loading");
             try {
                 await sb.from('industrias').delete().eq('id', id);
-                const ind = allIndustries.find(i => i.id == id);
+                const ind = allIndustries.find(i => i.id == id); 
+                
                 if (ind) {
                     const safeName = ind.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                    // Remove cover image files and .keep if any
                     const { data: files } = await sb.from('fotos').select('*').like('nome_arquivo', `${safeName}/%`).limit(1000);
                     if (files) {
                         const paths = files.map(f => f.nome_arquivo);
@@ -786,12 +729,10 @@
                     }
                     await sb.storage.from(BUCKET).remove([`${safeName}/.keep`]);
 
-                    // Remove cover image from storage
                     if (ind.cover_url) {
-                        // Extract path from URL's pathname after the base bucket URL
-                        const coverPath = ind.cover_url.split('/storage/v1/object/public/')[1];
-                        if (coverPath) {
-                            await sb.storage.from(BUCKET).remove([coverPath]);
+                        const parts = ind.cover_url.split('/storage/v1/object/public/' + BUCKET + '/');
+                        if (parts.length > 1) {
+                            await sb.storage.from(BUCKET).remove([parts[1]]);
                         }
                     }
                 }
@@ -803,14 +744,12 @@
             }
         }
 
-        /* Open industry view */
         function openIndustry(ind) {
             currentIndustry = ind;
             navigateTo('view-dates');
             loadDates(ind.nome);
         }
 
-        /* Load dates with photos */
         async function loadDates(indName) {
             navigateTo('view-dates');
             const list = document.getElementById('datesList');
@@ -843,14 +782,12 @@
             }
         }
 
-        /* Open gallery for date */
         function openGallery(dateLabel) {
             currentDateFolder = dateLabel;
             navigateTo('view-gallery');
             loadGalleryPhotos();
         }
 
-        /* Load gallery photos */
         function loadGalleryPhotos() {
             const container = document.getElementById('photosContainer');
             container.innerHTML = '';
@@ -869,7 +806,6 @@
             });
         }
 
-        /* Open all photos feed */
         async function openAllPhotos() {
             navigateTo('view-all');
             const container = document.getElementById('allPhotosContainer');
@@ -896,7 +832,6 @@
             }
         }
 
-        /* Toggle photo selection mode */
         function toggleSelectionMode() {
             isSelectionMode = !isSelectionMode;
             const btn = document.getElementById('selectBtn');
@@ -919,7 +854,6 @@
             else loadGalleryPhotos();
         }
 
-        /* Select all photos */
         function selectAllPhotos() {
             const photos = document.getElementById('view-gallery').classList.contains('active')
                 ? industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder)
@@ -930,7 +864,6 @@
             else loadGalleryPhotos();
         }
 
-        /* Handle photo click */
         function handlePhotoClick(file) {
             if (isSelectionMode) {
                 if (selectedPhotos.has(file.id)) selectedPhotos.delete(file.id);
@@ -943,7 +876,6 @@
             }
         }
 
-        /* Update photo selection UI count */
         function updateSelectionUI() {
             const count = selectedPhotos.size;
             ['selCount', 'selCountAll'].forEach(id => {
@@ -952,13 +884,11 @@
             });
         }
 
-        /* Delete selected photos */
         async function deleteSelected() {
             if (selectedPhotos.size === 0) return;
             if (!confirm(`Apagar ${selectedPhotos.size} fotos permanentemente?`)) return;
             showToast("Apagando...", "loading");
             try {
-                // Remove from storage (optional, but recommended)
                 const photosToDelete = industryPhotos.filter(p => selectedPhotos.has(p.id));
                 for (const photo of photosToDelete) {
                     try {
@@ -976,7 +906,6 @@
             }
         }
 
-        /* Delete single photo from modal */
         async function deleteSinglePhoto() {
             if (!currentModalPhoto || !confirm("Apagar esta foto?")) return;
             try {
@@ -996,7 +925,6 @@
             }
         }
 
-        /* Share selected photos */
         async function shareSelected() {
             if (selectedPhotos.size === 0) return;
             showToast(`Preparando ${selectedPhotos.size} fotos...`, "loading");
@@ -1021,13 +949,11 @@
             }
         }
 
-        /* Open route configuration modal */
         function openRouteConfig() {
             document.getElementById('routeConfigModal').classList.remove('hidden');
             selectRouteConfigDay(viewSelectedDay || 'Segunda');
         }
 
-        /* Select day in route config */
         function selectRouteConfigDay(day) {
             configSelectedDay = day;
             document.querySelectorAll('.day-cfg-btn').forEach(btn => {
@@ -1040,7 +966,6 @@
             renderChecklist();
         }
 
-        /* Render checklist of industries for route config */
         function renderChecklist() {
             const list = document.getElementById('routeChecklist');
             list.innerHTML = '';
@@ -1053,12 +978,12 @@
                 const checked = currentRoute.includes(ind.nome);
                 const item = document.createElement('label');
                 item.className = 'flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer';
-                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" ${checked ? 'checked' : ''} onchange="toggleRouteItem('${ind.nome}')"><span class="text-sm text-slate-600">${ind.nome}</span>`;
+                const safeName = ind.nome.replace(/'/g, "\\'");
+                item.innerHTML = `<input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded border-slate-300" ${checked ? 'checked' : ''} onchange="toggleRouteItem('${safeName}')"><span class="text-sm text-slate-600">${ind.nome}</span>`;
                 list.appendChild(item);
             });
         }
 
-        /* Toggle industry in routes for config */
         function toggleRouteItem(name) {
             if (!routes[configSelectedDay]) routes[configSelectedDay] = [];
             const idx = routes[configSelectedDay].indexOf(name);
@@ -1066,7 +991,6 @@
             else routes[configSelectedDay].push(name);
         }
 
-        /* Handle industry click in list */
         function handleIndustryClick(ind, e) {
             if (isSelectionMode) {
                 if (selectedIndustries.has(ind.id)) selectedIndustries.delete(ind.id);
@@ -1077,14 +1001,12 @@
             }
         }
 
-        /* Open bulk category modal */
         function openBulkCategoryModal() {
             if (selectedIndustries.size === 0) return;
             document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size;
             document.getElementById('bulkCatModal').classList.remove('hidden');
         }
 
-        /* Save bulk category */
         async function saveBulkCategory() {
             const catId = document.getElementById('bulkCatSelect').value || null;
             const ids = Array.from(selectedIndustries);
@@ -1101,7 +1023,6 @@
             }
         }
 
-        /* Delete selected industries */
         async function deleteSelectedIndustries() {
             if (selectedIndustries.size === 0) return;
             if (!confirm(`Apagar ${selectedIndustries.size} indústrias e todas as fotos?`)) return;
@@ -1117,45 +1038,66 @@
             }
         }
 
-        /* Open add industry modal */
         function openAddModal() {
             document.getElementById('modalTitle').innerText = "Nova Indústria";
             document.getElementById('newIndName').value = '';
             document.getElementById('editIndId').value = '';
             document.getElementById('catSelect').value = '';
-            document.getElementById('coverPreview').src = '';
+            
+            // RESET PREVIEW
+            const img = document.getElementById('coverPreview');
+            const ph = document.getElementById('coverPlaceholder');
+            img.src = '';
+            img.classList.add('hidden');
+            ph.classList.remove('hidden');
+            
             coverImageFile = null;
             document.getElementById('addModal').classList.remove('hidden');
         }
 
-        /* Open edit industry modal */
         function openEditIndustryModal() {
             if (!currentIndustry) return;
             document.getElementById('modalTitle').innerText = "Editar Indústria";
             document.getElementById('newIndName').value = currentIndustry.nome;
             document.getElementById('editIndId').value = currentIndustry.id;
             document.getElementById('catSelect').value = currentIndustry.categoria_id || '';
-            document.getElementById('coverPreview').src = currentIndustry.cover_url || '';
+            
+            // SETUP PREVIEW
+            const img = document.getElementById('coverPreview');
+            const ph = document.getElementById('coverPlaceholder');
+            if (currentIndustry.cover_url) {
+                img.src = currentIndustry.cover_url;
+                img.classList.remove('hidden');
+                ph.classList.add('hidden');
+            } else {
+                img.src = '';
+                img.classList.add('hidden');
+                ph.classList.remove('hidden');
+            }
+
             coverImageFile = null;
             document.getElementById('addModal').classList.remove('hidden');
         }
 
-        /* Close add/edit modal */
         function closeAddModal() {
             document.getElementById('addModal').classList.add('hidden');
             coverImageFile = null;
         }
 
-        /* Handle cover image change */
         function handleCoverChange(event) {
             const file = event.target.files[0];
             if (!file) return;
             coverImageFile = file;
-            const preview = document.getElementById('coverPreview');
-            preview.src = URL.createObjectURL(file);
+            
+            // INSTANT PREVIEW
+            const img = document.getElementById('coverPreview');
+            const ph = document.getElementById('coverPlaceholder');
+            
+            img.src = URL.createObjectURL(file);
+            img.classList.remove('hidden');
+            ph.classList.add('hidden');
         }
 
-        /* Open photo modal */
         function openPhotoModal(url, id) {
             currentModalPhoto = id;
             document.getElementById('previewImg').src = url;
@@ -1164,14 +1106,12 @@
             setTimeout(() => modal.classList.remove('opacity-0'), 10);
         }
 
-        /* Close photo modal */
         function closePhotoModal() {
             const modal = document.getElementById('photoModal');
             modal.classList.add('opacity-0');
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        /* Show toast notifications */
         function showToast(msg, type = "loading") {
             const toast = document.getElementById('statusToast');
             const icon = document.getElementById('toastIcon');
@@ -1188,14 +1128,18 @@
             }
         }
 
-        /* Initialize app on window load */
         window.onload = async () => {
             viewHistory = [];
             try {
                 await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
                 const hash = window.location.hash.substring(1);
+                
                 if (hash && document.getElementById(hash)) {
-                    navigateTo(hash, false);
+                    if (hash === 'view-dates' && !currentIndustry) {
+                        navigateTo('view-home', false);
+                    } else {
+                        navigateTo(hash, false);
+                    }
                 } else {
                     const today = weekDays[new Date().getDay()];
                     viewSelectedDay = today;
@@ -1207,7 +1151,6 @@
             }
         };
 
-        /* PWA install prompt handling */
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             document.getElementById('installBtn').classList.remove('hidden');
