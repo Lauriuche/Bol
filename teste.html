@@ -32,6 +32,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         /* === VARIÁVEIS & RESET === */
@@ -66,7 +67,7 @@
         .ind-card.selected-item { border: 2.3px solid var(--primary); background-color: rgba(59, 130, 246, 0.05); } 
 
         .ind-card .cover-wrapper { width: 100%; flex: 1; border-radius: 8px; overflow: hidden; background: var(--bg-body); position: relative; margin-bottom: 4px; }
-        .ind-card img { width: 100%; height: 100%; object-fit: cover; }
+        .ind-card img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
 
         .input-modern { width: 100%; background: var(--bg-body); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: var(--text-main); }
         .btn-primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 12px; font-weight: 700; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: transform 0.1s; border: none; }
@@ -76,6 +77,7 @@
         .day-tab.active { background: var(--bg-card); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); }
         
         .route-item { display: flex; align-items: center; padding: 14px; border-bottom: 1px solid var(--border); transition: background 0.15s; cursor: pointer; }
+        .route-item:active { background: var(--bg-body); }
 
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
         .cal-day { aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--text-muted); transition: all 0.2s; border: 1px solid transparent; cursor: pointer; }
@@ -85,7 +87,7 @@
         .view-section { display: none; }
         .view-section.active { display: block; animation: fade-in 0.2s forwards; }
         
-        /* === ESTILO DE SELEÇÃO DE FOTO CORRIGIDO === */
+        /* === ESTILO DE SELEÇÃO DE FOTO MELHORADO === */
         .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .photo-thumb { 
             aspect-ratio: 1; overflow: hidden; border-radius: 12px; 
@@ -94,12 +96,18 @@
         }
         .photo-thumb img { width: 100%; height: 100%; object-fit: cover; transition: all 0.3s; }
         
-        .photo-thumb.selected { border-color: #3b82f6; transform: scale(0.95); box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
-        .photo-thumb.selected img { opacity: 0.4; filter: grayscale(30%); }
+        .photo-thumb.selected { 
+            border-color: #3b82f6; 
+            transform: scale(0.92); 
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); 
+            background-color: #3b82f6;
+        }
+        .photo-thumb.selected img { opacity: 0.35; filter: grayscale(50%); }
         .photo-thumb.selected::after {
             content: "\f058"; font-family: "Font Awesome 6 Free"; font-weight: 900;
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: #3b82f6; font-size: 24px; z-index: 10;
+            color: white; font-size: 28px; z-index: 20;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .fixed-bar-anim { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -108,19 +116,32 @@
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
             height: calc(65px + var(--safe-bottom));
-            background: var(--bg-glass); backdrop-filter: blur(20px); border-top: 1px solid var(--border);
-            z-index: 50; display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: var(--safe-bottom);
+            background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border); z-index: 50;
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: var(--safe-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; color: var(--text-muted); font-size: 10px; font-weight: 700; transition: all 0.2s; cursor: pointer; }
+        .nav-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; height: 100%; color: var(--text-muted); font-size: 10px; font-weight: 700;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .nav-btn i { font-size: 20px; margin-bottom: 5px; }
         .nav-btn.active { color: var(--primary); }
         
         .loader { border: 2px solid rgba(0,0,0,0.1); border-top: 2px solid #3b82f6; border-radius: 50%; width: 16px; height: 16px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        .time-input { background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 4px; font-size: 12px; width: 75px; text-align: center; font-weight: bold; }
+        
+        /* Dark Mode Forçado */
+        html.dark body { background-color: #0f172a; color: #f8fafc; }
         html.dark .card-modern { background: #1e293b; border-color: #334155; }
-        html.dark .input-modern, html.dark textarea { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+        html.dark .input-modern, html.dark .time-input, html.dark textarea { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+        html.dark header.glass, html.dark nav.bottom-nav { background: rgba(15, 23, 42, 0.9); border-color: #334155; }
+        html.dark .day-tab.active { background: #334155; color: #3b82f6; border-color: #3b82f6; }
     </style>
 </head>
 <body class="antialiased">
@@ -130,12 +151,12 @@
         <div class="flex items-center gap-3 w-3/4">
             <button id="backBtn" onclick="AppCore.goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center active:scale-90 shadow-sm flex-shrink-0 transition-colors"><i class="fas fa-chevron-left text-sm"></i></button>
             <div class="overflow-hidden">
-                <h1 id="pageTitle" class="font-bold text-base truncate leading-tight transition-colors">Industrial Pro</h1>
+                <h1 id="pageTitle" class="font-bold text-base truncate leading-tight transition-colors">Cronograma</h1>
                 <p id="pageSubtitle" class="text-[10px] font-medium text-slate-500 uppercase truncate tracking-wider">Visão Geral</p>
             </div>
         </div>
         <div class="flex gap-2 flex-shrink-0">
-            <button onclick="AppUtils.toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm"><i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline text-yellow-400"></i></button>
+            <button onclick="AppUtils.toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-yellow-400 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm"><i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline"></i></button>
             <button id="configRouteBtn" onclick="AppUI.modals.openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm"><i class="fas fa-sliders-h"></i></button>
             <button id="selectBtn" onclick="AppCore.toggleSelectionMode()" class="hidden px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase border border-slate-200 dark:border-slate-700 transition">Select</button>
             <button id="editIndBtn" onclick="AppUI.modals.openEditIndustry()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 shadow-sm"><i class="fas fa-pen text-xs"></i></button>
@@ -173,7 +194,7 @@
             <div class="card-modern min-h-[300px] flex flex-col justify-start overflow-hidden" id="routeListContent"></div>
 
             <button onclick="AppCore.openAllPhotos()" class="mt-6 w-full py-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 font-bold text-xs uppercase shadow-sm active:scale-95 transition flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700">
-                <i class="fas fa-layer-group text-lg"></i> Galeria Global
+                <i class="fas fa-layer-group text-lg"></i> Galeria Global de Fotos
             </button>
         </div>
 
@@ -181,8 +202,8 @@
         <div id="view-reports" class="view-section">
             <div class="text-center py-6 mb-4">
                 <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fas fa-paper-plane"></i></div>
-                <h2 class="text-lg font-bold">Partilha de Registos</h2>
-                <p class="text-xs text-slate-500 mt-1">Seleccione o período para enviar as fotos via WhatsApp.</p>
+                <h2 class="text-lg font-bold">Partilha Industrial</h2>
+                <p class="text-xs text-slate-500 mt-1">Seleccione o período para enviar as fotografias.</p>
             </div>
 
             <div class="card-modern p-4 mb-6 space-y-4">
@@ -197,8 +218,8 @@
                     </div>
                 </div>
                 <div>
-                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Texto da Mensagem (Opcional)</label>
-                    <textarea id="shareCustomTextReports" rows="3" class="input-modern !py-2 !text-xs w-full resize-none dark:bg-slate-800" placeholder="Ex: Olá! Seguem as fotos das visitas realizadas entre os dias seleccionados."></textarea>
+                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Texto da Mensagem (WhatsApp)</label>
+                    <textarea id="shareCustomTextReports" rows="3" class="input-modern !py-2 !text-xs w-full resize-none dark:bg-slate-800" placeholder="Olá! Seguem os registos das visitas industriais realizados no período seleccionado."></textarea>
                 </div>
             </div>
 
@@ -244,12 +265,12 @@
             <div id="photosContainer" class="photo-grid mb-6"></div>
             
             <div class="card-modern p-4 mb-4">
-                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Mensagem de Acompanhamento</label>
-                <textarea id="galleryShareText" rows="2" class="input-modern !py-2 !text-xs w-full resize-none dark:bg-slate-800" placeholder="Escreva a mensagem para o WhatsApp..."></textarea>
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Texto da Mensagem</label>
+                <textarea id="galleryShareText" rows="2" class="input-modern !py-2 !text-xs w-full resize-none dark:bg-slate-800" placeholder="Escreva o texto que acompanhará as fotos no WhatsApp..."></textarea>
             </div>
             
             <button onclick="AppCore.shareJpgFiles(false)" class="btn-primary w-full py-4 flex items-center justify-center gap-3 text-xs tracking-wider shadow-blue-500/30 mb-20">
-                <i class="fab fa-whatsapp text-lg"></i> PARTILHAR SELECCIONADAS (.JPG)
+                <i class="fab fa-whatsapp text-lg"></i> ENVIAR FOTOS (.JPG)
             </button>
         </div>
 
@@ -266,7 +287,7 @@
             <i class="fas fa-calendar-day text-lg"></i><span>Hoje</span>
         </div>
         <div id="nav-reports" class="nav-btn" onclick="AppCore.switchMainTab('reports')">
-            <i class="fas fa-share-alt text-lg"></i><span>Partilhar</span>
+            <i class="fas fa-paper-plane text-lg"></i><span>Partilhar</span>
         </div>
         <div id="nav-routes" class="nav-btn" onclick="AppCore.switchMainTab('routes')">
             <i class="fas fa-industry text-lg"></i><span>Locais</span>
@@ -277,15 +298,15 @@
     <div id="selectionControls" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-[0_-10px_25px_rgba(0,0,0,0.15)]">
         <button onclick="AppCore.selectAllPhotos()" class="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-xs dark:text-white">Todas</button>
         <button onclick="AppCore.deleteSelected()" class="w-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
-        <button onclick="AppCore.shareJpgFiles(false)" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg">Partilhar JPG (<span id="selCount">0</span>)</button>
+        <button onclick="AppCore.shareJpgFiles(false)" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg">Partilhar (<span id="selCount">0</span>)</button>
     </div>
 
     <!-- Modais -->
     <div id="lateAlertsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4">
         <div class="bg-white dark:bg-slate-900 w-full sm:max-w-sm sm:rounded-2xl rounded-t-3xl p-6 shadow-2xl h-[60vh] flex flex-col animate-slide-up">
             <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6 sm:hidden"></div>
-            <h3 class="font-bold text-lg mb-4 text-red-600">Locais em Atraso (+7 dias)</h3>
-            <div id="lateIndustriesList" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll"></div>
+            <h3 class="font-bold text-lg mb-4 text-red-600 px-2">Locais em Atraso (+7 dias)</h3>
+            <div id="lateIndustriesList" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll px-2"></div>
             <button onclick="AppUI.modals.closeLateAlerts()" class="w-full mt-4 py-4 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold uppercase tracking-wider">Fechar</button>
         </div>
     </div>
@@ -300,6 +321,23 @@
             <div class="flex gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button onclick="AppUI.modals.closeRouteConfig()" class="flex-1 py-3.5 text-slate-400 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition">Fechar</button>
                 <button onclick="AppCore.saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/30 active:scale-95 transition">SALVAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4">
+        <div class="bg-white dark:bg-slate-900 w-full sm:max-w-sm sm:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
+            <h3 id="modalTitle" class="text-lg font-bold mb-6 text-slate-800 dark:text-white">Novo Registo</h3>
+            <input type="hidden" id="editIndId">
+            <div class="space-y-4 mb-6">
+                <input type="text" id="newIndName" placeholder="Nome do Local" class="input-modern dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="newIndHours" placeholder="Horas/Sem" class="input-modern text-center font-bold dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="AppUI.modals.closeAdd()" class="flex-1 py-3.5 text-slate-400 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition">Cancelar</button>
+                <button onclick="AppCore.saveIndustry()" class="flex-1 btn-primary py-3.5 text-xs shadow-lg shadow-blue-500/30">GUARDAR</button>
             </div>
         </div>
     </div>
@@ -331,14 +369,13 @@
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const BUCKET = 'galeria';
         const WEEK_DAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-        const CATEGORY_COLORS = ['bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-purple-100 text-purple-600', 'bg-orange-100 text-orange-600', 'bg-pink-100 text-pink-600', 'bg-teal-100 text-teal-600'];
 
         const AppState = {
-            currentIndustry: null, currentDateFolder: null, industryPhotos: [], allIndustries: [], categories: [], lateIndustries: [],
+            currentIndustry: null, currentDateFolder: null, industryPhotos: [], allIndustries: [], lateIndustries: [],
             routes: { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] },
             isSelectionMode: false, selectedPhotos: new Set(), selectedIndustries: new Set(),
             currentModalPhoto: null, coverImageFile: null, calendarCursor: new Date(), availableDates: new Set(),
-            configSelectedDay: null, viewSelectedDay: null, viewHistory: [], userId: 'anonymous'
+            configSelectedDay: null, viewSelectedDay: null, viewHistory: []
         };
 
         const AppUtils = {
@@ -397,7 +434,7 @@
                 if(document.getElementById('reportEndDate')) document.getElementById('reportEndDate').value = todayIso;
 
                 try {
-                    await Promise.all([AppCore.loadIndustries(), AppCore.fetchRoutes(), AppCore.loadCategories()]);
+                    await Promise.all([AppCore.loadIndustries(), AppCore.fetchRoutes()]);
                     const today = WEEK_DAYS[now.getDay()];
                     AppState.viewSelectedDay = today;
                     AppUI.renderRouteList(today);
@@ -406,7 +443,7 @@
                 } catch (e) { console.error(e); }
             },
             loadIndustries: async () => {
-                const { data } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
+                const { data } = await sb.from('industrias').select('*').order('nome');
                 AppState.allIndustries = data || [];
                 AppUI.renderIndustries(AppState.allIndustries);
             },
@@ -414,14 +451,9 @@
                 const { data } = await sb.from('rotas').select('*');
                 if (data) data.forEach(r => AppState.routes[r.dia] = r.industrias || []);
             },
-            loadCategories: async () => {
-                const { data } = await sb.from('categorias').select('*').order('nome');
-                AppState.categories = data || [];
-                AppUI.renderCategoryOptions();
-            },
             uploadPhoto: async (input) => {
                 const f = input.files[0]; if (!f || !AppState.currentIndustry) return;
-                AppUtils.showToast("A processar imagem...");
+                AppUtils.showToast("A processar...");
                 const gps = await AppUtils.getGPS();
                 try {
                     const safeName = AppUtils.sanitize(AppState.currentIndustry.nome);
@@ -459,8 +491,7 @@
                 const alertEl = document.getElementById('visitAlerts');
                 if(AppState.lateIndustries.length > 0) {
                     if(alertEl) alertEl.classList.remove('hidden');
-                    const msgEl = document.getElementById('visitAlertMsg');
-                    if(msgEl) msgEl.innerText = `${AppState.lateIndustries.length} locais sem visitas recentes.`;
+                    document.getElementById('visitAlertMsg').innerText = `${AppState.lateIndustries.length} locais sem visitas recentes.`;
                 } else if(alertEl) alertEl.classList.add('hidden');
             },
             shareJpgFiles: async (isReportsTab) => {
@@ -468,7 +499,7 @@
                 const start = isReportsTab ? document.getElementById('reportStartDate').value : null;
                 const end = isReportsTab ? document.getElementById('reportEndDate').value : null;
 
-                AppUtils.showToast("A preparar fotos...", "loading");
+                AppUtils.showToast("A preparar ficheiros...", "loading");
                 
                 try {
                     let photosToShare = [];
@@ -489,22 +520,27 @@
                     const fileObjects = [];
                     for(const p of photosToShare) {
                         try {
-                            const blob = await fetch(p.url_publica).then(r => r.blob());
-                            fileObjects.push(new File([blob], `Registo_${p.id.substring(0,4)}.jpg`, { type: 'image/jpeg' }));
-                        } catch(e) { console.warn("Falha ao carregar imagem para partilha", e); }
+                            const res = await fetch(p.url_publica);
+                            const blob = await res.blob();
+                            fileObjects.push(new File([blob], `Visita_${p.id.substring(0,4)}.jpg`, { type: 'image/jpeg' }));
+                        } catch(e) { console.warn("Erro a carregar imagem", e); }
                     }
 
+                    // Tenta Partilha Nativa (WhatsApp e outros)
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: fileObjects })) {
                         await navigator.share({
                             files: fileObjects,
                             title: 'Registos Industriais',
-                            text: customMsg || "Seguem as fotografias dos registos industriais."
+                            text: customMsg || "Seguem os registos das visitas industriais."
                         });
-                        AppUtils.showToast("Partilha concluída!", "success");
+                        AppUtils.showToast("Partilha iniciada!", "success");
                     } else {
-                        AppUtils.showToast("A partilha nativa não é suportada neste navegador.", "error");
+                        // Fallback: Abre WhatsApp com o texto
+                        const waUrl = `https://wa.me/?text=${encodeURIComponent(customMsg || "Seguem as fotos da visita.")}`;
+                        window.open(waUrl, '_blank');
+                        AppUtils.showToast("Partilha nativa indisponível. Abrindo conversa...", "error");
                     }
-                } catch(e) { console.error(e); AppUtils.showToast("Erro na partilha.", "error"); }
+                } catch(e) { console.error(e); AppUtils.showToast("Erro na partilha", "error"); }
             },
             saveIndustry: async () => {
                 const id = document.getElementById('editIndId').value;
@@ -608,6 +644,7 @@
                 const show = (eid) => document.getElementById(els[eid])?.classList.remove('hidden');
                 const hide = (eid) => document.getElementById(els[eid])?.classList.add('hidden');
                 hide('back'); hide('config'); hide('sel'); hide('edit');
+                ['selectionControls'].forEach(dock => document.getElementById(dock)?.classList.add('hidden-bar'));
                 if (id === 'view-home') show('config');
                 else if (id === 'view-routes') show('sel');
                 else if (id === 'view-dates') { show('back'); show('edit'); }
@@ -734,7 +771,8 @@
             modals: {
                 openLateAlerts: () => {
                     document.getElementById('lateAlertsModal').classList.remove('hidden');
-                    const c = document.getElementById('lateIndustriesList'); c.innerHTML = '';
+                    const c = document.getElementById('lateIndustriesList'); if(!c) return;
+                    c.innerHTML = '';
                     AppState.lateIndustries.forEach(ind => {
                         const d = document.createElement('div'); d.className = 'flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border dark:border-slate-700 cursor-pointer active:bg-slate-100';
                         d.onclick = () => { AppState.currentIndustry = ind; AppState.calendarCursor = new Date(); AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); AppUI.modals.closeLateAlerts(); };
@@ -746,7 +784,8 @@
                 openRouteConfig: () => { 
                     if(!AppState.configSelectedDay) AppState.configSelectedDay = WEEK_DAYS[new Date().getDay()];
                     document.getElementById('routeConfigModal').classList.remove('hidden');
-                    const c = document.getElementById('routeConfigDays'); c.innerHTML = '';
+                    const c = document.getElementById('routeConfigDays'); if(!c) return;
+                    c.innerHTML = '';
                     WEEK_DAYS.forEach(d => {
                         const b = document.createElement('button'); b.innerText = d.substring(0,1);
                         b.className = `p-2.5 rounded-lg text-[10px] font-black transition ${d === AppState.configSelectedDay ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'}`;
