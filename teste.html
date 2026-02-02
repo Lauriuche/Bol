@@ -24,11 +24,7 @@
                         dark: { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', border: '#334155', muted: '#94a3b8' },
                         primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb' }
                     },
-                    animation: { 'fade-in': 'fadeIn 0.2s ease-out', 'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' },
-                    keyframes: {
-                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        slideUp: { '0%': { transform: 'translateY(100%)' }, '100%': { transform: 'translateY(0)' } }
-                    }
+                    animation: { 'fade-in': 'fadeIn 0.2s ease-out', 'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }
                 } 
             }
         }
@@ -43,8 +39,7 @@
         :root {
             --bg-body: #f8fafc; --bg-card: #ffffff; --bg-glass: rgba(255, 255, 255, 0.95);
             --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0;
-            --primary: #3b82f6; --danger: #ef4444;
-            --safe-bottom: env(safe-area-inset-bottom);
+            --primary: #3b82f6; --safe-bottom: env(safe-area-inset-bottom);
         }
         html.dark :root {
             --bg-body: #0f172a; --bg-card: #1e293b; --bg-glass: rgba(15, 23, 42, 0.95);
@@ -59,11 +54,9 @@
             overflow-x: hidden;
         }
 
-        /* === COMPONENTES DE UI === */
         .glass { background: var(--bg-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
         .card-modern { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         
-        /* Indústria Card 1:1 Grelha de 3 */
         .ind-card {
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
             padding: 6px; aspect-ratio: 1/1; display: flex; flex-direction: column; 
@@ -90,23 +83,17 @@
         .cal-day { aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--text-muted); transition: all 0.2s; border: 1px solid transparent; cursor: pointer; }
         .cal-day.active { background: rgba(59, 130, 246, 0.15); color: var(--primary); border-color: var(--primary); }
         .cal-day.today { border-color: var(--primary); color: var(--primary); font-weight: 800; }
-        .cal-day .dot { width: 4px; height: 4px; background: currentColor; border-radius: 50%; margin-top: 4px; }
 
         .view-section { display: none; }
         .view-section.active { display: block; animation: fade-in 0.2s forwards; }
         
         .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
         .photo-thumb { aspect-ratio: 1; overflow: hidden; border-radius: 8px; background: var(--border); position: relative; cursor: pointer; }
-        .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
         .photo-thumb.selected { box-shadow: inset 0 0 0 3px var(--primary); }
-        .photo-thumb.selected img { opacity: 0.6; }
 
         .fixed-bar-anim { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .hidden-bar { transform: translateY(150%); }
 
-        .cat-badge { font-size: 8px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.5px; }
-
-        /* === DOCK DE NAVEGAÇÃO === */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
             height: calc(65px + var(--safe-bottom));
@@ -129,6 +116,13 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .time-input { background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 4px; font-size: 12px; width: 75px; text-align: center; font-weight: bold; }
+        
+        /* Dark Mode Forçado */
+        html.dark body { background-color: #0f172a; color: #f8fafc; }
+        html.dark .card-modern { background: #1e293b; border-color: #334155; }
+        html.dark .input-modern, html.dark .time-input { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+        html.dark header.glass, html.dark nav.bottom-nav { background: rgba(15, 23, 42, 0.9); border-color: #334155; }
+        html.dark .day-tab.active { background: #334155; color: #3b82f6; border-color: #3b82f6; }
     </style>
 </head>
 <body class="antialiased">
@@ -136,29 +130,29 @@
     <!-- Header -->
     <header class="fixed top-0 w-full h-16 glass z-50 flex items-center justify-between px-4 shadow-sm transition-colors duration-300">
         <div class="flex items-center gap-3 w-3/4">
-            <button id="backBtn" onclick="AppCore.goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center active:scale-90 shadow-sm flex-shrink-0"><i class="fas fa-chevron-left text-sm"></i></button>
+            <button id="backBtn" onclick="AppCore.goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center active:scale-90 shadow-sm flex-shrink-0 transition-colors"><i class="fas fa-chevron-left text-sm"></i></button>
             <div class="overflow-hidden">
-                <h1 id="pageTitle" class="font-bold text-base truncate leading-tight">Cronograma</h1>
-                <p id="pageSubtitle" class="text-[10px] font-medium text-slate-500 uppercase truncate">Visão Geral</p>
+                <h1 id="pageTitle" class="font-bold text-base truncate leading-tight transition-colors">Cronograma</h1>
+                <p id="pageSubtitle" class="text-[10px] font-medium text-slate-500 uppercase truncate tracking-wider">Visão Geral</p>
             </div>
         </div>
         <div class="flex gap-2 flex-shrink-0">
-            <button onclick="AppUtils.toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm"><i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline"></i></button>
-            <button id="configRouteBtn" onclick="AppUI.modals.openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition"><i class="fas fa-sliders-h"></i></button>
-            <button id="selectBtn" onclick="AppCore.toggleSelectionMode()" class="hidden px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase border border-slate-200 dark:border-slate-700">Select</button>
-            <button id="editIndBtn" onclick="AppUI.modals.openEditIndustry()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90"><i class="fas fa-pen text-xs"></i></button>
+            <button onclick="AppUtils.toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-yellow-400 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm"><i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline"></i></button>
+            <button id="configRouteBtn" onclick="AppUI.modals.openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm"><i class="fas fa-sliders-h"></i></button>
+            <button id="selectBtn" onclick="AppCore.toggleSelectionMode()" class="hidden px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase border border-slate-200 dark:border-slate-700 transition">Select</button>
+            <button id="editIndBtn" onclick="AppUI.modals.openEditIndustry()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 shadow-sm"><i class="fas fa-pen text-xs"></i></button>
         </div>
     </header>
 
     <div class="h-16"></div>
 
-    <!-- ÁREA PRINCIPAL -->
+    <!-- MAIN VIEWS -->
     <main class="max-w-md mx-auto px-4 pb-24 pt-4">
 
         <!-- VIEW 1: HOME -->
         <div id="view-home" class="view-section active">
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="card-modern p-4 bg-gradient-to-br from-blue-500/5 to-transparent border-blue-100">
+                <div class="card-modern p-4 bg-gradient-to-br from-blue-500/5 to-transparent border-blue-100 dark:border-blue-900/30">
                     <div class="text-2xl font-black text-blue-600" id="dashTotalInd">0</div>
                     <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Locais</div>
                 </div>
@@ -169,23 +163,26 @@
             </div>
 
             <!-- Alertas de Visita -->
-            <div id="visitAlerts" class="hidden mb-6 p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 animate-fade-in">
-                <i class="fas fa-bell text-red-500 text-lg"></i>
+            <div id="visitAlerts" onclick="AppUI.modals.openLateAlerts()" class="hidden mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 active:scale-95 transition-transform cursor-pointer">
+                <div class="w-10 h-10 bg-red-100 dark:bg-red-800/40 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center">
+                    <i class="fas fa-bell"></i>
+                </div>
                 <div class="flex-1">
-                    <p class="text-[11px] font-bold text-red-800 dark:text-red-400 uppercase">Atenção ao Cronograma</p>
+                    <p class="text-[11px] font-bold text-red-800 dark:text-red-400 uppercase">Atraso detetado</p>
                     <p class="text-[10px] text-red-600 dark:text-red-500/80" id="visitAlertMsg">Existem locais sem visitas recentes.</p>
                 </div>
+                <i class="fas fa-chevron-right text-red-300 text-xs"></i>
             </div>
 
             <div class="grid grid-cols-7 gap-1 mb-3" id="routeTabsContainer"></div>
-            <div class="card-modern min-h-[300px] flex flex-col justify-start" id="routeListContent">
-                <div class="p-4 space-y-4">
-                    <div class="skeleton w-full h-12"></div>
-                    <div class="skeleton w-full h-12"></div>
+            <div class="card-modern min-h-[300px] flex flex-col justify-start overflow-hidden" id="routeListContent">
+                <div class="p-4 space-y-4 text-center text-slate-400 py-10">
+                    <div class="loader mx-auto mb-2"></div>
+                    <p class="text-xs">A carregar rota...</p>
                 </div>
             </div>
 
-            <button onclick="AppCore.openAllPhotos()" class="mt-6 w-full py-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 font-bold text-xs uppercase shadow-sm active:scale-95 transition flex items-center justify-center gap-2 hover:bg-slate-50">
+            <button onclick="AppCore.openAllPhotos()" class="mt-6 w-full py-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 font-bold text-xs uppercase shadow-sm active:scale-95 transition flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700">
                 <i class="fas fa-layer-group text-lg"></i> Galeria Global de Fotos
             </button>
         </div>
@@ -210,14 +207,14 @@
             </button>
         </div>
 
-        <!-- VIEW 3: LOCAIS (CRUD) -->
+        <!-- VIEW 3: LOCAIS -->
         <div id="view-routes" class="view-section">
-            <div class="sticky top-16 z-30 bg-body/95 backdrop-blur-md py-2 space-y-2">
+            <div class="sticky top-16 z-30 bg-body/95 dark:bg-dark-bg/95 backdrop-blur-md py-2 space-y-2 transition-colors">
                 <div class="relative">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" id="searchInput" onkeyup="AppCore.filterIndustries()" placeholder="Pesquisar local..." class="input-modern pl-10">
+                    <input type="text" id="searchInput" onkeyup="AppCore.filterIndustries()" placeholder="Pesquisar local..." class="input-modern pl-10 dark:bg-slate-800 dark:border-slate-700">
                 </div>
-                <select id="catSelectFilter" onchange="AppCore.filterIndustries()" class="input-modern appearance-none py-3 text-xs font-medium cursor-pointer">
+                <select id="catSelectFilter" onchange="AppCore.filterIndustries()" class="input-modern appearance-none py-3 text-xs font-medium cursor-pointer dark:bg-slate-800 dark:border-slate-700">
                     <option value="">Todas as Categorias</option>
                 </select>
             </div>
@@ -229,7 +226,7 @@
 
             <div id="industriesList" class="grid grid-cols-3 gap-2 pb-20"></div>
 
-            <button onclick="AppUI.modals.openAddIndustry()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl active:scale-90 z-40 transition">
+            <button onclick="AppUI.modals.openAddIndustry()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl active:scale-90 z-40 transition shadow-blue-500/30">
                 <i class="fas fa-plus"></i>
             </button>
         </div>
@@ -237,9 +234,9 @@
         <!-- VIEW 4: DATAS -->
         <div id="view-dates" class="view-section">
             <div class="flex items-center justify-between mb-6 px-1">
-                <button onclick="AppCore.changeCalendarMonth(-1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent"><i class="fas fa-chevron-left"></i></button>
+                <button onclick="AppCore.changeCalendarMonth(-1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent dark:text-white"><i class="fas fa-chevron-left"></i></button>
                 <span id="calendarTitle" class="text-lg font-bold capitalize">Mês</span>
-                <button onclick="AppCore.changeCalendarMonth(1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent"><i class="fas fa-chevron-right"></i></button>
+                <button onclick="AppCore.changeCalendarMonth(1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent dark:text-white"><i class="fas fa-chevron-right"></i></button>
             </div>
 
             <div class="card-modern p-4 mb-6" id="calendarGrid"></div>
@@ -249,7 +246,7 @@
                     <i class="fas fa-camera text-2xl"></i><span class="text-[10px] font-bold">CÂMARA</span>
                     <input type="file" accept="image/*" capture="environment" class="hidden" onchange="AppCore.uploadPhoto(this)">
                 </label>
-                <label class="btn-primary py-4 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-800 dark:bg-slate-700">
+                <label class="btn-primary py-4 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-800 dark:bg-slate-700 shadow-slate-500/20">
                     <i class="fas fa-images text-2xl"></i><span class="text-[10px] font-bold">GALERIA</span>
                     <input type="file" accept="image/*" class="hidden" onchange="AppCore.uploadPhoto(this)">
                 </label>
@@ -258,7 +255,7 @@
 
         <!-- VIEW 5: GALERIA -->
         <div id="view-gallery" class="view-section">
-            <button onclick="AppCore.generatePDF()" class="w-full mb-4 py-3.5 rounded-xl bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg">
+            <button onclick="AppCore.generatePDF()" class="w-full mb-4 py-3.5 rounded-xl bg-slate-800 dark:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg active:scale-95 transition">
                 <i class="fas fa-file-pdf text-red-400 text-lg"></i> Gerar Relatório PDF
             </button>
             <div id="photosContainer" class="photo-grid pb-24"></div>
@@ -266,59 +263,62 @@
 
         <!-- VIEW 6: TODAS AS FOTOS -->
         <div id="view-all" class="view-section">
-            <div id="allPhotosContainer" class="photo-grid pb-24"></div>
+            <!-- Feed Global separado por datas -->
+            <div id="allPhotosContainer" class="pb-24 space-y-6"></div>
         </div>
 
     </main>
 
-    <!-- Barra de Ações (Docks) -->
-    <div id="selectionControls" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-[0_-10px_25px_rgba(0,0,0,0.1)]">
-        <button onclick="AppCore.selectAllPhotos()" class="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-xs">Todas</button>
-        <button onclick="AppCore.deleteSelected()" class="w-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
-        <button onclick="AppUtils.showToast('Partilha em breve', 'loading')" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg">Partilhar (<span id="selCount">0</span>)</button>
-    </div>
-    
-    <div id="selectionControlsAll" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-lg">
-        <button onclick="AppCore.selectAllPhotos()" class="px-6 py-3 rounded-xl bg-slate-100 font-bold text-xs">Todas</button>
-        <button onclick="AppCore.deleteSelected()" class="w-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
-        <button onclick="AppCore.shareReport()" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg">Partilhar (<span id="selCountAll">0</span>)</button>
-    </div>
-
-    <div id="industryActions" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3">
-        <button onclick="AppCore.deleteSelectedIndustries()" class="w-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
-        <button onclick="AppUI.modals.openBulkCategory()" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg shadow-blue-500/30">Mudar Categoria</button>
-    </div>
-
-    <!-- Navegação Inferior (Dock) -->
+    <!-- Barra de Ações (Dock) -->
     <nav id="mainNavBar" class="bottom-nav">
         <div id="nav-general" class="nav-btn active" onclick="AppCore.switchMainTab('general')">
-            <i class="fas fa-calendar-day"></i><span>Hoje</span>
+            <i class="fas fa-calendar-day text-lg"></i><span>Hoje</span>
         </div>
         <div id="nav-reports" class="nav-btn" onclick="AppCore.switchMainTab('reports')">
-            <i class="fas fa-file-invoice"></i><span>Relatório</span>
+            <i class="fas fa-file-invoice text-lg"></i><span>Relatório</span>
         </div>
         <div id="nav-routes" class="nav-btn" onclick="AppCore.switchMainTab('routes')">
-            <i class="fas fa-map-marked-alt"></i><span>Locais</span>
+            <i class="fas fa-map-marked-alt text-lg"></i><span>Locais</span>
         </div>
     </nav>
 
+    <!-- Barra de Seleção Flutuante -->
+    <div id="selectionControls" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-lg">
+        <button onclick="AppCore.selectAllPhotos()" class="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-xs dark:text-white">Todas</button>
+        <button onclick="AppCore.deleteSelected()" class="w-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
+        <button onclick="AppCore.shareReport()" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg shadow-blue-500/30">Partilhar (<span id="selCount">0</span>)</button>
+    </div>
+
     <!-- Modais -->
+    
+    <!-- NOVO MODAL: Locais em Atraso -->
+    <div id="lateAlertsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4">
+        <div class="bg-white dark:bg-slate-900 w-full sm:max-w-sm sm:rounded-2xl rounded-t-3xl p-6 shadow-2xl h-[60vh] flex flex-col animate-slide-up">
+            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6 sm:hidden"></div>
+            <h3 class="font-bold text-lg mb-4 text-red-600">Locais em Atraso (+7 dias)</h3>
+            <div id="lateIndustriesList" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll">
+                <!-- Lista gerada por JS -->
+            </div>
+            <button onclick="AppUI.modals.closeLateAlerts()" class="w-full mt-4 py-4 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold uppercase tracking-wider">Fechar</button>
+        </div>
+    </div>
+
     <div id="routeConfigModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4">
         <div class="bg-white dark:bg-slate-900 w-full sm:max-w-sm sm:rounded-2xl rounded-t-3xl p-6 shadow-2xl h-[85vh] flex flex-col animate-slide-up">
             <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6 sm:hidden"></div>
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Agenda Semanal</h3>
+            <h3 class="font-bold text-lg mb-4 text-slate-800 dark:text-white">Agenda Semanal</h3>
             
             <div class="grid grid-cols-7 gap-1 mb-4" id="routeConfigDays"></div>
 
             <div class="flex justify-between items-center mb-2 px-1">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Alocação de Horas</span>
-                <span id="currentConfigDay" class="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-1 rounded">...</span>
+                <span id="currentConfigDay" class="text-[10px] font-bold text-blue-600 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-1 rounded w-fit mb-3 uppercase">...</span>
             </div>
 
             <div id="routeChecklist" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll"></div>
 
             <div class="flex gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <button onclick="AppUI.modals.closeRouteConfig()" class="flex-1 py-3.5 text-slate-400 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition">Cancelar</button>
+                <button onclick="AppUI.modals.closeRouteConfig()" class="flex-1 py-3.5 text-slate-400 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition">Fechar</button>
                 <button onclick="AppCore.saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/30 active:scale-95 transition">SALVAR</button>
             </div>
         </div>
@@ -326,72 +326,54 @@
 
     <div id="addModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4">
         <div class="bg-white dark:bg-slate-900 w-full sm:max-w-sm sm:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
-            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6 sm:hidden"></div>
-            <h3 id="modalTitle" class="text-lg font-bold text-slate-800 dark:text-white mb-6">Novo Registo</h3>
-            
+            <h3 id="modalTitle" class="text-lg font-bold mb-6 text-slate-800 dark:text-white">Novo Registo</h3>
             <input type="hidden" id="editIndId">
             <div class="space-y-4 mb-6">
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Nome</label>
-                    <input type="text" id="newIndName" placeholder="Ex: Fábrica Central" class="input-modern mt-1">
-                </div>
+                <input type="text" id="newIndName" placeholder="Nome do Local" class="input-modern dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Carga (H/Sem)</label>
-                        <input type="number" id="newIndHours" placeholder="0" class="input-modern mt-1 text-center font-bold">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase ml-1">Categoria</label>
-                        <select id="catSelect" class="input-modern mt-1 appearance-none cursor-pointer"><option value="">Geral</option></select>
-                    </div>
+                    <input type="number" id="newIndHours" placeholder="Horas/Sem" class="input-modern text-center font-bold dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                    <select id="catSelect" class="input-modern appearance-none cursor-pointer dark:bg-slate-800 dark:border-slate-700 dark:text-white"><option value="">Geral</option></select>
                 </div>
-                
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase ml-1">Foto de Capa</label>
-                    <div class="mt-2 flex items-center gap-4">
-                        <div class="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center overflow-hidden relative group cursor-pointer" onclick="document.getElementById('coverInput').click()">
-                            <img id="coverPreview" src="" class="absolute w-full h-full object-cover hidden">
-                            <i id="coverPlaceholder" class="fas fa-image text-2xl text-slate-300 group-hover:text-blue-500 transition"></i>
-                        </div>
-                        <label for="coverInput" class="btn-primary px-5 py-2.5 text-xs cursor-pointer bg-slate-800 text-white shadow-md active:scale-95 transition">Alterar</label>
-                        <input type="file" id="coverInput" class="hidden" onchange="AppCore.handleCoverChange(event)">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-xl bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center overflow-hidden relative group cursor-pointer" onclick="document.getElementById('coverInput').click()">
+                        <img id="coverPreview" src="" class="absolute w-full h-full object-cover hidden">
+                        <i id="coverPlaceholder" class="fas fa-image text-xl text-slate-300 group-hover:text-blue-500 transition"></i>
                     </div>
+                    <label for="coverInput" class="btn-primary px-4 py-2 text-[10px] cursor-pointer bg-slate-800 text-white active:scale-95 transition">Capa</label>
+                    <input type="file" id="coverInput" class="hidden" onchange="AppCore.handleCoverChange(event)">
                 </div>
             </div>
-
-            <button id="btnDeleteInd" onclick="AppCore.deleteCurrentIndustry()" class="w-full py-3.5 mb-3 text-red-500 font-bold text-xs bg-red-50 dark:bg-red-900/10 rounded-xl hidden border border-red-100 dark:border-red-900/30 active:scale-95 transition">Excluir Local</button>
-
+            <button id="btnDeleteInd" onclick="AppCore.deleteCurrentIndustry()" class="w-full py-3 mb-3 text-red-500 font-bold text-xs bg-red-50 dark:bg-red-900/10 rounded-xl hidden border border-red-100 dark:border-red-900/30 active:scale-95 transition">Eliminar Local</button>
             <div class="flex gap-3">
                 <button onclick="AppUI.modals.closeAdd()" class="flex-1 py-3.5 text-slate-400 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition">Cancelar</button>
-                <button onclick="AppCore.saveIndustry()" class="flex-1 btn-primary py-3.5 text-xs shadow-lg shadow-blue-500/30">SALVAR</button>
+                <button onclick="AppCore.saveIndustry()" class="flex-1 btn-primary py-3.5 text-xs shadow-lg shadow-blue-500/30">GUARDAR</button>
             </div>
         </div>
     </div>
 
-    <!-- Photo Modal -->
+    <!-- Photo View -->
     <div id="photoModal" class="fixed inset-0 bg-black/95 z-[110] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
         <div class="absolute top-0 w-full p-4 flex justify-between z-20">
             <button onclick="AppUI.modals.closePhoto()" class="w-10 h-10 bg-white/10 rounded-full text-white flex items-center justify-center active:scale-90 transition"><i class="fas fa-times text-xl"></i></button>
-            <button onclick="AppCore.deleteSinglePhoto()" class="w-10 h-10 bg-red-500/80 backdrop-blur-md rounded-full text-white flex items-center justify-center active:scale-90 transition shadow-lg shadow-red-500/20"><i class="fas fa-trash"></i></button>
+            <button onclick="AppCore.deleteSinglePhoto()" class="w-10 h-10 bg-red-500/80 rounded-full text-white flex items-center justify-center active:scale-90 transition shadow-red-500/20"><i class="fas fa-trash text-sm"></i></button>
         </div>
-        <img id="previewImg" src="" class="max-h-[65vh] max-w-full object-contain mb-4 rounded-lg shadow-2xl">
-        
+        <img id="previewImg" src="" class="max-h-[65vh] max-w-full object-contain mb-4">
         <div class="w-full max-w-sm px-6">
             <div class="bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20 flex gap-2">
-                <input type="text" id="photoDescInput" placeholder="Adicionar nota..." class="bg-transparent text-white placeholder-white/50 text-sm flex-1 px-3 py-2 outline-none font-medium">
-                <button onclick="AppCore.savePhotoDescription()" class="bg-blue-600 text-white px-4 rounded-xl font-bold text-xs shadow-lg active:scale-95 transition">OK</button>
+                <input type="text" id="photoDescInput" placeholder="Anotação ou GPS..." class="bg-transparent text-white text-sm flex-1 px-3 py-2 outline-none font-medium">
+                <button onclick="AppCore.savePhotoDescription()" class="bg-blue-600 text-white px-4 rounded-xl font-bold text-xs active:scale-95 transition">OK</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="statusToast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl shadow-slate-500/20 text-xs font-bold flex items-center gap-3 transition-all opacity-0 -translate-y-10 z-[120]">
         <div id="toastIcon"></div>
         <span id="toastMsg">Notificação</span>
     </div>
 
-    <!-- === LÓGICA JAVASCRIPT === -->
+    <!-- SCRIPT -->
     <script>
+        // --- CONSTANTES GLOBAIS ---
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -400,11 +382,11 @@
         const CATEGORY_COLORS = ['bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-purple-100 text-purple-600', 'bg-orange-100 text-orange-600', 'bg-pink-100 text-pink-600', 'bg-teal-100 text-teal-600'];
 
         const AppState = {
-            currentIndustry: null, currentDateFolder: null, industryPhotos: [], allIndustries: [], categories: [],
+            currentIndustry: null, currentDateFolder: null, industryPhotos: [], allIndustries: [], categories: [], lateIndustries: [],
             routes: { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] },
             isSelectionMode: false, selectedPhotos: new Set(), selectedIndustries: new Set(),
             currentModalPhoto: null, coverImageFile: null, calendarCursor: new Date(), availableDates: new Set(),
-            configSelectedDay: null, viewSelectedDay: null, viewHistory: [], userId: 'anonymous', searchTimeout: null
+            configSelectedDay: null, viewSelectedDay: null, viewHistory: [], userId: 'anonymous'
         };
 
         const AppUtils = {
@@ -423,7 +405,11 @@
                 else icon.innerHTML = '<div class="loader"></div>';
                 setTimeout(() => toast.classList.add('opacity-0', '-translate-y-10'), 2500);
             },
-            toggleDarkMode: () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); },
+            toggleDarkMode: () => { 
+                document.documentElement.classList.toggle('dark'); 
+                const isDark = document.documentElement.classList.contains('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light'); 
+            },
             getGPS: () => new Promise((res) => {
                 if(!navigator.geolocation) return res(null);
                 navigator.geolocation.getCurrentPosition((p) => res(`${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`), () => res(null), { timeout: 3000 });
@@ -451,7 +437,9 @@
 
         const AppCore = {
             init: async () => {
-                if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+                
                 try {
                     await Promise.all([AppCore.loadIndustries(), AppCore.fetchRoutes(), AppCore.loadCategories()]);
                     const today = WEEK_DAYS[new Date().getDay()];
@@ -465,7 +453,6 @@
                 const { data } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
                 AppState.allIndustries = data || [];
                 AppUI.renderIndustries(AppState.allIndustries);
-                AppUI.renderCategoryOptions();
             },
             fetchRoutes: async () => {
                 const { data } = await sb.from('rotas').select('*');
@@ -492,9 +479,10 @@
                         created_at: now.toISOString(), nome_arquivo: fileName, url_publica: urlData.publicUrl,
                         industria_id: AppState.currentIndustry.id, descricao: gps ? `📍 GPS: ${gps}` : ''
                     }).select();
-                    AppUtils.showToast("Foto guardada!", "success");
+                    AppUtils.showToast("Foto salva!", "success");
                     await AppCore.loadDates(AppState.currentIndustry.nome);
                     if (document.getElementById('view-gallery').classList.contains('active')) AppUI.loadGalleryPhotos();
+                    AppCore.checkAlerts();
                 } catch (e) { AppUtils.showToast("Erro no envio", "error"); } finally { input.value = ''; }
             },
             loadDates: async (name) => {
@@ -511,10 +499,14 @@
                 const lastVisits = {};
                 data?.forEach(f => { if(!lastVisits[f.industria_id]) lastVisits[f.industria_id] = new Date(f.created_at); });
                 const threshold = new Date(); threshold.setDate(threshold.getDate() - 7);
-                const late = AppState.allIndustries.filter(i => !lastVisits[i.id] || lastVisits[i.id] < threshold);
-                if(late.length > 0) {
-                    document.getElementById('visitAlerts').classList.remove('hidden');
-                    document.getElementById('visitAlertMsg').innerText = `${late.length} locais sem visitas há mais de 7 dias.`;
+                AppState.lateIndustries = AppState.allIndustries.filter(i => !lastVisits[i.id] || lastVisits[i.id] < threshold);
+                
+                const alertEl = document.getElementById('visitAlerts');
+                if(AppState.lateIndustries.length > 0) {
+                    if(alertEl) alertEl.classList.remove('hidden');
+                    document.getElementById('visitAlertMsg').innerText = `${AppState.lateIndustries.length} locais sem visitas há mais de 7 dias.`;
+                } else {
+                    if(alertEl) alertEl.classList.add('hidden');
                 }
             },
             generateDailyConsolidatedReport: async () => {
@@ -576,7 +568,7 @@
                 AppState.currentModalPhoto.descricao = desc; AppUtils.showToast("Guardado", "success"); AppUI.loadGalleryPhotos();
             },
             saveRouteConfig: async () => {
-                if(!confirm("Salvar agenda semanal?")) return;
+                if(!confirm(`Deseja guardar o planeamento para ${AppState.configSelectedDay}?`)) return;
                 AppUtils.showToast("A guardar...");
                 await sb.from('rotas').upsert({ dia: AppState.configSelectedDay, industrias: AppState.routes[AppState.configSelectedDay] }, { onConflict: 'dia' }).select();
                 if (AppState.configSelectedDay === AppState.viewSelectedDay) AppUI.renderRouteList(AppState.configSelectedDay);
@@ -587,19 +579,16 @@
             toggleSelectionMode: () => {
                 AppState.isSelectionMode = !AppState.isSelectionMode;
                 const b = document.getElementById('selectBtn');
-                const bars = ['selectionControls', 'selectionControlsAll', 'industryActions'];
-                bars.forEach(id => document.getElementById(id).classList.add('hidden-bar'));
+                const bars = ['selectionControls'];
                 if (AppState.isSelectionMode) {
                     b.innerText = "Cancelar"; b.classList.add('text-red-500');
-                    if (document.getElementById('view-routes').classList.contains('active')) document.getElementById('industryActions').classList.remove('hidden-bar');
-                    else if (document.getElementById('view-all').classList.contains('active')) document.getElementById('selectionControlsAll').classList.remove('hidden-bar');
-                    else document.getElementById('selectionControls').classList.remove('hidden-bar');
+                    document.getElementById('selectionControls').classList.remove('hidden-bar');
                 } else {
                     b.innerText = "Select"; b.classList.remove('text-red-500');
-                    AppState.selectedPhotos.clear(); AppState.selectedIndustries.clear();
+                    document.getElementById('selectionControls').classList.add('hidden-bar');
+                    AppState.selectedPhotos.clear();
                 }
-                if (document.getElementById('view-routes').classList.contains('active')) AppUI.renderIndustries(AppState.allIndustries);
-                else AppUI.loadGalleryPhotos();
+                AppUI.loadGalleryPhotos();
             },
             handlePhotoClick: (f) => {
                 if (AppState.isSelectionMode) { if (AppState.selectedPhotos.has(f.id)) AppState.selectedPhotos.delete(f.id); else AppState.selectedPhotos.add(f.id); document.getElementById('selCount').innerText = AppState.selectedPhotos.size; AppUI.loadGalleryPhotos(); } 
@@ -615,55 +604,58 @@
             selectAllPhotos: () => { AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder).forEach(f => AppState.selectedPhotos.add(f.id)); AppUI.loadGalleryPhotos(); },
             deleteSelected: async () => { if(!confirm("Apagar fotos?")) return; await sb.from('fotos').delete().in('id', Array.from(AppState.selectedPhotos)); AppState.selectedPhotos.clear(); AppCore.toggleSelectionMode(); if(AppState.currentIndustry) AppCore.loadDates(AppState.currentIndustry.nome); },
             deleteSinglePhoto: async () => { if(!confirm("Apagar?")) return; await sb.from('fotos').delete().eq('id', AppState.currentModalPhoto.id); AppUI.modals.closePhoto(); if(AppState.currentIndustry) AppCore.loadDates(AppState.currentIndustry.nome); AppUI.loadGalleryPhotos(); },
+            
             openAllPhotos: async () => {
-                AppUI.navigateTo('view-all'); const c = document.getElementById('allPhotosContainer'); c.innerHTML = '<div class="col-span-3 py-20 flex justify-center"><div class="loader"></div></div>';
-                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(60);
+                AppUI.navigateTo('view-all');
+                const c = document.getElementById('allPhotosContainer');
+                c.innerHTML = '<div class="col-span-3 py-20 flex justify-center"><div class="loader"></div></div>';
+                
+                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(100);
                 c.innerHTML = '';
-                data?.forEach(f => {
-                    const d = document.createElement('div'); d.className = `photo-thumb ${AppState.selectedPhotos.has(f.id) ? 'selected' : ''}`;
-                    d.onclick = () => AppCore.handlePhotoClick(f); d.innerHTML = `<img src="${f.url_publica}">`; c.appendChild(d);
-                });
-            },
-            saveBulkCategory: async () => { const catId = document.getElementById('bulkCatSelect').value || null; const ids = Array.from(AppState.selectedIndustries); if(!confirm("Aplicar categorias?")) return; AppUtils.showToast("Atualizando...", "loading"); try { await sb.from('industrias').update({ categoria_id: catId }).in('id', ids); AppUtils.showToast("Atualizado!", "success"); document.getElementById('bulkCatModal').classList.add('hidden'); AppState.selectedIndustries.clear(); await AppCore.loadIndustries(); } catch (e) { AppUtils.showToast("Erro", "error"); } },
-            deleteSelectedIndustries: async () => { if (AppState.selectedIndustries.size === 0) return; if (!confirm("Apagar selecionados?")) return; AppUtils.showToast("Apagando...", "loading"); try { await sb.from('industrias').delete().in('id', Array.from(AppState.selectedIndustries)); AppState.selectedIndustries.clear(); await AppCore.loadIndustries(); AppUtils.showToast("Apagado!", "success"); } catch (e) { AppUtils.showToast("Erro", "error"); } },
-            generatePDF: async () => {
-                AppUtils.showToast("A gerar PDF...");
-                const { jsPDF } = window.jspdf; const doc = new jsPDF();
-                doc.setFontSize(16); doc.text(AppState.currentIndustry.nome, 10, 15);
-                doc.setFontSize(10); doc.text("Data: " + AppState.currentDateFolder, 10, 22);
-                doc.line(10, 25, 200, 25);
-                let y = 35;
-                const photos = AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder);
-                for(const f of photos) {
-                    try {
-                        const img = await fetch(f.url_publica).then(r => r.blob()).then(b => new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(b); }));
-                        if (y > 240) { doc.addPage(); y = 20; }
-                        doc.addImage(img, 'JPEG', 10, y, 60, 60);
-                        doc.setFontSize(9); const splitText = doc.splitTextToSize(f.descricao || "Sem notas.", 120); doc.text(splitText, 75, y + 10);
-                        y += 65;
-                    } catch(e) {}
+                
+                if(!data || data.length === 0) {
+                    c.innerHTML = '<div class="col-span-3 py-20 text-center opacity-40 italic">Sem fotos</div>';
+                    return;
                 }
-                doc.save(`Relatorio_${AppUtils.sanitize(AppState.currentIndustry.nome)}.pdf`);
-                AppUtils.showToast("PDF Transferido!", "success");
-            },
-            shareReport: async () => {
-                AppUtils.showToast("A preparar relatório...", "loading");
-                // Fallback para download simples já que Share API com ficheiro requer contexto HTTPS seguro e ficheiro físico.
-                AppCore.generatePDF();
+
+                const groups = {};
+                data.forEach(f => {
+                    const d = new Date(f.created_at).toLocaleDateString('pt-PT');
+                    if(!groups[d]) groups[d] = [];
+                    groups[d].push(f);
+                });
+
+                Object.keys(groups).forEach(dateStr => {
+                    const header = document.createElement('div');
+                    header.className = 'w-full mt-6 mb-2 px-1 border-b border-slate-100 dark:border-slate-800 pb-2 transition-colors';
+                    header.innerHTML = `<span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${dateStr}</span>`;
+                    c.appendChild(header);
+
+                    const grid = document.createElement('div');
+                    grid.className = 'photo-grid w-full';
+                    
+                    groups[dateStr].forEach(f => {
+                        const d = document.createElement('div');
+                        d.className = `photo-thumb ${AppState.selectedPhotos.has(f.id) ? 'selected' : ''}`;
+                        d.onclick = () => AppCore.handlePhotoClick(f);
+                        d.innerHTML = `<img src="${f.url_publica}" loading="lazy">`;
+                        grid.appendChild(d);
+                    });
+                    c.appendChild(grid);
+                });
             }
         };
 
         const AppUI = {
             navigateTo: (id, hist = true) => {
-                const active = document.querySelector('.view-section.active');
-                if (hist && active) AppState.viewHistory.push(active.id);
-                document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
+                const activeSection = document.querySelector('.view-section.active');
+                if (hist && activeSection) AppState.viewHistory.push(activeSection.id);
+                document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
                 document.getElementById(id).classList.add('active');
                 const els = { back: 'backBtn', config: 'configRouteBtn', sel: 'selectBtn', nav: 'mainNavBar', edit: 'editIndBtn' };
                 const show = (eid) => document.getElementById(els[eid])?.classList.remove('hidden');
                 const hide = (eid) => document.getElementById(els[eid])?.classList.add('hidden');
                 hide('back'); hide('config'); hide('sel'); hide('edit');
-                ['selectionControls', 'selectionControlsAll', 'industryActions'].forEach(dock => document.getElementById(dock)?.classList.add('hidden-bar'));
                 if (id === 'view-home') show('config');
                 else if (id === 'view-routes') show('sel');
                 else if (id === 'view-dates') { show('back'); show('edit'); }
@@ -685,17 +677,11 @@
                 const c = document.getElementById('industriesList'); c.innerHTML = '';
                 if(list.length === 0) { c.innerHTML = '<div class="col-span-3 py-20 text-center opacity-40 italic">Sem locais</div>'; return; }
                 list.forEach(ind => {
-                    const d = document.createElement('div'); d.className = `ind-card cursor-pointer ${AppState.selectedIndustries.has(ind.id) ? 'selected-item' : ''}`;
-                    d.onclick = () => {
-                        if (AppState.isSelectionMode) { 
-                            if(AppState.selectedIndustries.has(ind.id)) AppState.selectedIndustries.delete(ind.id); 
-                            else AppState.selectedIndustries.add(ind.id);
-                            AppUI.renderIndustries(AppState.allIndustries);
-                        } else { AppState.currentIndustry = ind; AppState.calendarCursor = new Date(); AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); }
-                    };
+                    const d = document.createElement('div'); d.className = `ind-card cursor-pointer border dark:border-slate-700 ${AppState.selectedIndustries.has(ind.id) ? 'selected-item' : ''}`;
+                    d.onclick = () => { AppState.currentIndustry = ind; AppState.calendarCursor = new Date(); AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); };
                     const cat = ind.categorias ? `<div class="cat-badge ${CATEGORY_COLORS[(ind.categoria_id - 1) % 6]}">${ind.categorias.nome}</div>` : '';
                     const img = ind.cover_url ? `<img src="${ind.cover_url}">` : '<i class="fas fa-industry text-2xl text-slate-200"></i>';
-                    d.innerHTML = `<div class="cover-wrapper flex items-center justify-center">${img}</div><h3 class="font-bold text-[10px] text-center truncate w-full px-1">${ind.nome}</h3>${cat}<span class="text-[8px] text-slate-400 font-bold uppercase">${ind.carga_semanal || 0}H/SEM</span>`;
+                    d.innerHTML = `<div class="cover-wrapper flex items-center justify-center dark:bg-slate-800">${img}</div><h3 class="font-bold text-[10px] text-center truncate w-full px-1 dark:text-white">${ind.nome}</h3>${cat}<span class="text-[8px] text-slate-400 font-bold uppercase">${ind.carga_semanal || 0}H/SEM</span>`;
                     c.appendChild(d);
                 });
             },
@@ -708,13 +694,13 @@
                     t.onclick = () => AppUI.renderRouteList(d); tabs.appendChild(t);
                 });
                 const items = AppState.routes[day] || [];
-                if(items.length === 0) { c.innerHTML = '<div class="py-12 flex flex-col items-center justify-center text-slate-300"><i class="fas fa-calendar-check text-4xl mb-2"></i><p class="text-[10px] uppercase font-bold">Dia Livre</p></div>'; return; }
+                if(items.length === 0) { c.innerHTML = '<div class="py-12 flex flex-col items-center justify-center text-slate-300 dark:text-slate-600"><i class="fas fa-calendar-check text-4xl mb-2"></i><p class="text-[10px] uppercase font-bold">Dia Livre</p></div>'; return; }
                 items.forEach(item => {
                     const ind = AppState.allIndustries.find(i => i.nome === (item.nome || item));
                     if(!ind) return;
-                    const row = document.createElement('div'); row.className = 'route-item';
+                    const row = document.createElement('div'); row.className = 'route-item hover:bg-slate-50 dark:hover:bg-slate-800/50';
                     row.onclick = () => { AppState.currentIndustry = ind; AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); };
-                    row.innerHTML = `<div class="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden mr-3 flex-shrink-0">${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center bg-slate-50"><i class="fas fa-industry text-slate-300"></i></div>'}</div><div class="flex-1 overflow-hidden"><div class="font-bold text-sm truncate">${ind.nome}</div><div class="text-[9px] text-slate-400 font-bold uppercase">${ind.categorias?.nome || 'Geral'}</div></div><div class="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">${AppUtils.minutesToHM(item.minutos || 0)}h</div>`;
+                    row.innerHTML = `<div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden mr-3 flex-shrink-0">${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center bg-slate-50 dark:bg-slate-800"><i class="fas fa-industry text-slate-300"></i></div>'}</div><div class="flex-1 overflow-hidden"><div class="font-bold text-sm truncate dark:text-white">${ind.nome}</div><div class="text-[9px] text-slate-400 font-bold uppercase">${ind.categorias?.nome || 'Geral'}</div></div><div class="text-xs font-mono font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg">${AppUtils.minutesToHM(item.minutos || 0)}h</div>`;
                     c.appendChild(row);
                 });
             },
@@ -737,6 +723,7 @@
             loadGalleryPhotos: () => {
                 const c = document.getElementById('photosContainer'); c.innerHTML = '';
                 const p = AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder);
+                if(p.length === 0) { c.innerHTML = '<div class="col-span-3 py-10 text-center opacity-40 text-xs italic">Sem fotografias nesta data</div>'; return; }
                 p.forEach(f => {
                     const d = document.createElement('div'); d.className = `photo-thumb ${AppState.selectedPhotos.has(f.id) ? 'selected' : ''}`;
                     d.onclick = () => AppCore.handlePhotoClick(f); d.innerHTML = `<img src="${f.url_publica}" loading="lazy">${f.descricao ? '<div class="absolute bottom-1 right-1 w-2 h-2 bg-yellow-400 rounded-full shadow-sm"></div>' : ''}`;
@@ -746,11 +733,11 @@
             renderDailyIndustries: () => {
                 const c = document.getElementById('dailyIndustriesList'); c.innerHTML = '';
                 const today = WEEK_DAYS[new Date().getDay()];
-                const route = AppState.routes[today] || [];
-                if(route.length === 0) { c.innerHTML = '<p class="text-center py-4 text-xs italic opacity-50">Nenhum local na rota de hoje.</p>'; return; }
-                route.forEach(item => {
-                    const d = document.createElement('div'); d.className = 'flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg';
-                    d.innerHTML = `<span class="text-sm font-bold">${item.nome || item}</span><i class="fas fa-check-circle text-blue-500"></i>`;
+                const items = AppState.routes[today] || [];
+                if(items.length === 0) { c.innerHTML = '<p class="text-center py-4 text-xs italic opacity-50">Nenhum local agendado para hoje.</p>'; return; }
+                items.forEach(item => {
+                    const d = document.createElement('div'); d.className = 'flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border dark:border-slate-700';
+                    d.innerHTML = `<span class="text-sm font-bold dark:text-white">${item.nome || item}</span><i class="fas fa-check-circle text-blue-500"></i>`;
                     c.appendChild(d);
                 });
             },
@@ -759,8 +746,8 @@
                 const day = AppState.configSelectedDay || 'Segunda';
                 AppState.allIndustries.forEach(ind => {
                     const item = AppState.routes[day]?.find(r => (r.nome || r) === ind.nome);
-                    const d = document.createElement('div'); d.className = 'flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm';
-                    d.innerHTML = `<input type="checkbox" ${item?'checked':''} onchange="AppUI.toggleRouteCheck('${ind.nome.replace(/'/g, "\\'")}', this.checked)"><span class="flex-1 text-xs font-bold truncate">${ind.nome}</span><input type="time" class="time-input" value="${AppUtils.minutesToHM(item?.minutos || 0)}" onchange="AppUI.updateRouteMins('${ind.nome.replace(/'/g, "\\'")}', this.value)">`;
+                    const d = document.createElement('div'); d.className = 'flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border dark:border-slate-700';
+                    d.innerHTML = `<input type="checkbox" ${item?'checked':''} onchange="AppUI.toggleRouteCheck('${ind.nome.replace(/'/g, "\\'")}', this.checked)"><span class="flex-1 text-xs font-bold truncate dark:text-white">${ind.nome}</span><input type="time" class="time-input dark:bg-slate-700 dark:text-white" value="${AppUtils.minutesToHM(item?.minutos || 0)}" onchange="AppUI.updateRouteMins('${ind.nome.replace(/'/g, "\\'")}', this.value)">`;
                     l.appendChild(d);
                 });
             },
@@ -776,32 +763,52 @@
                 if(item) item.minutos = AppUtils.hmToMinutes(val);
             },
             renderCategoryOptions: () => {
-                ['catSelect', 'catSelectFilter', 'bulkCatSelect'].forEach(id => {
+                ['catSelect', 'catSelectFilter'].forEach(id => {
                     const s = document.getElementById(id); if(!s) return;
                     s.innerHTML = id === 'catSelectFilter' ? '<option value="">Categorias</option>' : '<option value="">Geral</option>';
                     AppState.categories.forEach(c => s.innerHTML += `<option value="${c.id}">${c.nome}</option>`);
                 });
             },
             modals: {
+                openLateAlerts: () => {
+                    document.getElementById('lateAlertsModal').classList.remove('hidden');
+                    const c = document.getElementById('lateIndustriesList'); c.innerHTML = '';
+                    AppState.lateIndustries.forEach(ind => {
+                        const d = document.createElement('div'); d.className = 'flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border dark:border-slate-700 cursor-pointer active:bg-slate-100';
+                        d.onclick = () => { AppState.currentIndustry = ind; AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); AppUI.modals.closeLateAlerts(); };
+                        d.innerHTML = `<span class="text-sm font-bold dark:text-white">${ind.nome}</span><i class="fas fa-history text-red-400"></i>`;
+                        c.appendChild(d);
+                    });
+                },
+                closeLateAlerts: () => document.getElementById('lateAlertsModal').classList.add('hidden'),
                 openRouteConfig: () => { 
-                    AppState.configSelectedDay = WEEK_DAYS[new Date().getDay()];
+                    if(!AppState.configSelectedDay) AppState.configSelectedDay = WEEK_DAYS[new Date().getDay()];
                     document.getElementById('routeConfigModal').classList.remove('hidden');
                     const c = document.getElementById('routeConfigDays'); c.innerHTML = '';
                     WEEK_DAYS.forEach(d => {
                         const b = document.createElement('button'); b.innerText = d.substring(0,1);
-                        b.className = `p-2.5 rounded-lg text-[10px] font-black ${d === AppState.configSelectedDay ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'}`;
-                        b.onclick = () => { AppState.configSelectedDay = d; AppUI.modals.openRouteConfig(); };
+                        b.className = `p-2.5 rounded-lg text-[10px] font-black transition ${d === AppState.configSelectedDay ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'}`;
+                        b.onclick = () => { AppState.configSelectedDay = d; AppUI.modals.updateRouteConfigUI(); };
                         c.appendChild(b);
                     });
-                    document.getElementById('currentConfigDay').innerText = AppState.configSelectedDay; AppUI.renderRouteChecklist();
+                    document.getElementById('currentConfigDay').innerText = AppState.configSelectedDay; 
+                    AppUI.renderRouteChecklist();
+                },
+                updateRouteConfigUI: () => {
+                    const day = AppState.configSelectedDay;
+                    document.querySelectorAll('#routeConfigDays button').forEach((btn, idx) => {
+                        const d = WEEK_DAYS[idx];
+                        btn.className = `p-2.5 rounded-lg text-[10px] font-black transition ${d === day ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'}`;
+                    });
+                    document.getElementById('currentConfigDay').innerText = day;
+                    AppUI.renderRouteChecklist();
                 },
                 closeRouteConfig: () => document.getElementById('routeConfigModal').classList.add('hidden'),
-                openAddIndustry: () => { document.getElementById('addModal').classList.remove('hidden'); document.getElementById('btnDeleteInd').classList.add('hidden'); document.getElementById('modalTitle').innerText="Novo Local"; document.getElementById('editIndId').value=""; document.getElementById('newIndName').value=""; document.getElementById('newIndHours').value=""; document.getElementById('coverPreview').classList.add('hidden'); document.getElementById('coverPlaceholder').classList.remove('hidden'); },
+                openAddIndustry: () => { document.getElementById('addModal').classList.remove('hidden'); document.getElementById('btnDeleteInd').classList.add('hidden'); document.getElementById('modalTitle').innerText="Novo Registo"; document.getElementById('editIndId').value=""; document.getElementById('newIndName').value=""; document.getElementById('newIndHours').value=""; document.getElementById('coverPreview').classList.add('hidden'); document.getElementById('coverPlaceholder').classList.remove('hidden'); },
                 openEditIndustry: () => { if(!AppState.currentIndustry) return; AppUI.modals.openAddIndustry(); document.getElementById('modalTitle').innerText="Editar"; document.getElementById('btnDeleteInd').classList.remove('hidden'); document.getElementById('editIndId').value = AppState.currentIndustry.id; document.getElementById('newIndName').value = AppState.currentIndustry.nome; document.getElementById('newIndHours').value = AppState.currentIndustry.carga_semanal; },
                 closeAdd: () => document.getElementById('addModal').classList.add('hidden'),
                 openPhoto: (f) => { document.getElementById('previewImg').src = f.url_publica; document.getElementById('photoDescInput').value = f.descricao || ''; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(() => m.classList.add('opacity-100'), 10); },
-                closePhoto: () => { const m = document.getElementById('photoModal'); m.classList.remove('opacity-100'); setTimeout(() => m.classList.add('hidden'), 300); },
-                openBulkCategory: () => { if(AppState.selectedIndustries.size === 0) return; document.getElementById('bulkCatModal').classList.remove('hidden'); document.getElementById('bulkCountDisplay').innerText = AppState.selectedIndustries.size; }
+                closePhoto: () => { const m = document.getElementById('photoModal'); m.classList.remove('opacity-100'); setTimeout(() => m.classList.add('hidden'), 300); }
             }
         };
 
