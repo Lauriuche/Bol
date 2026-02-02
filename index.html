@@ -1,25 +1,35 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#ffffff">
-    <title>Industrial Manager Pro</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2563eb">
+    <title>Gestor Industrial Pro</title>
     
+    <!-- PWA Meta Tags -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4300/4300058.png">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'Gestor Industrial Pro','short_name':'IndustrialPro','start_url':'.','display':'standalone','background_color':'#ffffff','theme_color':'#2563eb'}">
+
+    <!-- Dependências Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        // Cores estendidas para usar com Tailwind se necessário
-                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+            theme: { 
+                extend: { 
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { 
+                        dark: { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', border: '#334155', muted: '#94a3b8' },
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb' }
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
-                }
+                    animation: { 'fade-in': 'fadeIn 0.2s ease-out', 'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(100%)' }, '100%': { transform: 'translateY(0)' } }
+                    }
+                } 
             }
         }
     </script>
@@ -29,972 +39,750 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        /* =========================================
-           1. VARIÁVEIS & RESET (O Segredo do Dark Mode Leve)
-        ========================================== */
+        /* === VARIÁVEIS & RESET === */
         :root {
-            --bg-body: #f8fafc;
-            --bg-card: #ffffff;
-            --bg-glass: rgba(255, 255, 255, 0.90);
-            --border-color: #e2e8f0;
-            --text-main: #334155;
-            --text-muted: #94a3b8;
-            --primary: #3b82f6;
-            --primary-light: #eff6ff;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --bg-body: #f8fafc; --bg-card: #ffffff; --bg-glass: rgba(255, 255, 255, 0.95);
+            --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0;
+            --primary: #3b82f6; --safe-bottom: env(safe-area-inset-bottom);
         }
-
         html.dark :root {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --bg-glass: rgba(30, 41, 59, 0.90);
-            --border-color: #334155;
-            --text-main: #e2e8f0;
-            --text-muted: #64748b;
-            --primary: #60a5fa;
-            --primary-light: rgba(59, 130, 246, 0.15);
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3);
+            --bg-body: #0f172a; --bg-card: #1e293b; --bg-glass: rgba(30, 41, 59, 0.95);
+            --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155;
         }
-
-        * { -webkit-tap-highlight-color: transparent; }
         
         body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-body); 
-            color: var(--text-main); 
-            padding-bottom: calc(100px + env(safe-area-inset-bottom)); 
+            font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main);
+            padding-bottom: calc(100px + var(--safe-bottom)); 
+            -webkit-tap-highlight-color: transparent; user-select: none;
             transition: background-color 0.3s ease, color 0.3s ease;
-            user-select: none;
+            overflow-x: hidden;
         }
 
-        /* =========================================
-           2. COMPONENTES DE UI (Reutilizáveis)
-        ========================================== */
+        .glass { background: var(--bg-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+        .card-modern { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         
-        /* Glass Header Otimizado */
-        .glass-header { 
-            background: var(--bg-glass); 
-            backdrop-filter: blur(16px); 
-            -webkit-backdrop-filter: blur(16px); 
-            border-bottom: 1px solid var(--border-color); 
-            transition: all 0.3s ease;
+        .ind-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+            padding: 6px; aspect-ratio: 1/1; display: flex; flex-direction: column; 
+            justify-content: space-between; position: relative; overflow: hidden;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .ind-card:active { transform: scale(0.96); }
+        .ind-card.selected-item { border: 2.3px solid var(--primary); background-color: rgba(59, 130, 246, 0.05); } 
 
-        /* Cards Gerais */
-        .card-base {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            box-shadow: var(--shadow-sm);
-        }
+        .ind-card .cover-wrapper { width: 100%; flex: 1; border-radius: 8px; overflow: hidden; background: var(--bg-body); position: relative; margin-bottom: 4px; }
+        .ind-card img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
 
-        /* Indústria Card (Otimizado para Grid) */
-        .ind-card { 
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px; 
-            position: relative; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 8px; 
-            height: 140px; /* Altura fixa para alinhar grid */
-            justify-content: space-between; 
-            box-shadow: var(--shadow-sm); 
-            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s;
-            overflow: hidden;
-        }
-        .ind-card:active { transform: scale(0.96); border-color: var(--primary); }
+        .input-modern { width: 100%; background: var(--bg-body); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: var(--text-main); }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 12px; font-weight: 700; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: transform 0.1s; border: none; }
+        .btn-primary:active { transform: scale(0.97); }
+
+        .day-tab { font-weight: 700; font-size: 10px; color: var(--text-muted); padding: 10px 0; border-radius: 10px; transition: all 0.2s; cursor: pointer; text-transform: uppercase; display: flex; justify-content: center; align-items: center; }
+        .day-tab.active { background: var(--bg-card); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); }
         
-        .ind-card .cover-wrapper { 
-            width: 100%; 
-            height: 70px; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            background: var(--bg-body); 
-            position: relative;
-        }
-        .ind-card .cover-img { width: 100%; height: 100%; object-fit: cover; }
+        .route-item { display: flex; align-items: center; padding: 14px; border-bottom: 1px solid var(--border); transition: background 0.15s; cursor: pointer; }
+        .route-item:active { background: var(--bg-body); }
 
-        /* Abas de Dias (Cronograma) */
-        .day-tab { 
-            font-weight: 800; font-size: 10px; color: var(--text-muted); background: var(--bg-body); 
-            padding: 12px 0; width: 100%; border-radius: 8px 8px 0 0; 
-            text-transform: uppercase; transition: all 0.2s; border-bottom: 2px solid transparent; 
-            display: flex; justify-content: center; align-items: center; letter-spacing: 0.5px;
-        }
-        .day-tab.active { 
-            background: var(--bg-card); 
-            color: var(--primary); 
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.03); 
-            position: relative; z-index: 10; 
-        }
-        .day-tab.active::after { 
-            content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 3px; 
-            background: var(--primary); border-radius: 0 0 4px 4px; 
-        }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
+        .cal-day { aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--text-muted); transition: all 0.2s; border: 1px solid transparent; cursor: pointer; }
+        .cal-day.active { background: rgba(59, 130, 246, 0.15); color: var(--primary); border-color: var(--primary); }
+        .cal-day.today { border-color: var(--primary); color: var(--primary); font-weight: 800; }
 
-        /* Lista de Rotas */
-        .route-row {
-            display: flex; align-items: center; justify-content: space-between; padding: 16px;
-            border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.1s;
-        }
-        .route-row:active { background-color: var(--primary-light); }
-        .route-row:last-child { border-bottom: none; }
-
-        /* Barras Fixas (Bottom Bar & Nav) */
-        .fixed-bottom-bar { 
-            position: fixed; bottom: 0; left: 0; right: 0; width: 100%; 
-            background: var(--bg-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid var(--border-color); 
-            z-index: 60; padding-bottom: calc(20px + env(safe-area-inset-bottom)); 
-            padding-top: 16px; padding-left: 16px; padding-right: 16px; 
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .fixed-bottom-bar.hidden-bar { transform: translateY(120%); }
-
-        .bottom-nav { 
-            position: fixed; bottom: 0; left: 0; width: 100%; 
-            height: calc(60px + env(safe-area-inset-bottom)); 
-            padding-bottom: env(safe-area-inset-bottom); 
-            background: var(--bg-card); 
-            border-top: 1px solid var(--border-color); 
-            display: flex; justify-content: space-around; align-items: center; 
-            z-index: 50; transition: transform 0.3s;
-        }
-        .bottom-nav.hidden-nav { transform: translateY(100%); }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fade-in 0.2s forwards; }
         
-        .nav-item { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--text-muted); font-size: 10px; font-weight: 600; width: 100%; height: 100%;
-            transition: color 0.2s;
+        /* === ESTILO DE SELEÇÃO DE FOTO MELHORADO === */
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .photo-thumb { 
+            aspect-ratio: 1; overflow: hidden; border-radius: 12px; 
+            background: var(--border); position: relative; cursor: pointer; 
+            border: 3px solid transparent; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .nav-item i { font-size: 20px; margin-bottom: 4px; transition: transform 0.2s; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item.active i { transform: translateY(-2px); }
-
-        /* =========================================
-           3. CALENDÁRIO OTIMIZADO
-        ========================================== */
-        .cal-grid { 
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px; 
-        }
-        .cal-day-btn { 
-            aspect-ratio: 1/1; border-radius: 12px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-size: 14px; font-weight: 600; color: var(--text-muted); 
-            background: transparent; border: 1px solid transparent; 
-            position: relative; transition: all 0.2s; 
-        }
-        .cal-day-btn.active-day { 
-            background: var(--primary-light); 
-            color: var(--primary); 
-            border-color: var(--primary); 
-            font-weight: 800;
-        }
-        .cal-day-btn.today { border: 1px solid var(--primary); }
-        .cal-day-btn .dot { 
-            width: 5px; height: 5px; background: var(--primary); 
-            border-radius: 50%; margin-top: 4px; 
-        }
-
-        /* =========================================
-           4. FORMULÁRIOS & INPUTS
-        ========================================== */
-        .input-std {
-            width: 100%; background-color: var(--bg-body); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 12px; font-size: 14px; color: var(--text-main); outline: none;
-            transition: border-color 0.2s;
-        }
-        .input-std:focus { border-color: var(--primary); }
-
-        .time-input { 
-            background: var(--bg-body); border: 1px solid var(--border-color); 
-            border-radius: 8px; padding: 4px; font-size: 12px; width: 75px; 
-            text-align: center; font-weight: bold; color: var(--text-main);
-        }
-
-        /* Badges de Status/Hora */
-        .hour-badge { font-size: 9px; padding: 3px 8px; border-radius: 6px; font-weight: 700; margin-top: 2px; display: inline-block; letter-spacing: 0.3px; }
-        .hour-ok { background: rgba(34, 197, 94, 0.15); color: #15803d; } /* Verde suave */
-        .hour-warn { background: rgba(234, 179, 8, 0.15); color: #a16207; } /* Amarelo suave */
-        .hour-err { background: rgba(239, 68, 68, 0.15); color: #b91c1c; } /* Vermelho suave */
+        .photo-thumb img { width: 100%; height: 100%; object-fit: cover; transition: all 0.3s; }
         
-        html.dark .hour-ok { color: #4ade80; }
-        html.dark .hour-warn { color: #facc15; }
-        html.dark .hour-err { color: #f87171; }
-
-        /* Categorias Badge */
-        .cat-badge { font-size: 9px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.5px; }
-
-        /* =========================================
-           5. UTILITÁRIOS & ANIMAÇÕES
-        ========================================== */
-        .loader { border: 3px solid var(--border-color); border-top: 3px solid var(--primary); border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .view-section { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.3s ease, transform 0.3s ease; }
-        .view-section.active { display: block; opacity: 1; transform: translateY(0); }
-        
-        .photo-item { position: relative; overflow: hidden; border-radius: 12px; background: var(--border-color); aspect-ratio: 1/1; }
-        .photo-item.selected { border: 4px solid var(--primary); }
-        .photo-item.selected img { opacity: 0.6; }
-        .photo-item.selected::after {
-            content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900;
+        .photo-thumb.selected { 
+            border-color: #3b82f6; 
+            transform: scale(0.92); 
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); 
+            background-color: #3b82f6;
+        }
+        .photo-thumb.selected img { opacity: 0.35; filter: grayscale(50%); }
+        .photo-thumb.selected::after {
+            content: "\f058"; font-family: "Font Awesome 6 Free"; font-weight: 900;
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: white; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            color: white; font-size: 28px; z-index: 20;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
+
+        .fixed-bar-anim { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hidden-bar { transform: translateY(150%); }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            height: calc(65px + var(--safe-bottom));
+            background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border); z-index: 50;
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: var(--safe-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; height: 100%; color: var(--text-muted); font-size: 10px; font-weight: 700;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .nav-btn i { font-size: 20px; margin-bottom: 5px; }
+        .nav-btn.active { color: var(--primary); }
+        
+        .loader { border: 2px solid rgba(0,0,0,0.1); border-top: 2px solid #3b82f6; border-radius: 50%; width: 16px; height: 16px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .time-input { background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 4px; font-size: 12px; width: 75px; text-align: center; font-weight: bold; }
+        
+        /* Dark Mode Forçado */
+        html.dark body { background-color: #0f172a; color: #f8fafc; }
+        html.dark .card-modern { background: #1e293b; border-color: #334155; }
+        html.dark .input-modern, html.dark .time-input, html.dark textarea { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+        html.dark header.glass, html.dark nav.bottom-nav { background: rgba(15, 23, 42, 0.9); border-color: #334155; }
+        html.dark .day-tab.active { background: #334155; color: #3b82f6; border-color: #3b82f6; }
     </style>
 </head>
-<body class="text-slate-800 dark:text-slate-200">
+<body class="antialiased">
 
-    <header class="fixed top-0 w-full z-50 glass-header h-16 flex items-center justify-between px-4 shadow-sm">
-        <div class="flex items-center gap-3 w-2/3">
-            <button id="backBtn" onclick="goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 flex items-center justify-center active:scale-90 transition"><i class="fas fa-arrow-left"></i></button>
+    <!-- Header -->
+    <header class="fixed top-0 w-full h-16 glass z-50 flex items-center justify-between px-4 shadow-sm transition-colors duration-300">
+        <div class="flex items-center gap-3 w-3/4">
+            <button id="backBtn" onclick="AppCore.goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center active:scale-90 shadow-sm flex-shrink-0 transition-colors"><i class="fas fa-chevron-left text-sm"></i></button>
             <div class="overflow-hidden">
-                <h1 id="pageTitle" class="font-bold text-base text-slate-800 dark:text-white truncate tracking-tight">Cronograma</h1>
-                <p id="pageSubtitle" class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">Visão Semanal</p>
+                <h1 id="pageTitle" class="font-bold text-base truncate leading-tight transition-colors">Cronograma</h1>
+                <p id="pageSubtitle" class="text-[10px] font-medium text-slate-500 uppercase truncate tracking-wider">Visão Geral</p>
             </div>
         </div>
-        <div class="flex items-center gap-2">
-            <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-yellow-400 flex items-center justify-center active:scale-90 border border-slate-200 dark:border-slate-600 transition"><i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline"></i></button>
-            
-            <button id="selectBtn" onclick="toggleSelectionMode()" class="hidden text-xs font-bold bg-slate-100 dark:bg-slate-700 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-600 active:scale-95 transition">Selecionar</button>
-            <button id="editIndBtn" onclick="openEditIndustryModal()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-95 border border-slate-200 dark:border-slate-600 transition"><i class="fas fa-pencil-alt text-sm"></i></button>
-            <button id="configRouteBtn" onclick="openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-90 border border-slate-200 dark:border-slate-600 transition"><i class="fas fa-cog text-sm"></i></button>
-            <button onclick="refreshCurrentView()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-blue-600 flex items-center justify-center active:scale-90 border border-slate-200 dark:border-slate-600 transition"><i class="fas fa-sync-alt text-sm"></i></button>
-            <button id="installBtn" class="hidden bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-200 flex items-center gap-1 animate-pulse"><i class="fas fa-download"></i></button>
+        <div class="flex gap-2 flex-shrink-0">
+            <button onclick="AppUtils.toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-yellow-400 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm"><i class="fas fa-moon dark:hidden text-lg"></i><i class="fas fa-sun hidden dark:inline text-yellow-400 text-lg"></i></button>
+            <button id="configRouteBtn" onclick="AppUI.modals.openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm"><i class="fas fa-sliders-h text-lg"></i></button>
+            <button id="selectBtn" onclick="AppCore.toggleSelectionMode()" class="hidden px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase border border-slate-200 dark:border-slate-700 transition">Select</button>
+            <button id="editIndBtn" onclick="AppUI.modals.openEditIndustry()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 shadow-sm"><i class="fas fa-pen text-xs"></i></button>
         </div>
     </header>
 
-    <div class="h-20"></div>
+    <div class="h-16"></div>
 
-    <main class="max-w-md mx-auto px-4 pb-32">
+    <!-- ÁREA PRINCIPAL -->
+    <main class="max-w-md mx-auto px-4 pb-24 pt-4">
 
+        <!-- VIEW 1: HOME -->
         <div id="view-home" class="view-section active">
-            <div id="homeDashboard" class="grid grid-cols-2 gap-3 mb-5">
-                <div class="p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none flex flex-col justify-center">
-                    <div class="text-2xl font-extrabold leading-none mb-1" id="dashTotalInd">0</div>
-                    <div class="text-[10px] uppercase font-bold opacity-80"><i class="fas fa-industry mr-1"></i> Cadastrados</div>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="card-modern p-4 bg-gradient-to-br from-blue-500/5 to-transparent border-blue-100 dark:border-blue-900/30">
+                    <div class="text-2xl font-black text-blue-600" id="dashTotalInd">0</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="dashCountLabel">Locais</div>
                 </div>
-                <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-200 dark:shadow-none flex flex-col justify-center">
-                    <div class="text-2xl font-extrabold leading-none mb-1" id="dashWorkLoad">00:00h</div>
-                    <div class="text-[10px] uppercase font-bold opacity-80"><i class="fas fa-clock mr-1"></i> Carga Hoje</div>
+                <div class="card-modern p-4">
+                    <div class="text-2xl font-black text-slate-800 dark:text-white" id="dashWorkLoad">00:00h</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="dashWorkLabel">Carga Hoje</div>
                 </div>
             </div>
 
-            <div class="mb-4 px-1 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Agenda Semanal</div>
-            <div class="grid grid-cols-7 gap-1 mb-0 px-1 pb-1" id="routeTabsContainer"></div>
-            
-            <div class="card-base rounded-t-none border-t-0 min-h-[300px]">
-                <div id="routeListContent" class="flex flex-col">
-                    <div class="p-6 text-center text-slate-400 text-sm">Carregando...</div>
+            <!-- Alertas de Visita -->
+            <div id="visitAlerts" onclick="AppUI.modals.openLateAlerts()" class="hidden mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 active:scale-95 transition-transform cursor-pointer">
+                <div class="w-10 h-10 bg-red-100 dark:bg-red-800/40 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center"><i class="fas fa-bell"></i></div>
+                <div class="flex-1">
+                    <p class="text-[11px] font-bold text-red-800 dark:text-red-400 uppercase">Atraso detetado</p>
+                    <p class="text-[10px] text-red-600 dark:text-red-500/80" id="visitAlertMsg">Existem locais sem visitas recentes.</p>
+                </div>
+                <i class="fas fa-chevron-right text-red-300 text-xs"></i>
+            </div>
+
+            <div class="grid grid-cols-7 gap-1 mb-3" id="routeTabsContainer"></div>
+            <div class="card-modern min-h-[300px] flex flex-col justify-start overflow-hidden" id="routeListContent">
+                <div class="p-4 space-y-4 text-center text-slate-400 py-10">
+                    <div class="loader mx-auto mb-2"></div>
+                    <p class="text-xs">A carregar rota...</p>
                 </div>
             </div>
-            
-            <button onclick="openAllPhotos()" class="mt-4 w-full bg-white dark:bg-card border border-slate-200 dark:border-slate-700 py-4 rounded-xl font-bold text-slate-600 dark:text-slate-300 text-xs uppercase shadow-sm active:scale-95 transition">
-                <i class="fas fa-images mr-2"></i> Feed de Fotos
+
+            <button onclick="AppCore.openAllPhotos()" class="mt-6 w-full py-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 font-bold text-xs uppercase shadow-sm active:scale-95 transition flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700">
+                <i class="fas fa-layer-group text-lg"></i> Galeria Global de Fotos
             </button>
         </div>
 
+        <!-- VIEW 2: RELATÓRIOS (PARTILHA) -->
+        <div id="view-reports" class="view-section">
+            <div class="text-center py-6 mb-4">
+                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fas fa-paper-plane"></i></div>
+                <h2 class="text-lg font-bold">Partilha Industrial</h2>
+                <p class="text-xs text-slate-500 mt-1">Seleccione o período para enviar as fotografias.</p>
+            </div>
+
+            <div class="card-modern p-4 mb-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Data Início</label>
+                        <input type="date" id="reportStartDate" class="input-modern !py-2 !text-xs dark:bg-slate-800">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Data Fim</label>
+                        <input type="date" id="reportEndDate" class="input-modern !py-2 !text-xs dark:bg-slate-800">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Texto da Mensagem (WhatsApp)</label>
+                    <textarea id="shareCustomTextReports" rows="3" class="input-modern !py-2 !text-xs w-full resize-none dark:bg-slate-800" placeholder="Olá! Seguem os registos das visitas industriais realizados no período seleccionado."></textarea>
+                </div>
+            </div>
+
+            <button onclick="AppCore.shareJpgFiles(true)" class="btn-primary w-full py-5 flex items-center justify-center gap-3 text-sm tracking-wide shadow-lg">
+                <i class="fab fa-whatsapp text-xl"></i> ENVIAR JPG VIA WHATSAPP
+            </button>
+        </div>
+
+        <!-- VIEW 3: LOCAIS -->
         <div id="view-routes" class="view-section">
-            <div class="search-container mb-4 sticky top-20 z-30">
+            <div class="sticky top-16 z-30 bg-body/95 dark:bg-dark-bg/95 backdrop-blur-md py-2 space-y-2 transition-colors">
                 <div class="relative">
-                    <i class="fas fa-search search-icon absolute left-3 top-3 text-slate-400"></i>
-                    <input type="text" id="searchInput" onkeyup="filterIndustries()" placeholder="Buscar local..." class="input-std pl-10">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" onkeyup="AppCore.filterIndustries()" placeholder="Pesquisar local..." class="input-modern pl-10 dark:bg-slate-800 dark:border-slate-700">
                 </div>
             </div>
-            
-            <div class="mb-2 flex justify-between items-end px-1">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Todos os Locais</span>
-                <span id="indCount" class="text-[10px] bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded font-mono font-bold">0</span>
-            </div>
-            
-            <div id="industriesList" class="grid grid-cols-3 gap-3"></div>
-            
-            <button onclick="openAddModal()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full text-white shadow-xl flex items-center justify-center text-2xl active:scale-90 transition z-40 transform hover:-translate-y-1">
-                <i class="fas fa-plus"></i>
-            </button>
-            
-            <div id="industryActions" class="fixed-bottom-bar flex gap-3 hidden-bar">
-                <button onclick="deleteSelectedIndustries()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
-                <button onclick="openBulkCategoryModal()" class="flex-1 bg-blue-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95">Mudar Categoria</button>
-            </div>
+            <div id="industriesList" class="grid grid-cols-3 gap-2 pb-20 mt-4"></div>
+            <button onclick="AppUI.modals.openAddIndustry()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl active:scale-90 z-40 transition shadow-blue-500/30"><i class="fas fa-plus"></i></button>
         </div>
 
+        <!-- VIEW 4: DATAS -->
         <div id="view-dates" class="view-section">
-            <div class="flex justify-between items-center mb-4 px-1">
-                <button onclick="changeCalendarMonth(-1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center"><i class="fas fa-chevron-left text-xs"></i></button>
-                <span id="calendarTitle" class="text-sm font-bold uppercase">...</span>
-                <button onclick="changeCalendarMonth(1)" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center"><i class="fas fa-chevron-right text-xs"></i></button>
+            <div class="flex items-center justify-between mb-6 px-1">
+                <button onclick="AppCore.changeCalendarMonth(-1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent dark:text-white"><i class="fas fa-chevron-left"></i></button>
+                <span id="calendarTitle" class="text-lg font-bold capitalize">Mês</span>
+                <button onclick="AppCore.changeCalendarMonth(1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent dark:text-white"><i class="fas fa-chevron-right"></i></button>
             </div>
-            
-            <div class="card-base p-4">
-                <div class="grid grid-cols-7 gap-1 mb-2 text-center">
-                    <div class="text-[10px] font-bold text-red-400">D</div>
-                    <div class="text-[10px] font-bold text-slate-400">S</div>
-                    <div class="text-[10px] font-bold text-slate-400">T</div>
-                    <div class="text-[10px] font-bold text-slate-400">Q</div>
-                    <div class="text-[10px] font-bold text-slate-400">Q</div>
-                    <div class="text-[10px] font-bold text-slate-400">S</div>
-                    <div class="text-[10px] font-bold text-slate-400">S</div>
-                </div>
-                <div id="calendarGrid" class="cal-grid"></div>
-            </div>
-            
-            <div class="mt-4 grid grid-cols-2 gap-3">
-                <label class="bg-blue-600 text-white py-4 rounded-xl flex flex-col items-center justify-center active:scale-95 transition shadow-lg cursor-pointer">
-                    <i class="fas fa-camera text-2xl mb-1"></i><span class="text-[10px] font-bold uppercase">Câmera</span>
-                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="uploadPhoto(this)">
+            <div class="card-modern p-4 mb-6" id="calendarGrid"></div>
+            <div class="grid grid-cols-2 gap-4">
+                <label class="btn-primary py-5 flex flex-col items-center justify-center gap-2 cursor-pointer shadow-blue-500/20">
+                    <i class="fas fa-camera text-2xl"></i><span class="text-[10px] font-bold">CÂMARA</span>
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="AppCore.uploadPhoto(this)">
                 </label>
-                <label class="bg-purple-600 text-white py-4 rounded-xl flex flex-col items-center justify-center active:scale-95 transition shadow-lg cursor-pointer">
-                    <i class="fas fa-images text-2xl mb-1"></i><span class="text-[10px] font-bold uppercase">Galeria</span>
-                    <input type="file" accept="image/*" class="hidden" onchange="uploadPhoto(this)">
+                <label class="btn-primary py-5 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-800 dark:bg-slate-700 shadow-slate-500/20">
+                    <i class="fas fa-images text-2xl"></i><span class="text-[10px] font-bold">GALERIA</span>
+                    <input type="file" accept="image/*" class="hidden" onchange="AppCore.uploadPhoto(this)">
                 </label>
             </div>
         </div>
 
+        <!-- VIEW 5: GALERIA -->
         <div id="view-gallery" class="view-section">
-            <button onclick="generatePDF()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold text-xs mb-4 flex items-center justify-center gap-2 shadow-lg active:scale-95">
-                <i class="fas fa-file-pdf text-red-400"></i> GERAR RELATÓRIO PDF
-            </button>
-            <div id="photosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
+            <div id="photosContainer" class="photo-grid mb-6"></div>
             
-            <div id="selectionControls" class="fixed-bottom-bar flex gap-3 hidden-bar">
-                <button onclick="selectAllPhotos()" class="bg-blue-600 text-white font-bold rounded-xl px-4 py-3 active:scale-95">Todas</button>
-                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
-                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCount">0</span>)</button>
+            <div class="card-modern p-4 mb-4">
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Mensagem de Acompanhamento</label>
+                <textarea id="galleryShareText" rows="2" class="input-modern !py-2 !text-xs w-full resize-none dark:bg-slate-800" placeholder="Escreva o texto que acompanhará as fotos no WhatsApp..."></textarea>
             </div>
+            
+            <button onclick="AppCore.shareJpgFiles(false)" class="btn-primary w-full py-4 flex items-center justify-center gap-3 text-xs tracking-wider shadow-blue-500/30 mb-20">
+                <i class="fab fa-whatsapp text-lg"></i> ENVIAR FOTOS (.JPG)
+            </button>
         </div>
 
+        <!-- VIEW 6: TODAS AS FOTOS -->
         <div id="view-all" class="view-section">
-            <div id="allPhotosContainer" class="grid grid-cols-3 gap-1 pb-48 select-none"></div>
-            <div id="selectionControlsAll" class="fixed-bottom-bar flex gap-3 hidden-bar">
-                <button onclick="selectAllPhotos()" class="bg-blue-600 text-white font-bold rounded-xl px-4 py-3 active:scale-95">Todas</button>
-                <button onclick="deleteSelected()" class="w-14 h-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
-                <button onclick="shareSelected()" class="flex-1 bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95">Compartilhar (<span id="selCountAll">0</span>)</button>
-            </div>
+            <div id="allPhotosContainer" class="pb-24 space-y-6"></div>
         </div>
+
     </main>
 
+    <!-- Barra Inferior -->
     <nav id="mainNavBar" class="bottom-nav">
-        <div id="nav-general" class="nav-item active" onclick="switchMainTab('general')">
-            <i class="fas fa-calendar-alt"></i><span>Geral</span>
+        <div id="nav-general" class="nav-btn active" onclick="AppCore.switchMainTab('general')">
+            <i class="fas fa-calendar-day text-lg"></i><span>Hoje</span>
         </div>
-        <div id="nav-routes" class="nav-item" onclick="switchMainTab('routes')">
-            <i class="fas fa-th-large"></i><span>Locais</span>
+        <div id="nav-reports" class="nav-btn" onclick="AppCore.switchMainTab('reports')">
+            <i class="fas fa-paper-plane text-lg"></i><span>Partilhar</span>
+        </div>
+        <div id="nav-routes" class="nav-btn" onclick="AppCore.switchMainTab('routes')">
+            <i class="fas fa-industry text-lg"></i><span>Locais</span>
         </div>
     </nav>
 
-    <div id="routeConfigModal" class="fixed inset-0 bg-black/50 z-[80] hidden flex flex-col items-center justify-center p-4 backdrop-blur-sm">
-        <div class="card-base w-full max-w-sm p-6 shadow-2xl h-[85vh] flex flex-col">
-            <h3 class="text-sm font-bold text-slate-700 dark:text-white mb-2 uppercase">Planejamento Semanal</h3>
-            
-            <div class="grid grid-cols-7 gap-1 mb-3">
-                <button onclick="selectRouteConfigDay('Domingo')" class="day-cfg-btn bg-red-50 dark:bg-red-900/30 px-0 py-2 rounded text-[9px] text-red-500 font-bold border border-red-100 dark:border-red-900 flex justify-center">DOM</button>
-                <button onclick="selectRouteConfigDay('Segunda')" class="day-cfg-btn bg-slate-100 dark:bg-slate-700 px-0 py-2 rounded text-[9px] text-slate-500 font-bold border border-slate-200 dark:border-slate-600 flex justify-center">SEG</button>
-                <button onclick="selectRouteConfigDay('Terça')" class="day-cfg-btn bg-slate-100 dark:bg-slate-700 px-0 py-2 rounded text-[9px] text-slate-500 font-bold border border-slate-200 dark:border-slate-600 flex justify-center">TER</button>
-                <button onclick="selectRouteConfigDay('Quarta')" class="day-cfg-btn bg-slate-100 dark:bg-slate-700 px-0 py-2 rounded text-[9px] text-slate-500 font-bold border border-slate-200 dark:border-slate-600 flex justify-center">QUA</button>
-                <button onclick="selectRouteConfigDay('Quinta')" class="day-cfg-btn bg-slate-100 dark:bg-slate-700 px-0 py-2 rounded text-[9px] text-slate-500 font-bold border border-slate-200 dark:border-slate-600 flex justify-center">QUI</button>
-                <button onclick="selectRouteConfigDay('Sexta')" class="day-cfg-btn bg-slate-100 dark:bg-slate-700 px-0 py-2 rounded text-[9px] text-slate-500 font-bold border border-slate-200 dark:border-slate-600 flex justify-center">SEX</button>
-                <button onclick="selectRouteConfigDay('Sábado')" class="day-cfg-btn bg-slate-100 dark:bg-slate-700 px-0 py-2 rounded text-[9px] text-slate-500 font-bold border border-slate-200 dark:border-slate-600 flex justify-center">SÁB</button>
-            </div>
-
-            <div class="text-xs text-slate-400 mb-2 flex justify-between">
-                <span>Agendar para: <span id="currentConfigDay" class="text-blue-600 font-bold">...</span></span>
-            </div>
-
-            <div id="routeChecklist" class="flex-1 overflow-y-auto space-y-2 mb-4 bg-slate-50 dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-700"></div>
-
-            <div class="flex gap-3 mt-auto">
-                <button onclick="document.getElementById('routeConfigModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Fechar</button>
-                <button onclick="saveRouteConfig()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button>
-            </div>
-        </div>
+    <!-- Dock de Ações Flutuante -->
+    <div id="selectionControls" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-[0_-10px_25px_rgba(0,0,0,0.15)]">
+        <button onclick="AppCore.selectAllPhotos()" class="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-xs dark:text-white">Todas</button>
+        <button onclick="AppCore.deleteSelected()" class="w-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
+        <button onclick="AppCore.shareJpgFiles(false)" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg">Partilhar (<span id="selCount">0</span>)</button>
     </div>
 
-    <div id="addModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="card-base w-full max-w-xs p-6 shadow-2xl">
-            <h3 id="modalTitle" class="text-sm font-bold text-slate-700 dark:text-white mb-4 uppercase">Nova Indústria</h3>
-            <input type="hidden" id="editIndId">
-            <input type="text" id="newIndName" placeholder="Nome (ex: Fabrica X)" class="input-std mb-3">
-            
-            <div class="mb-3">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Carga Horária Semanal (Horas)</label>
-                <input type="number" id="newIndHours" placeholder="Ex: 7" class="input-std">
-            </div>
-
-            <div class="flex gap-2 mb-4">
-                <div class="relative w-full">
-                    <select id="catSelect" class="input-std appearance-none"><option value="">Sem Categoria</option></select>
-                    <i class="fas fa-chevron-down absolute right-3 top-3.5 text-slate-400 text-xs"></i>
-                </div>
-                <button onclick="document.getElementById('newCatContainer').classList.toggle('hidden')" class="w-12 bg-blue-50 dark:bg-slate-700 text-blue-600 rounded-xl border border-blue-200 dark:border-slate-600 flex items-center justify-center"><i class="fas fa-plus"></i></button>
-            </div>
-            <div id="newCatContainer" class="hidden mb-4 flex gap-2"><input type="text" id="newCatName" placeholder="Nova Categoria..." class="input-std text-xs"><button onclick="addNewCategory()" class="bg-green-500 text-white px-3 rounded-lg text-xs font-bold">OK</button></div>
-
-            <div class="mb-4">
-                <label class="block mb-1 font-semibold text-sm text-slate-700 dark:text-slate-300">Foto de Capa</label>
-                <div class="flex items-center gap-3">
-                    <img id="coverPreview" src="" alt="Capa" class="w-20 h-20 object-cover rounded-lg bg-slate-200 border border-slate-300 hidden">
-                    <div id="coverPlaceholder" class="w-20 h-20 bg-slate-100 dark:bg-slate-700 rounded-lg border border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-300"><i class="fas fa-image text-xl"></i></div>
-                    <label for="coverInput" class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-xs active:scale-95 transition shadow">Selecionar</label>
-                </div>
-                <input type="file" id="coverInput" accept="image/*" class="hidden" onchange="handleCoverChange(event)">
-            </div>
-
-            <button id="btnDeleteInd" onclick="deleteCurrentIndustry()" class="w-full bg-red-50 dark:bg-red-900/30 text-red-500 py-3 rounded-xl font-bold text-xs mb-3 border border-red-100 dark:border-red-900 hidden flex items-center justify-center gap-2 active:scale-95 transition">
-                <i class="fas fa-trash-alt"></i> EXCLUIR INDÚSTRIA
-            </button>
-
-            <div class="flex gap-3"><button onclick="closeAddModal()" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button onclick="saveIndustry()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">SALVAR</button></div>
-        </div>
-    </div>
-
-    <div id="bulkCatModal" class="fixed inset-0 bg-black/50 z-[90] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="card-base w-full max-w-xs p-6 shadow-2xl">
-            <h3 class="text-sm font-bold text-slate-700 dark:text-white mb-4 uppercase">Mudar Categoria</h3>
-            <p class="text-xs text-slate-500 mb-2">Aplicar para <span id="bulkCountDisplay" class="font-bold">0</span> indústrias:</p>
-            <div class="relative w-full mb-4">
-                <select id="bulkCatSelect" class="input-std appearance-none"><option value="">Sem Categoria</option></select>
-            </div>
-            <div class="flex gap-3"><button onclick="document.getElementById('bulkCatModal').classList.add('hidden')" class="flex-1 py-3 text-slate-400 text-xs font-medium hover:text-slate-600">Cancelar</button><button onclick="saveBulkCategory()" class="flex-1 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg">APLICAR</button></div>
-        </div>
-    </div>
-
-    <div id="photoModal" class="fixed inset-0 bg-black z-[70] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
-        <div class="absolute top-0 w-full p-4 flex justify-end z-20">
-            <button onclick="closePhotoModal()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-90"><i class="fas fa-times text-xl"></i></button>
-        </div>
-        <img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain mb-4 rounded shadow-2xl">
-        <div class="absolute bottom-8 flex gap-4 w-full max-w-xs justify-center px-4">
-            <button onclick="deleteSinglePhoto()" class="w-14 h-14 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90"><i class="fas fa-trash-alt text-lg"></i></button>
-        </div>
-    </div>
-
-    <div id="statusToast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full shadow-xl text-xs font-bold flex items-center gap-2 transition-all opacity-0 -translate-y-10 z-[100]">
-        <div id="toastIcon" class="loader w-3 h-3 border-slate-200 border-t-blue-500"></div>
-        <span id="toastMsg">Processando...</span>
-    </div>
-
+    <!-- Scripts -->
     <script>
+        // --- CONSTANTES GLOBAIS ---
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const BUCKET = 'galeria';
+        const WEEK_DAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        const CATEGORY_COLORS = ['bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-purple-100 text-purple-600', 'bg-orange-100 text-orange-600', 'bg-pink-100 text-pink-600', 'bg-teal-100 text-teal-600'];
 
-        let currentIndustry = null;
-        let currentDateFolder = null;
-        let industryPhotos = [];
-        let allIndustries = [];
-        let categories = [];
-        let isSelectionMode = false;
-        let selectedPhotos = new Set();
-        let selectedIndustries = new Set();
-        let currentModalPhoto = null;
-        let coverImageFile = null;
-        let calendarCursor = new Date();
-        let availableDates = new Set();
-        
-        let routes = { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
-        const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-        let configSelectedDay = null;
-        let viewSelectedDay = null;
-        let viewHistory = [];
-        
-        const categoryColorsClass = ['bg-blue text-blue-700 bg-blue-100', 'bg-green text-green-700 bg-green-100', 'bg-purple text-purple-700 bg-purple-100', 'bg-orange text-orange-700 bg-orange-100', 'bg-pink text-pink-700 bg-pink-100', 'bg-teal text-teal-700 bg-teal-100'];
+        const AppState = {
+            currentIndustry: null, currentDateFolder: null, industryPhotos: [], allIndustries: [], categories: [], lateIndustries: [],
+            routes: { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] },
+            isSelectionMode: false, selectedPhotos: new Set(), selectedIndustries: new Set(),
+            currentModalPhoto: null, coverImageFile: null, calendarCursor: new Date(), availableDates: new Set(),
+            configSelectedDay: null, viewSelectedDay: null, viewHistory: [], userId: 'anonymous'
+        };
 
-        // --- INICIALIZAÇÃO ---
-        window.onload = async () => {
-            viewHistory = [];
-            if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
-
-            try {
-                // PRIMEIRO PASSO: Recuperar indústrias "zumbis"
-                await syncStorageWithDB();
-                
-                await Promise.all([loadIndustries(), fetchRoutesFromDB(), loadCategories()]);
-                updateDashboard();
-                
-                const hash = window.location.hash.substring(1);
-                if (hash && document.getElementById(hash)) {
-                    if (hash === 'view-dates' && !currentIndustry) navigateTo('view-home', false);
-                    else navigateTo(hash, false);
-                } else {
-                    const today = weekDays[new Date().getDay()];
-                    viewSelectedDay = today;
-                    selectRouteViewDay(today);
-                }
-            } catch (e) {
-                console.error("Erro Load:", e);
-                showToast("Erro ao iniciar", "error");
+        const AppUtils = {
+            minutesToHM: (m) => `${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`,
+            hmToMinutes: (hm) => hm ? hm.split(':').map(Number).reduce((h, m) => h * 60 + m) : 0,
+            sanitize: (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"),
+            showToast: (msg, type = 'loading') => {
+                const toast = document.getElementById('statusToast'); 
+                const msgEl = document.getElementById('toastMsg');
+                if(!toast || !msgEl) return;
+                msgEl.innerText = msg;
+                toast.classList.remove('opacity-0', '-translate-y-10');
+                const icon = document.getElementById('toastIcon');
+                if (type === 'success') icon.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+                else if (type === 'error') icon.innerHTML = '<i class="fas fa-times text-red-400"></i>';
+                else icon.innerHTML = '<div class="loader"></div>';
+                setTimeout(() => toast.classList.add('opacity-0', '-translate-y-10'), 2500);
+            },
+            toggleDarkMode: () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); },
+            getGPS: () => new Promise((res) => {
+                if(!navigator.geolocation) return res(null);
+                navigator.geolocation.getCurrentPosition((p) => res(`${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`), () => res(null), { timeout: 3000 });
+            }),
+            resizeImage: (file) => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const max = 1200;
+                            const scale = max / Math.max(img.width, img.height);
+                            canvas.width = img.width * scale; canvas.height = img.height * scale;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
             }
         };
 
-        // --- FUNÇÃO CRÍTICA DE RECUPERAÇÃO ---
-        async function syncStorageWithDB() {
-            try {
-                const { data: stData } = await sb.storage.from(BUCKET).list('', { limit: 1000 });
-                if (!stData) return;
-
-                const stFolders = stData.filter(i => i.name !== '.keep').map(i => i.name);
+        const AppCore = {
+            init: async () => {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') document.documentElement.classList.add('dark');
                 
-                const { data: dbData } = await sb.from('industrias').select('nome');
-                const dbNames = dbData ? dbData.map(i => i.nome) : [];
-                
-                const missing = stFolders.filter(n => !dbNames.includes(n));
-                
-                if (missing.length > 0) {
-                    await sb.from('industrias').insert(missing.map(n => ({ nome: n, carga_semanal: 0 })));
-                }
-            } catch (e) { console.error("Sync Error:", e); }
-        }
+                const now = new Date();
+                const todayIso = now.toISOString().split('T')[0];
+                if(document.getElementById('reportStartDate')) document.getElementById('reportStartDate').value = todayIso;
+                if(document.getElementById('reportEndDate')) document.getElementById('reportEndDate').value = todayIso;
 
-        async function loadIndustries() {
-            try {
-                const { data } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
-                allIndustries = data || [];
-                document.getElementById('indCount').innerText = allIndustries.length;
-                renderIndustries(allIndustries);
-                updateDashboard();
-                cacheData();
-            } catch (e) { console.error(e); }
-        }
-
-        function renderIndustries(industries) {
-            const list = document.getElementById('industriesList');
-            list.innerHTML = '';
-            
-            if (industries.length === 0) {
-                list.innerHTML = '<div class="col-span-3 text-center py-20 text-slate-400 text-xs italic">Nenhum local. Clique em + para adicionar.</div>';
-                return;
-            }
-
-            industries.forEach(ind => {
-                const el = document.createElement('div');
-                el.className = 'ind-card group cursor-pointer active:scale-95 relative';
-                el.onclick = (e) => handleIndustryClick(ind, e);
-                
-                const catName = ind.categorias ? ind.categorias.nome : '';
-                let colorClass = 'cat-badge bg-slate-100 text-slate-600';
-                if (ind.categorias) colorClass = `cat-badge ${categoryColorsClass[(ind.categoria_id - 1) % categoryColorsClass.length]}`;
-
-                const coverUrl = ind.cover_url ? `${ind.cover_url}?t=${Date.now()}` : '';
-                const coverEl = coverUrl 
-                    ? `<div class="cover-wrapper"><img src="${coverUrl}" loading="lazy" class="cover-img"></div>`
-                    : `<div class="cover-wrapper flex items-center justify-center bg-slate-100 text-slate-300"><i class="fas fa-industry text-xl"></i></div>`;
-
-                el.innerHTML = `
-                    ${coverEl}
-                    <h3 class="font-bold text-[10px] text-slate-600 dark:text-slate-300 text-center leading-tight line-clamp-2 px-1 break-words w-full flex-1 flex items-center justify-center">${ind.nome}</h3>
-                    <div class="flex flex-col items-center gap-1 w-full mt-1">
-                        ${catName ? `<div class="${colorClass}">${catName}</div>` : ''}
-                        <span class="text-[8px] text-slate-400 font-mono">${ind.carga_semanal || 0}h/sem</span>
-                    </div>
-                    <button class="absolute top-1 right-1 w-6 h-6 rounded-full text-slate-400 hover:text-red-500 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center z-10 shadow-sm" onclick="event.stopPropagation(); deleteIndustry('${ind.id}', event, '${ind.nome}')">
-                        <i class="fas fa-trash-alt text-[9px]"></i>
-                    </button>
-                `;
-                list.appendChild(el);
-            });
-        }
-
-        // --- SISTEMA DE ROTAS E HORAS ---
-        async function fetchRoutesFromDB() {
-            try {
+                try {
+                    await Promise.all([AppCore.loadIndustries(), AppCore.fetchRoutes()]);
+                    const today = WEEK_DAYS[now.getDay()];
+                    AppState.viewSelectedDay = today;
+                    AppUI.renderRouteList(today);
+                    AppUI.updateDashboard();
+                    AppCore.checkAlerts();
+                } catch (e) { console.error(e); }
+            },
+            loadIndustries: async () => {
+                const { data } = await sb.from('industrias').select('*').order('nome');
+                AppState.allIndustries = data || [];
+                AppUI.renderIndustries(AppState.allIndustries);
+            },
+            fetchRoutes: async () => {
                 const { data } = await sb.from('rotas').select('*');
-                if (data) {
-                    routes = { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] };
-                    data.forEach(row => routes[row.dia] = row.industrias || []);
-                }
-            } catch (e) { console.error(e); }
-        }
+                if (data) data.forEach(r => AppState.routes[r.dia] = r.industrias || []);
+            },
+            uploadPhoto: async (input) => {
+                const f = input.files[0]; if (!f || !AppState.currentIndustry) return;
+                AppUtils.showToast("A processar...");
+                const gps = await AppUtils.getGPS();
+                try {
+                    const safeName = AppUtils.sanitize(AppState.currentIndustry.nome);
+                    const now = new Date();
+                    const targetDate = AppState.currentDateFolder || now.toLocaleDateString('pt-PT').replace(/\//g, '-');
+                    const fileName = `${safeName}/${targetDate}/FOTO_${now.getTime()}.jpg`;
+                    const blob = await AppUtils.resizeImage(f);
+                    await sb.storage.from(BUCKET).upload(fileName, blob, { contentType: 'image/jpeg' });
+                    const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(fileName);
+                    await sb.from('fotos').insert({
+                        created_at: now.toISOString(), nome_arquivo: fileName, url_publica: urlData.publicUrl,
+                        industria_id: AppState.currentIndustry.id, descricao: gps ? `📍 GPS: ${gps}` : ''
+                    }).select();
+                    AppUtils.showToast("Foto salva!", "success");
+                    await AppCore.loadDates(AppState.currentIndustry.nome);
+                    if (document.getElementById('view-gallery').classList.contains('active')) AppUI.loadGalleryPhotos();
+                    AppCore.checkAlerts();
+                } catch (e) { AppUtils.showToast("Erro no envio", "error"); } finally { input.value = ''; }
+            },
+            loadDates: async (name) => {
+                const safe = AppUtils.sanitize(name);
+                const { data: allPhotos } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false });
+                AppState.industryPhotos = allPhotos || [];
+                AppState.availableDates.clear();
+                AppState.industryPhotos.forEach(p => AppState.availableDates.add(new Date(p.created_at).toLocaleDateString('pt-PT')));
+                AppUI.renderCalendar();
+            },
+            changeCalendarMonth: (o) => { AppState.calendarCursor.setMonth(AppState.calendarCursor.getMonth() + o); AppUI.renderCalendar(); },
+            checkAlerts: async () => {
+                const { data } = await sb.from('fotos').select('industria_id, created_at').order('created_at', { ascending: false });
+                const lastVisits = {};
+                data?.forEach(f => { if(!lastVisits[f.industria_id]) lastVisits[f.industria_id] = new Date(f.created_at); });
+                const threshold = new Date(); threshold.setDate(threshold.getDate() - 7);
+                AppState.lateIndustries = AppState.allIndustries.filter(i => !lastVisits[i.id] || lastVisits[i.id] < threshold);
+                const alertEl = document.getElementById('visitAlerts');
+                if(AppState.lateIndustries.length > 0) {
+                    if(alertEl) alertEl.classList.remove('hidden');
+                    const msgEl = document.getElementById('visitAlertMsg');
+                    if(msgEl) msgEl.innerText = `${AppState.lateIndustries.length} locais sem visitas recentes.`;
+                } else if(alertEl) alertEl.classList.add('hidden');
+            },
+            shareJpgFiles: async (isReportsTab) => {
+                const customMsg = isReportsTab ? document.getElementById('shareCustomTextReports').value : document.getElementById('galleryShareText').value;
+                const start = isReportsTab ? document.getElementById('reportStartDate').value : null;
+                const end = isReportsTab ? document.getElementById('reportEndDate').value : null;
 
-        function selectRouteViewDay(day) {
-            viewSelectedDay = day;
-            const container = document.getElementById('routeTabsContainer');
-            container.innerHTML = '';
-            weekDays.forEach(d => {
-                const btn = document.createElement('button');
-                btn.innerText = d.substring(0, 3);
-                btn.className = `day-tab ${d === day ? 'active' : ''}${d === 'Domingo' ? ' text-red-400' : ''}`;
-                btn.onclick = () => selectRouteViewDay(d);
-                container.appendChild(btn);
-            });
-            renderRouteList(day);
-        }
-
-        function renderRouteList(day) {
-            const container = document.getElementById('routeListContent');
-            const dayItems = routes[day] || [];
-            container.innerHTML = '';
-            
-            if (dayItems.length === 0) {
-                container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm italic">Nenhuma rota definida.</div>';
-                return;
-            }
-
-            dayItems.forEach(item => {
-                const indName = (typeof item === 'string') ? item : item.nome;
-                const indTime = (typeof item === 'object' && item.minutos) ? minutesToHM(item.minutos) : null;
-                const ind = allIndustries.find(i => i.nome === indName);
+                AppUtils.showToast("A preparar ficheiros...", "loading");
                 
-                if (!ind) return;
-
-                const row = document.createElement('div');
-                row.className = 'route-row group';
-                row.onclick = () => openIndustry(ind);
-
-                const coverUrl = ind.cover_url ? `${ind.cover_url}?t=${Date.now()}` : '';
-                const imgEl = coverUrl 
-                    ? `<img src="${coverUrl}" loading="lazy" class="w-10 h-10 rounded-lg object-cover bg-slate-200 mr-3">`
-                    : `<div class="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center text-slate-400 mr-3"><i class="fas fa-industry"></i></div>`;
-
-                const timeBadge = indTime ? `<span class="text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded ml-auto mr-2">${indTime}h</span>` : '';
-
-                row.innerHTML = `
-                    <div class="flex items-center flex-1 overflow-hidden">
-                        ${imgEl}
-                        <div class="flex flex-col truncate">
-                            <span class="font-bold text-sm text-slate-700 dark:text-slate-200 truncate">${ind.nome}</span>
-                            ${ind.categorias ? `<span class="text-[9px] text-blue-500 font-bold uppercase">${ind.categorias.nome}</span>` : ''}
-                        </div>
-                    </div>
-                    ${timeBadge}
-                    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-                `;
-                container.appendChild(row);
-            });
-        }
-
-        // --- CONFIGURAÇÃO DE ROTAS (MODAL) ---
-        function openRouteConfig() {
-            document.getElementById('routeConfigModal').classList.remove('hidden');
-            selectRouteConfigDay(viewSelectedDay || 'Segunda');
-        }
-
-        function selectRouteConfigDay(day) {
-            configSelectedDay = day;
-            document.querySelectorAll('.day-cfg-btn').forEach(btn => {
-                const active = btn.innerText.trim().startsWith(day.substring(0, 3));
-                btn.className = active 
-                    ? 'day-cfg-btn bg-blue-600 text-white px-0 py-2 rounded text-[9px] font-bold shadow w-full'
-                    : 'day-cfg-btn bg-slate-100 dark:bg-slate-700 text-slate-500 font-bold border border-slate-200 dark:border-slate-600 w-full';
-            });
-            document.getElementById('currentConfigDay').innerText = day;
-            renderChecklist();
-        }
-
-        function renderChecklist() {
-            const list = document.getElementById('routeChecklist');
-            list.innerHTML = '';
-            const currentRoute = routes[configSelectedDay] || [];
-
-            allIndustries.forEach(ind => {
-                const existingItem = currentRoute.find(r => (typeof r === 'string' ? r === ind.nome : r.nome === ind.nome));
-                const isChecked = !!existingItem;
-                const allocatedMin = (existingItem && typeof existingItem === 'object') ? existingItem.minutos : 0;
-
-                let weeklyTotal = 0;
-                weekDays.forEach(d => {
-                    const dayRoute = routes[d] || [];
-                    const item = dayRoute.find(r => (typeof r === 'string' ? r === ind.nome : r.nome === ind.nome));
-                    if(item && typeof item === 'object') weeklyTotal += item.minutos;
-                });
-
-                const targetMin = (ind.carga_semanal || 0) * 60;
-                let statusClass = 'bg-slate-100 text-slate-400';
-                if (targetMin > 0) {
-                    if (weeklyTotal < targetMin) statusClass = 'hour-warn';
-                    else if (weeklyTotal === targetMin) statusClass = 'hour-ok';
-                    else statusClass = 'hour-err';
-                }
-
-                const item = document.createElement('div');
-                item.className = 'flex items-center gap-3 p-2 bg-white dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700';
-                const safeName = ind.nome.replace(/'/g, "\\'");
-                const inputDisplay = isChecked ? 'block' : 'none';
-                
-                item.innerHTML = `
-                    <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="toggleRouteItem('${safeName}')">
-                        <div class="w-5 h-5 rounded border ${isChecked ? 'bg-blue-600 border-blue-600' : 'border-slate-300'} flex items-center justify-center">
-                            ${isChecked ? '<i class="fas fa-check text-white text-xs"></i>' : ''}
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-sm font-bold text-slate-700 dark:text-slate-200">${ind.nome}</span>
-                            <span class="hour-badge ${statusClass} w-fit">Meta: ${minutesToHM(weeklyTotal)}h / ${ind.carga_semanal || 0}h</span>
-                        </div>
-                    </div>
-                    <input type="time" class="time-input" style="display:${inputDisplay}" 
-                           value="${minutesToHM(allocatedMin)}" 
-                           onchange="updateRouteTime('${safeName}', this.value)">
-                `;
-                list.appendChild(item);
-            });
-        }
-
-        function toggleRouteItem(name) {
-            if (!routes[configSelectedDay]) routes[configSelectedDay] = [];
-            const idx = routes[configSelectedDay].findIndex(r => (typeof r === 'string' ? r === name : r.nome === name));
-            
-            if (idx > -1) routes[configSelectedDay].splice(idx, 1);
-            else routes[configSelectedDay].push({ nome: name, minutos: 0 });
-            
-            renderChecklist();
-        }
-
-        function updateRouteTime(name, timeStr) {
-            const mins = hmToMinutes(timeStr);
-            const idx = routes[configSelectedDay].findIndex(r => (typeof r === 'string' ? r === name : r.nome === name));
-            if (idx > -1) {
-                routes[configSelectedDay][idx] = { nome: name, minutos: mins };
-                renderChecklist();
-            }
-        }
-
-        // --- CRUD COMPLETO ---
-        async function saveIndustry() {
-            const id = document.getElementById('editIndId').value;
-            const name = document.getElementById('newIndName').value.trim();
-            const hours = parseInt(document.getElementById('newIndHours').value) || 0;
-            const catId = document.getElementById('catSelect').value || null;
-            
-            if (!name) return showToast("Nome obrigatório", "error");
-            showToast("Salvando...", "loading");
-            
-            let coverUrl = null;
-            try {
-                const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                if (coverImageFile) {
-                    const coverFileName = `${safeName}/cover_${Date.now()}.jpg`;
-                    const blob = await resizeImage(coverImageFile);
-                    const { error } = await sb.storage.from(BUCKET).upload(coverFileName, blob, { upsert: true, contentType: 'image/jpeg' });
-                    if(!error) {
-                        const { data } = sb.storage.from(BUCKET).getPublicUrl(coverFileName);
-                        coverUrl = data.publicUrl;
+                try {
+                    let photosToShare = [];
+                    if(isReportsTab) {
+                        const { data } = await sb.from('fotos').select('*')
+                            .gte('created_at', `${start}T00:00:00Z`)
+                            .lte('created_at', `${end}T23:59:59Z`);
+                        photosToShare = data || [];
+                    } else {
+                        // Filtra apenas as fotos marcadas (selectedPhotos)
+                        photosToShare = AppState.industryPhotos.filter(f => AppState.selectedPhotos.has(f.id));
+                        // Se nada selecionado, envia as da data atual
+                        if(photosToShare.length === 0) {
+                             photosToShare = AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder);
+                        }
                     }
-                }
 
-                const payload = { nome: name, categoria_id: catId, carga_semanal: hours };
-                if (coverUrl) payload.cover_url = coverUrl;
-
-                if (id) await sb.from('industrias').update(payload).eq('id', id);
-                else {
-                    await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), { upsert: true });
-                    await sb.from('industrias').insert(payload);
-                }
-                
-                showToast("Salvo!", "success");
-                closeAddModal();
-                await loadIndustries();
-            } catch (e) {
-                console.error(e);
-                showToast("Erro ao salvar", "error");
-            }
-        }
-
-        async function deleteIndustry(id, e, indName) {
-            if (e) e.stopPropagation();
-            if (!indName) {
-                const ind = allIndustries.find(i => i.id == id);
-                if (ind) indName = ind.nome;
-            }
-
-            showToast("Excluindo...", "loading");
-            try {
-                if (indName) {
-                    const safeName = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                    const { data: files } = await sb.storage.from(BUCKET).list(safeName);
-                    if (files && files.length > 0) {
-                        const paths = files.map(f => `${safeName}/${f.name}`);
-                        await sb.storage.from(BUCKET).remove(paths);
+                    if(photosToShare.length === 0) return AppUtils.showToast("Sem fotos para enviar", "error");
+                    
+                    const fileObjects = [];
+                    for(const p of photosToShare) {
+                        try {
+                            const res = await fetch(p.url_publica);
+                            const blob = await res.blob();
+                            fileObjects.push(new File([blob], `Registo_${p.id.substring(0,4)}.jpg`, { type: 'image/jpeg' }));
+                        } catch(e) { console.warn("Erro a carregar imagem", e); }
                     }
-                    await sb.storage.from(BUCKET).remove([`${safeName}/.keep`]);
+
+                    // Tenta Partilha Nativa (Suporta Ficheiros no Mobile)
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: fileObjects })) {
+                        await navigator.share({
+                            files: fileObjects,
+                            title: 'Relatório Industrial',
+                            text: customMsg || "Seguem as fotografias do registo industrial."
+                        });
+                        AppUtils.showToast("Partilha iniciada!", "success");
+                    } else {
+                        // Fallback para quando o navegador não permite enviar ficheiros
+                        const waUrl = `https://wa.me/?text=${encodeURIComponent((customMsg || "Seguem os registos.") + " (Anexe as fotos manualmente)")}`;
+                        window.open(waUrl, '_blank');
+                        AppUtils.showToast("Partilha de ficheiros não suportada. Abrindo chat...", "error");
+                    }
+                } catch(e) { console.error(e); AppUtils.showToast("Erro na partilha", "error"); }
+            },
+            saveIndustry: async () => {
+                const id = document.getElementById('editIndId').value;
+                const name = document.getElementById('newIndName').value.trim();
+                const hours = parseInt(document.getElementById('newIndHours').value) || 0;
+                if(!name || !confirm("Gravar alterações?")) return;
+                AppUtils.showToast("A guardar...");
+                const payload = { nome: name, carga_semanal: hours };
+                if(id) await sb.from('industrias').update(payload).eq('id', id).select();
+                else await sb.from('industrias').insert(payload).select();
+                AppUI.modals.closeAdd(); AppCore.loadIndustries(); AppUtils.showToast("Guardado!", "success");
+            },
+            savePhotoDescription: async () => {
+                if(!AppState.currentModalPhoto) return;
+                const desc = document.getElementById('photoDescInput').value;
+                await sb.from('fotos').update({ descricao: desc }).eq('id', AppState.currentModalPhoto.id).select();
+                AppState.currentModalPhoto.descricao = desc; AppUtils.showToast("Guardado", "success"); AppUI.loadGalleryPhotos();
+            },
+            saveRouteConfig: async () => {
+                if(!confirm(`Guardar planeamento para ${AppState.configSelectedDay}?`)) return;
+                AppUtils.showToast("A guardar...");
+                await sb.from('rotas').upsert({ dia: AppState.configSelectedDay, industrias: AppState.routes[AppState.configSelectedDay] }, { onConflict: 'dia' }).select();
+                if (AppState.configSelectedDay === AppState.viewSelectedDay) AppUI.renderRouteList(AppState.configSelectedDay);
+                AppUI.modals.closeRouteConfig(); AppUI.updateDashboard(); AppUtils.showToast("Agenda Guardada", "success");
+            },
+            switchMainTab: (t) => { AppState.viewHistory = []; const m = { general: 'view-home', reports: 'view-reports', routes: 'view-routes' }; AppUI.navigateTo(m[t], false); },
+            goBack: () => { AppUI.navigateTo(AppState.viewHistory.pop() || 'view-home', false); },
+            toggleSelectionMode: () => {
+                AppState.isSelectionMode = !AppState.isSelectionMode;
+                const b = document.getElementById('selectBtn');
+                if (AppState.isSelectionMode) {
+                    b.innerText = "Cancelar"; b.classList.add('text-red-500');
+                    document.getElementById('selectionControls').classList.remove('hidden-bar');
+                } else {
+                    b.innerText = "Select"; b.classList.remove('text-red-500');
+                    document.getElementById('selectionControls').classList.add('hidden-bar');
+                    AppState.selectedPhotos.clear();
                 }
-
-                await sb.from('industrias').delete().eq('id', id);
-                
-                allIndustries = allIndustries.filter(i => i.id != id);
-                renderIndustries(allIndustries);
-                updateDashboard();
-                showToast("Excluído!", "success");
-                
-                if (currentIndustry && currentIndustry.id == id) navigateTo('view-home');
-
-            } catch (e) {
-                console.error(e);
-                showToast("Erro ao excluir", "error");
-            }
-        }
-
-        async function deleteCurrentIndustry() {
-            const id = document.getElementById('editIndId').value;
-            const name = document.getElementById('newIndName').value;
-            if(!id) return;
-            if(!confirm("Tem certeza absoluta? Isso apagará todas as fotos e registros.")) return;
-            closeAddModal();
-            await deleteIndustry(id, null, name);
-        }
-
-        // --- NAVEGAÇÃO E UX ---
-        function navigateTo(id, hist = true) {
-            if (hist) viewHistory.push(document.querySelector('.view-section.active').id);
-            document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            
-            const nav = document.getElementById('mainNavBar');
-            const back = document.getElementById('backBtn');
-            const select = document.getElementById('selectBtn');
-            
-            isSelectionMode = false;
-            selectedPhotos.clear();
-            selectedIndustries.clear();
-            updateSelectionUI();
-            document.getElementById('selectionControls').classList.add('hidden-bar');
-            document.getElementById('selectionControlsAll').classList.add('hidden-bar');
-
-            if (id === 'view-home') {
-                nav.classList.remove('hidden-nav');
-                back.classList.add('hidden');
-                document.getElementById('configRouteBtn').classList.remove('hidden');
-                select.classList.add('hidden');
-                document.getElementById('nav-general').classList.add('active');
-                document.getElementById('nav-routes').classList.remove('active');
-            } else if (id === 'view-routes') {
-                nav.classList.remove('hidden-nav');
-                back.classList.add('hidden');
-                document.getElementById('configRouteBtn').classList.add('hidden');
-                select.classList.remove('hidden');
-                document.getElementById('nav-general').classList.remove('active');
-                document.getElementById('nav-routes').classList.add('active');
-            } else {
-                nav.classList.add('hidden-nav');
-                back.classList.remove('hidden');
-                document.getElementById('configRouteBtn').classList.add('hidden');
-                select.classList.add('hidden');
-            }
-
-            if (id === 'view-gallery' || id === 'view-all') select.classList.remove('hidden');
-            if (id === 'view-dates') document.getElementById('editIndBtn').classList.remove('hidden');
-            else document.getElementById('editIndBtn').classList.add('hidden');
-        }
-
-        function goBack() {
-            if (viewHistory.length === 0) navigateTo('view-home', false);
-            else navigateTo(viewHistory.pop(), false);
-        }
-
-        function switchMainTab(tab) {
-            viewHistory = [];
-            if (tab === 'general') navigateTo('view-home', false);
-            else navigateTo('view-routes', false);
-        }
-
-        function openAddModal() { 
-            document.getElementById('modalTitle').innerText = "Nova Indústria";
-            document.getElementById('newIndName').value = '';
-            document.getElementById('newIndHours').value = '';
-            document.getElementById('editIndId').value = '';
-            document.getElementById('catSelect').value = '';
-            document.getElementById('coverPreview').classList.add('hidden');
-            document.getElementById('coverPlaceholder').classList.remove('hidden');
-            document.getElementById('btnDeleteInd').classList.add('hidden');
-            coverImageFile = null;
-            document.getElementById('addModal').classList.remove('hidden');
-        }
-
-        function openEditIndustryModal() {
-            if (!currentIndustry) return;
-            document.getElementById('modalTitle').innerText = "Editar Indústria";
-            document.getElementById('newIndName').value = currentIndustry.nome;
-            document.getElementById('newIndHours').value = currentIndustry.carga_semanal || '';
-            document.getElementById('editIndId').value = currentIndustry.id;
-            document.getElementById('catSelect').value = currentIndustry.categoria_id || '';
-            
-            const img = document.getElementById('coverPreview');
-            const ph = document.getElementById('coverPlaceholder');
-            if (currentIndustry.cover_url) {
-                img.src = currentIndustry.cover_url; img.classList.remove('hidden'); ph.classList.add('hidden');
-            } else {
-                img.classList.add('hidden'); ph.classList.remove('hidden');
-            }
-            document.getElementById('btnDeleteInd').classList.remove('hidden');
-            coverImageFile = null;
-            document.getElementById('addModal').classList.remove('hidden');
-        }
-
-        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
-        function handleCoverChange(e) { const f = e.target.files[0]; if(!f) return; coverImageFile = f; document.getElementById('coverPreview').src = URL.createObjectURL(f); document.getElementById('coverPreview').classList.remove('hidden'); document.getElementById('coverPlaceholder').classList.add('hidden'); }
-
-        // --- Helpers ---
-        function minutesToHM(m) { const h = Math.floor(m / 60); const min = m % 60; return `${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`; }
-        function hmToMinutes(hm) { const [h, m] = hm.split(':').map(Number); return (h * 60) + m; }
-        function resizeImage(file) { return new Promise((resolve) => { const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const max = 1200; const scale = max / Math.max(img.width, img.height); canvas.width = img.width * scale; canvas.height = img.height * scale; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height); canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85); }; img.src = e.target.result; }; reader.readAsDataURL(file); }); }
-        
-        function showToast(msg, type = 'loading') {
-            const toast = document.getElementById('statusToast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('opacity-0', '-translate-y-10');
-            if (type === 'success') document.getElementById('toastIcon').className = 'fas fa-check-circle text-green-500';
-            else if (type === 'error') document.getElementById('toastIcon').className = 'fas fa-times-circle text-red-500';
-            else document.getElementById('toastIcon').className = 'loader border-t-blue-500';
-            
-            setTimeout(() => toast.classList.add('opacity-0', '-translate-y-10'), 2000);
-        }
-
-        function toggleDarkMode() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        // Funções de Cache, Dashboard e Categorias
-        function cacheData() { localStorage.setItem('cached_industries', JSON.stringify(allIndustries)); localStorage.setItem('cached_routes', JSON.stringify(routes)); localStorage.setItem('cached_categories', JSON.stringify(categories)); }
-        function loadFromCache() { const ind = localStorage.getItem('cached_industries'); const rts = localStorage.getItem('cached_routes'); const cats = localStorage.getItem('cached_categories'); if (ind) allIndustries = JSON.parse(ind); if (rts) routes = JSON.parse(rts); if (cats) categories = JSON.parse(cats); document.getElementById('indCount').innerText = allIndustries.length; updateDashboard(); const today = weekDays[new Date().getDay()]; if(!viewSelectedDay) viewSelectedDay = today; selectRouteViewDay(viewSelectedDay); }
-        async function updateDashboard() { document.getElementById('dashTotalInd').innerText = allIndustries.length; const today = weekDays[new Date().getDay()]; const todaysRoute = routes[today] || []; let totalMin = 0; todaysRoute.forEach(item => { if(typeof item === 'object' && item.minutos) totalMin += item.minutos; }); document.getElementById('dashWorkLoad').innerText = minutesToHM(totalMin) + 'h'; }
-        async function loadCategories() { try { const { data } = await sb.from('categorias').select('*').order('nome'); categories = data || []; const selects = [document.getElementById('catSelect'), document.getElementById('bulkCatSelect')]; selects.forEach(sel => { sel.innerHTML = '<option value="">Sem Categoria</option>'; categories.forEach(c => { const opt = document.createElement('option'); opt.value = c.id; opt.innerText = c.nome; sel.appendChild(opt); }); }); } catch (e) { console.error(e); } }
-        async function addNewCategory() { const name = document.getElementById('newCatName').value.trim(); if (!name) return; await sb.from('categorias').insert({ nome: name }); await loadCategories(); document.getElementById('newCatContainer').classList.add('hidden'); }
-        
-        // Outros modais
-        function openBulkCategoryModal() { if (selectedIndustries.size === 0) return; document.getElementById('bulkCountDisplay').innerText = selectedIndustries.size; document.getElementById('bulkCatModal').classList.remove('hidden'); }
-        async function saveBulkCategory() { const catId = document.getElementById('bulkCatSelect').value || null; const ids = Array.from(selectedIndustries); showToast("Atualizando...", "loading"); try { await sb.from('industrias').update({ categoria_id: catId }).in('id', ids); showToast("Atualizado!", "success"); document.getElementById('bulkCatModal').classList.add('hidden'); selectedIndustries.clear(); await loadIndustries(); } catch (e) { console.error(e); showToast("Erro", "error"); } }
-        async function deleteSelectedIndustries() { if (selectedIndustries.size === 0) return; if (!confirm("Apagar selecionados?")) return; showToast("Apagando...", "loading"); try { await sb.from('industrias').delete().in('id', Array.from(selectedIndustries)); selectedIndustries.clear(); await loadIndustries(); showToast("Apagado!", "success"); } catch (e) { console.error(e); showToast("Erro", "error"); } }
-        
-        function handleIndustryClick(ind, e) { if (isSelectionMode) { if (selectedIndustries.has(ind.id)) selectedIndustries.delete(ind.id); else selectedIndustries.add(ind.id); } else { openIndustry(ind); } }
-        function openIndustry(ind) { currentIndustry = ind; calendarCursor = new Date(); navigateTo('view-dates'); loadDates(ind.nome); }
-        async function loadDates(indName) { const safe = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const { data } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false }); industryPhotos = data || []; availableDates.clear(); if (data) data.forEach(i => availableDates.add(new Date(i.created_at).toLocaleDateString('pt-BR'))); renderCalendar(); }
-        function renderCalendar() { const grid = document.getElementById('calendarGrid'); grid.innerHTML = ''; const y = calendarCursor.getFullYear(); const m = calendarCursor.getMonth(); document.getElementById('calendarTitle').innerText = `${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"][m]} ${y}`; const f = new Date(y, m, 1).getDay(); const dim = new Date(y, m + 1, 0).getDate(); for(let i=0;i<f;i++) grid.appendChild(document.createElement('div')); for(let d=1;d<=dim;d++) { const b = document.createElement('div'); b.className = 'cal-day-btn'; const s = `${String(d).padStart(2,'0')}/${String(m+1).padStart(2,'0')}/${y}`; b.innerText = d; if(availableDates.has(s)) { b.classList.add('active-day'); b.innerHTML = `${d}<div class="dot"></div>`; b.onclick = () => { currentDateFolder = s; navigateTo('view-gallery'); loadGalleryPhotos(); }; } grid.appendChild(b); } }
-        function changeCalendarMonth(o) { calendarCursor.setMonth(calendarCursor.getMonth() + o); renderCalendar(); }
-        
-        function filterIndustries() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
+                AppUI.loadGalleryPhotos();
+            },
+            handlePhotoClick: (f) => {
+                if (AppState.isSelectionMode) { 
+                    if (AppState.selectedPhotos.has(f.id)) AppState.selectedPhotos.delete(f.id); 
+                    else AppState.selectedPhotos.add(f.id); 
+                    document.getElementById('selCount').innerText = AppState.selectedPhotos.size; 
+                    AppUI.loadGalleryPhotos(); 
+                } else { AppState.currentModalPhoto = f; AppUI.modals.openPhoto(f); }
+            },
+            handleCoverChange: (e) => { const f = e.target.files[0]; if(!f) return; AppState.coverImageFile = f; document.getElementById('coverPreview').src = URL.createObjectURL(f); document.getElementById('coverPreview').classList.remove('hidden'); document.getElementById('coverPlaceholder').classList.add('hidden'); },
+            filterIndustries: () => {
                 const term = document.getElementById('searchInput').value.toLowerCase();
-                const filtered = allIndustries.filter(ind => ind.nome.toLowerCase().includes(term));
-                renderIndustries(filtered);
-            }, 300);
-        }
-        let searchTimeout;
+                const filtered = AppState.allIndustries.filter(i => i.nome.toLowerCase().includes(term));
+                AppUI.renderIndustries(filtered);
+            },
+            selectAllPhotos: () => { 
+                AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder).forEach(f => AppState.selectedPhotos.add(f.id)); 
+                document.getElementById('selCount').innerText = AppState.selectedPhotos.size;
+                AppUI.loadGalleryPhotos(); 
+            },
+            deleteSelected: async () => { if(!confirm("Apagar fotos selecionadas?")) return; await sb.from('fotos').delete().in('id', Array.from(AppState.selectedPhotos)); AppState.selectedPhotos.clear(); AppCore.toggleSelectionMode(); if(AppState.currentIndustry) AppCore.loadDates(AppState.currentIndustry.nome); },
+            deleteSinglePhoto: async () => { if(!confirm("Apagar?")) return; await sb.from('fotos').delete().eq('id', AppState.currentModalPhoto.id); AppUI.modals.closePhoto(); if(AppState.currentIndustry) AppCore.loadDates(AppState.currentIndustry.nome); AppUI.loadGalleryPhotos(); },
+            openAllPhotos: async () => {
+                AppUI.navigateTo('view-all');
+                const c = document.getElementById('allPhotosContainer');
+                c.innerHTML = '<div class="col-span-3 py-20 flex justify-center"><div class="loader"></div></div>';
+                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(60);
+                c.innerHTML = '';
+                if(!data || data.length === 0) { c.innerHTML = '<div class="col-span-3 py-20 text-center opacity-40 italic text-sm">Sem fotos</div>'; return; }
+                const groups = {};
+                data.forEach(f => {
+                    const d = new Date(f.created_at).toLocaleDateString('pt-PT');
+                    if(!groups[d]) groups[d] = [];
+                    groups[d].push(f);
+                });
+                Object.keys(groups).forEach(dateStr => {
+                    const header = document.createElement('div');
+                    header.className = 'w-full mt-6 mb-2 px-1 border-b border-slate-100 dark:border-slate-800 pb-1 transition-colors';
+                    header.innerHTML = `<span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${dateStr}</span>`;
+                    c.appendChild(header);
+                    const grid = document.createElement('div'); grid.className = 'photo-grid w-full';
+                    groups[dateStr].forEach(f => {
+                        const d = document.createElement('div');
+                        d.className = `photo-thumb ${AppState.selectedPhotos.has(f.id) ? 'selected' : ''}`;
+                        d.onclick = () => AppCore.handlePhotoClick(f);
+                        d.innerHTML = `<img src="${f.url_publica}" loading="lazy">`;
+                        grid.appendChild(d);
+                    });
+                    c.appendChild(grid);
+                });
+            }
+        };
 
-        function loadGalleryPhotos() { const c = document.getElementById('photosContainer'); c.innerHTML = ''; const p = industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder); if(p.length===0) c.innerHTML='<div class="col-span-3 text-center text-xs text-slate-400 py-10">Vazio</div>'; p.forEach(f => { const d = document.createElement('div'); d.className = `photo-item ${selectedPhotos.has(f.id)?'selected':''}`; d.onclick = () => handlePhotoClick(f); d.innerHTML = `<img src="${f.url_publica}" class="w-full h-full object-cover">`; c.appendChild(d); }); }
-        function handlePhotoClick(f) { if(isSelectionMode) { selectedPhotos.has(f.id) ? selectedPhotos.delete(f.id) : selectedPhotos.add(f.id); updateSelectionUI(); loadGalleryPhotos(); } else { currentModalPhoto = f.id; document.getElementById('previewImg').src = f.url_publica; document.getElementById('photoModal').classList.remove('hidden'); setTimeout(()=>document.getElementById('photoModal').classList.remove('opacity-0'),10); } }
-        function closePhotoModal() { document.getElementById('photoModal').classList.add('opacity-0'); setTimeout(()=>document.getElementById('photoModal').classList.add('hidden'),300); }
-        async function deleteSinglePhoto() { if(!currentModalPhoto) return; await sb.from('fotos').delete().eq('id', currentModalPhoto); closePhotoModal(); loadGalleryPhotos(); }
-        async function uploadPhoto(i) { const f = i.files[0]; if(!f) return; showToast("Enviando..."); const safe = currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"); const name = `${safe}/${currentDateFolder}/FOTO_${Date.now()}.jpg`; const blob = await resizeImage(f); await sb.storage.from(BUCKET).upload(name, blob, { contentType: 'image/jpeg' }); const {data:{publicUrl}} = sb.storage.from(BUCKET).getPublicUrl(name); await sb.from('fotos').insert({ created_at: new Date().toISOString(), nome_arquivo: name, url_publica: publicUrl, industria_id: currentIndustry.id }); loadDates(currentIndustry.nome); showToast("Enviado", "success"); }
-        
-        function toggleSelectionMode() { isSelectionMode = !isSelectionMode; const b = document.getElementById('selectBtn'); if(isSelectionMode) { b.innerText="Cancelar"; b.classList.add('text-red-500'); document.getElementById('selectionControls').classList.remove('hidden-bar'); } else { b.innerText="Selecionar"; b.classList.remove('text-red-500'); document.getElementById('selectionControls').classList.add('hidden-bar'); selectedPhotos.clear(); } loadGalleryPhotos(); }
-        function updateSelectionUI() { document.getElementById('selCount').innerText = selectedPhotos.size; }
-        function selectAllPhotos() { industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-BR') === currentDateFolder).forEach(f => selectedPhotos.add(f.id)); updateSelectionUI(); loadGalleryPhotos(); }
-        async function deleteSelected() { if(!confirm("Apagar selecionados?")) return; showToast("Apagando..."); const ids = Array.from(selectedPhotos); await sb.from('fotos').delete().in('id', ids); selectedPhotos.clear(); toggleSelectionMode(); showToast("Feito", "success"); }
-        async function generatePDF() { if(!industryPhotos.length) return; showToast("Gerando..."); const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text(currentIndustry.nome + " - " + currentDateFolder, 10, 10); doc.save("Relatorio.pdf"); showToast("Baixado", "success"); }
-        async function openAllPhotos() { navigateTo('view-all'); const c = document.getElementById('allPhotosContainer'); c.innerHTML = '<div class="col-span-3 text-center"><div class="loader mx-auto"></div></div>'; const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); c.innerHTML = ''; if(!data || data.length === 0) { c.innerHTML = '<div class="col-span-3 text-center text-slate-400 text-xs">Vazio</div>'; return; } data.forEach(f => { const d = document.createElement('div'); d.className = `photo-item ${selectedPhotos.has(f.id) ? 'selected' : ''}`; d.innerHTML = `<img src="${f.url_publica}" class="w-full h-full object-cover">`; d.onclick = () => handlePhotoClick(f); c.appendChild(d); }); }
-        function shareSelected() { if(selectedPhotos.size === 0) return; showToast("Funcionalidade em desenvolvimento", "error"); }
+        const AppUI = {
+            navigateTo: (id, hist = true) => {
+                const activeSection = document.querySelector('.view-section.active');
+                if (hist && activeSection) AppState.viewHistory.push(activeSection.id);
+                document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+                const target = document.getElementById(id);
+                if (target) target.classList.add('active');
+                const els = { back: 'backBtn', config: 'configRouteBtn', sel: 'selectBtn', nav: 'mainNavBar', edit: 'editIndBtn' };
+                const show = (el, s) => document.getElementById(el)?.classList.toggle('hidden', !s);
+                const hide = (el) => document.getElementById(el)?.classList.add('hidden');
+                
+                show('backBtn', !['view-home', 'view-routes', 'view-reports'].includes(id));
+                show('configRouteBtn', id === 'view-home');
+                show('selectBtn', ['view-routes', 'view-gallery', 'view-all'].includes(id));
+                show('editIndBtn', id === 'view-dates');
+                
+                document.getElementById('mainNavBar').classList.toggle('hidden-nav', !['view-home', 'view-routes', 'view-reports'].includes(id));
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                const navMap = { 'view-home': 'general', 'view-routes': 'routes', 'view-reports': 'reports' };
+                if(navMap[id]) document.getElementById('nav-' + navMap[id]).classList.add('active');
+                if(id === 'view-reports') AppUI.renderDailyIndustries();
+            },
+            updateDashboard: () => {
+                const day = AppState.viewSelectedDay || WEEK_DAYS[new Date().getDay()];
+                const route = AppState.routes[day] || [];
+                let totalMins = 0; route.forEach(i => totalMins += (i.minutos || 0));
+                if(document.getElementById('dashTotalInd')) document.getElementById('dashTotalInd').innerText = route.length;
+                if(document.getElementById('dashWorkLoad')) document.getElementById('dashWorkLoad').innerText = AppUtils.minutesToHM(totalMins) + 'h';
+                if(document.getElementById('dashCountLabel')) document.getElementById('dashCountLabel').innerText = `Locais ${day}`;
+                if(document.getElementById('dashWorkLabel')) document.getElementById('dashWorkLabel').innerText = `Carga ${day}`;
+            },
+            renderIndustries: (list) => {
+                const c = document.getElementById('industriesList'); if(!c) return;
+                c.innerHTML = '';
+                list.forEach(ind => {
+                    const d = document.createElement('div'); d.className = `ind-card cursor-pointer border dark:border-slate-700 ${AppState.selectedIndustries.has(ind.id) ? 'selected-item' : ''}`;
+                    d.onclick = () => { AppState.currentIndustry = ind; AppState.calendarCursor = new Date(); AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); };
+                    const img = ind.cover_url ? `<img src="${ind.cover_url}">` : '<i class="fas fa-industry text-2xl text-slate-200"></i>';
+                    d.innerHTML = `<div class="cover-wrapper flex items-center justify-center dark:bg-slate-800">${img}</div><h3 class="font-bold text-[10px] text-center truncate w-full px-1 dark:text-white">${ind.nome}</h3><span class="text-[8px] text-slate-400 font-bold uppercase">${ind.carga_semanal || 0}H/SEM</span>`;
+                    c.appendChild(d);
+                });
+            },
+            renderRouteList: (day) => {
+                const c = document.getElementById('routeListContent'); if(!c) return;
+                c.innerHTML = '';
+                const tabs = document.getElementById('routeTabsContainer'); if(!tabs) return;
+                tabs.innerHTML = '';
+                WEEK_DAYS.forEach(d => {
+                    const t = document.createElement('div'); t.innerText = d.substring(0, 3);
+                    t.className = `day-tab ${d === day ? 'active' : ''} ${d === 'Domingo' ? 'text-red-400' : ''}`;
+                    t.onclick = () => { AppState.viewSelectedDay = d; AppUI.renderRouteList(d); AppUI.updateDashboard(); };
+                    tabs.appendChild(t);
+                });
+                const items = AppState.routes[day] || [];
+                if(items.length === 0) { c.innerHTML = '<div class="py-12 flex flex-col items-center justify-center text-slate-300 dark:text-slate-600"><i class="fas fa-calendar-check text-4xl mb-2"></i><p class="text-[10px] uppercase font-bold">Dia Livre</p></div>'; return; }
+                items.forEach(item => {
+                    const ind = AppState.allIndustries.find(i => i.nome === (item.nome || item));
+                    if(!ind) return;
+                    const row = document.createElement('div'); row.className = 'route-item hover:bg-slate-50 dark:hover:bg-slate-800/50';
+                    row.onclick = () => { AppState.currentIndustry = ind; AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); };
+                    row.innerHTML = `<div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden mr-3 flex-shrink-0">${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center bg-slate-50 dark:bg-slate-800"><i class="fas fa-industry text-slate-300"></i></div>'}</div><div class="flex-1 overflow-hidden"><div class="font-bold text-sm truncate dark:text-white">${ind.nome}</div></div><div class="text-xs font-mono font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg">${AppUtils.minutesToHM(item.minutos || 0)}h</div>`;
+                    c.appendChild(row);
+                });
+            },
+            renderCalendar: () => {
+                const c = document.getElementById('calendarGrid'); if(!c) return;
+                c.innerHTML = '<div class="grid grid-cols-7 gap-1 mb-2 text-center text-[10px] font-bold text-slate-400 uppercase tracking-tighter"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>';
+                const grid = document.createElement('div'); grid.className = 'cal-grid';
+                const y = AppState.calendarCursor.getFullYear(), m = AppState.calendarCursor.getMonth();
+                document.getElementById('calendarTitle').innerText = new Date(y, m).toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+                const first = new Date(y, m, 1).getDay(); const days = new Date(y, m + 1, 0).getDate();
+                for(let i=0; i<first; i++) grid.appendChild(document.createElement('div'));
+                const todayStr = new Date().toLocaleDateString('pt-PT');
+                for(let d=1; d<=days; d++) {
+                    const dateStr = new Date(y, m, d).toLocaleDateString('pt-PT');
+                    const b = document.createElement('div'); b.className = `cal-day ${AppState.availableDates.has(dateStr) ? 'active' : ''} ${dateStr === todayStr ? 'today' : ''}`; b.innerText = d;
+                    if(AppState.availableDates.has(dateStr)) b.onclick = () => { AppState.currentDateFolder = dateStr; AppUI.navigateTo('view-gallery'); AppUI.loadGalleryPhotos(); };
+                    grid.appendChild(b);
+                }
+                c.appendChild(grid);
+            },
+            loadGalleryPhotos: () => {
+                const c = document.getElementById('photosContainer'); if(!c) return;
+                c.innerHTML = '';
+                const p = AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder);
+                if(p.length === 0) { c.innerHTML = '<div class="col-span-3 py-10 text-center opacity-40 text-xs italic text-sm">Sem fotografias nesta data</div>'; return; }
+                p.forEach(f => {
+                    const d = document.createElement('div'); 
+                    d.className = `photo-thumb ${AppState.selectedPhotos.has(f.id) ? 'selected' : ''}`;
+                    d.onclick = () => AppCore.handlePhotoClick(f); 
+                    d.innerHTML = `<img src="${f.url_publica}" loading="lazy">${f.descricao ? '<div class="absolute bottom-1 right-1 w-2.5 h-2.5 bg-yellow-400 border-2 border-white dark:border-slate-900 rounded-full shadow-sm"></div>' : ''}`;
+                    c.appendChild(d);
+                });
+            },
+            renderDailyIndustries: () => {
+                const c = document.getElementById('dailyIndustriesList'); if(!c) return;
+                c.innerHTML = '';
+                const today = WEEK_DAYS[new Date().getDay()];
+                const items = AppState.routes[today] || [];
+                if(items.length === 0) { c.innerHTML = '<p class="text-center py-4 text-xs italic opacity-50">Nenhum local agendado para hoje.</p>'; return; }
+                items.forEach(item => {
+                    const d = document.createElement('div'); d.className = 'flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border dark:border-slate-700';
+                    d.innerHTML = `<span class="text-sm font-bold dark:text-white">${item.nome || item}</span><i class="fas fa-check-circle text-blue-500"></i>`;
+                    c.appendChild(d);
+                });
+            },
+            renderRouteChecklist: () => {
+                const l = document.getElementById('routeChecklist'); if(!l) return;
+                l.innerHTML = '';
+                const day = AppState.configSelectedDay || 'Segunda';
+                AppState.allIndustries.forEach(ind => {
+                    const item = AppState.routes[day]?.find(r => (r.nome || r) === ind.nome);
+                    const d = document.createElement('div'); d.className = 'flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border dark:border-slate-700';
+                    d.innerHTML = `<input type="checkbox" ${item?'checked':''} onchange="AppUI.toggleRouteCheck('${ind.nome.replace(/'/g, "\\'")}', this.checked)"><span class="flex-1 text-xs font-bold truncate dark:text-white">${ind.nome}</span><input type="time" class="time-input dark:bg-slate-700 dark:text-white" value="${AppUtils.minutesToHM(item?.minutos || 0)}" onchange="AppUI.updateRouteMins('${ind.nome.replace(/'/g, "\\'")}', this.value)">`;
+                    l.appendChild(d);
+                });
+            },
+            toggleRouteCheck: (name, checked) => {
+                const day = AppState.configSelectedDay;
+                if(!AppState.routes[day]) AppState.routes[day] = [];
+                if(checked) AppState.routes[day].push({ nome: name, min: 0 });
+                else AppState.routes[day] = AppState.routes[day].filter(r => (r.nome || r) !== name);
+                AppUI.renderRouteChecklist();
+            },
+            updateRouteMins: (name, val) => {
+                const item = AppState.routes[AppState.configSelectedDay]?.find(r => (r.nome || r) === name);
+                if(item) item.minutos = AppUtils.hmToMinutes(val);
+            },
+            renderCategoryOptions: () => {
+                ['catSelect', 'catSelectFilter'].forEach(id => {
+                    const s = document.getElementById(id); if(!s) return;
+                    s.innerHTML = id === 'catSelectFilter' ? '<option value="">Todas as Categorias</option>' : '<option value="">Geral</option>';
+                    AppState.categories.forEach(c => s.innerHTML += `<option value="${c.id}">${c.nome}</option>`);
+                });
+            },
+            modals: {
+                openLateAlerts: () => {
+                    document.getElementById('lateAlertsModal').classList.remove('hidden');
+                    const c = document.getElementById('lateIndustriesList'); if(!c) return;
+                    c.innerHTML = '';
+                    AppState.lateIndustries.forEach(ind => {
+                        const d = document.createElement('div'); d.className = 'flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border dark:border-slate-700 cursor-pointer active:bg-slate-100';
+                        d.onclick = () => { AppState.currentIndustry = ind; AppState.calendarCursor = new Date(); AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); AppUI.modals.closeLateAlerts(); };
+                        d.innerHTML = `<span class="text-sm font-bold dark:text-white">${ind.nome}</span><i class="fas fa-history text-red-400"></i>`;
+                        c.appendChild(d);
+                    });
+                },
+                closeLateAlerts: () => document.getElementById('lateAlertsModal')?.classList.add('hidden'),
+                openRouteConfig: () => { 
+                    if(!AppState.configSelectedDay) AppState.configSelectedDay = WEEK_DAYS[new Date().getDay()];
+                    document.getElementById('routeConfigModal').classList.remove('hidden');
+                    const c = document.getElementById('routeConfigDays'); if(!c) return;
+                    c.innerHTML = '';
+                    WEEK_DAYS.forEach(d => {
+                        const b = document.createElement('button'); b.innerText = d.substring(0,1);
+                        b.className = `p-2.5 rounded-lg text-[10px] font-black transition ${d === AppState.configSelectedDay ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'}`;
+                        b.onclick = () => { AppState.configSelectedDay = d; AppUI.modals.updateRouteConfigUI(); };
+                        c.appendChild(b);
+                    });
+                    const currentDayEl = document.getElementById('currentConfigDay');
+                    if(currentDayEl) currentDayEl.innerText = AppState.configSelectedDay; 
+                    AppUI.renderRouteChecklist();
+                },
+                updateRouteConfigUI: () => {
+                    const day = AppState.configSelectedDay;
+                    document.querySelectorAll('#routeConfigDays button').forEach((btn, idx) => {
+                        const d = WEEK_DAYS[idx];
+                        btn.className = `p-2.5 rounded-lg text-[10px] font-black transition ${d === day ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'}`;
+                    });
+                    const currentDayEl = document.getElementById('currentConfigDay');
+                    if(currentDayEl) currentDayEl.innerText = day;
+                    AppUI.renderRouteChecklist();
+                },
+                closeRouteConfig: () => document.getElementById('routeConfigModal')?.classList.add('hidden'),
+                openAddIndustry: () => { 
+                    const modal = document.getElementById('addModal'); if(!modal) return;
+                    modal.classList.remove('hidden');
+                    document.getElementById('editIndId').value="";
+                    document.getElementById('newIndName').value="";
+                    document.getElementById('newIndHours').value="";
+                },
+                openEditIndustry: () => { if(!AppState.currentIndustry) return; AppUI.modals.openAddIndustry(); document.getElementById('editIndId').value = AppState.currentIndustry.id; document.getElementById('newIndName').value = AppState.currentIndustry.nome; document.getElementById('newIndHours').value = AppState.currentIndustry.carga_semanal; },
+                closeAdd: () => document.getElementById('addModal')?.classList.add('hidden'),
+                openPhoto: (f) => { 
+                    const previewImg = document.getElementById('previewImg');
+                    if(previewImg) previewImg.src = f.url_publica;
+                    const descInput = document.getElementById('photoDescInput');
+                    if(descInput) descInput.value = f.descricao || '';
+                    const m = document.getElementById('photoModal');
+                    if(m) {
+                        m.classList.remove('hidden');
+                        setTimeout(() => m.classList.add('opacity-100'), 10);
+                    }
+                },
+                closePhoto: () => { const m = document.getElementById('photoModal'); if(m) { m.classList.remove('opacity-100'); setTimeout(() => m.classList.add('hidden'), 300); } }
+            }
+        };
 
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); document.getElementById('installBtn').classList.remove('hidden'); });
+        window.onload = AppCore.init;
     </script>
 </body>
 </html>
