@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2563eb">
     <title>Gestor Industrial Pro</title>
     
+    <!-- PWA Meta Tags -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4300/4300058.png">
+    <link rel="manifest" href="data:application/manifest+json,{'name':'Gestor Industrial Pro','short_name':'IndustrialPro','start_url':'.','display':'standalone','background_color':'#ffffff','theme_color':'#2563eb'}">
+
     <!-- Dependências Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -20,7 +24,7 @@
                         dark: { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9', border: '#334155', muted: '#94a3b8' },
                         primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb' }
                     },
-                    animation: { 'fade-in': 'fadeIn 0.3s ease-out', 'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' },
+                    animation: { 'fade-in': 'fadeIn 0.2s ease-out', 'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
                         slideUp: { '0%': { transform: 'translateY(100%)' }, '100%': { transform: 'translateY(0)' } }
@@ -49,94 +53,47 @@
         
         body { 
             font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main);
-            padding-bottom: calc(90px + var(--safe-bottom)); 
+            padding-bottom: calc(100px + var(--safe-bottom)); 
             -webkit-tap-highlight-color: transparent; user-select: none;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
             overflow-x: hidden;
         }
 
         /* === COMPONENTES DE UI === */
-        .glass {
-            background: var(--bg-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-        }
+        .glass { background: var(--bg-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+        .card-modern { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         
-        .card-modern {
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        /* Indústria Card Refinado (3 Colunas 1:1) */
+        /* Indústria Card 1:1 Grelha de 3 */
         .ind-card {
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
-            padding: 6px; aspect-ratio: 1/1; /* Força quadrado */
-            display: flex; flex-direction: column; 
+            padding: 6px; aspect-ratio: 1/1; display: flex; flex-direction: column; 
             justify-content: space-between; position: relative; overflow: hidden;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        .ind-card:active { transform: scale(0.96); border-color: var(--primary); }
-        .ind-card.selected-item { border: 2px solid var(--primary); background-color: rgba(59, 130, 246, 0.05); } 
+        .ind-card:active { transform: scale(0.96); }
+        .ind-card.selected-item { border: 2.3px solid var(--primary); background-color: rgba(59, 130, 246, 0.05); } 
 
-        .ind-card .cover-wrapper {
-            width: 100%; flex: 1; /* Ocupa o espaço restante */
-            min-height: 0; /* Permite encolher em flexbox */
-            border-radius: 8px; overflow: hidden; background: var(--bg-body);
-            position: relative; margin-bottom: 6px;
-        }
+        .ind-card .cover-wrapper { width: 100%; flex: 1; border-radius: 8px; overflow: hidden; background: var(--bg-body); position: relative; margin-bottom: 4px; }
         .ind-card img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
 
-        /* Inputs & Botões */
-        .input-modern {
-            width: 100%; background: var(--bg-body); border: 1px solid var(--border); 
-            border-radius: 12px; padding: 12px 40px 12px 40px; font-size: 14px; color: var(--text-main);
-            transition: border-color 0.2s;
-        }
-        .input-modern:focus { outline: none; border-color: var(--primary); }
+        .input-modern { width: 100%; background: var(--bg-body); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: var(--text-main); }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 12px; font-weight: 700; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); transition: transform 0.1s; border: none; }
+        .btn-primary:active { transform: scale(0.97); }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;
-            border-radius: 12px; font-weight: 700; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-            transition: transform 0.1s, box-shadow 0.1s; border: none;
-        }
-        .btn-primary:active { transform: scale(0.96); box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2); }
-
-        /* Tabs & Listas */
-        .day-tab {
-            font-weight: 700; font-size: 10px; color: var(--text-muted); padding: 10px 0;
-            border-radius: 10px; transition: all 0.2s; cursor: pointer; text-transform: uppercase;
-            display: flex; justify-content: center; align-items: center;
-        }
+        .day-tab { font-weight: 700; font-size: 10px; color: var(--text-muted); padding: 10px 0; border-radius: 10px; transition: all 0.2s; cursor: pointer; text-transform: uppercase; display: flex; justify-content: center; align-items: center; }
         .day-tab.active { background: var(--bg-card); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); }
         
-        .route-item {
-            display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border);
-            transition: background 0.15s; cursor: pointer;
-        }
-        .route-item:last-child { border-bottom: none; }
+        .route-item { display: flex; align-items: center; padding: 14px; border-bottom: 1px solid var(--border); transition: background 0.15s; cursor: pointer; }
         .route-item:active { background: var(--bg-body); }
 
-        /* Calendário */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
-        .cal-day {
-            aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; font-size: 13px; font-weight: 600;
-            color: var(--text-muted); transition: all 0.2s; border: 1px solid transparent; cursor: pointer;
-        }
+        .cal-day { aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--text-muted); transition: all 0.2s; border: 1px solid transparent; cursor: pointer; }
         .cal-day.active { background: rgba(59, 130, 246, 0.15); color: var(--primary); border-color: var(--primary); }
         .cal-day.today { border-color: var(--primary); color: var(--primary); font-weight: 800; }
         .cal-day .dot { width: 4px; height: 4px; background: currentColor; border-radius: 50%; margin-top: 4px; }
 
-        /* Loading & Utils */
-        .skeleton {
-            background: linear-gradient(90deg, var(--border) 25%, var(--bg-body) 50%, var(--border) 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;
-        }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
         .view-section { display: none; }
-        .view-section.active { display: block; animation: fade-in 0.3s forwards; }
+        .view-section.active { display: block; animation: fade-in 0.2s forwards; }
         
         .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
         .photo-thumb { aspect-ratio: 1; overflow: hidden; border-radius: 8px; background: var(--border); position: relative; cursor: pointer; }
@@ -147,60 +104,47 @@
         .fixed-bar-anim { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .hidden-bar { transform: translateY(150%); }
 
-        /* Categorias Badge */
-        .cat-badge { 
-            font-size: 8px; font-weight: 800; text-transform: uppercase; 
-            padding: 2px 8px; border-radius: 6px; max-width: 100%; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.5px;
-        }
+        .cat-badge { font-size: 8px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.5px; }
 
         /* === DOCK DE NAVEGAÇÃO === */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
             height: calc(65px + var(--safe-bottom));
-            background: var(--bg-glass); /* Efeito vidro */
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border);
-            z-index: 50;
+            background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border); z-index: 50;
             display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: var(--safe-bottom);
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+            padding-bottom: var(--safe-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .bottom-nav.hidden-nav { transform: translateY(100%); }
 
         .nav-btn {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 100%; height: 100%;
-            color: var(--text-muted); font-size: 10px; font-weight: 600;
+            width: 100%; height: 100%; color: var(--text-muted); font-size: 10px; font-weight: 700;
             transition: all 0.2s; cursor: pointer;
-            position: relative;
         }
-        .nav-btn i { font-size: 20px; margin-bottom: 5px; transition: transform 0.2s; }
-        
+        .nav-btn i { font-size: 20px; margin-bottom: 5px; }
         .nav-btn.active { color: var(--primary); }
-        .nav-btn.active i { transform: translateY(-3px); }
-        /* Ponto indicador de ativo */
-        .nav-btn.active::after {
-            content: ''; position: absolute; bottom: 8px; 
-            width: 4px; height: 4px; border-radius: 50%; background: var(--primary);
-        }
+        
+        .loader { border: 2px solid rgba(0,0,0,0.1); border-top: 2px solid #3b82f6; border-radius: 50%; width: 16px; height: 16px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .time-input { background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 4px; font-size: 12px; width: 75px; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Header Glass -->
+    <!-- Header -->
     <header class="fixed top-0 w-full h-16 glass z-50 flex items-center justify-between px-4 shadow-sm transition-colors duration-300">
         <div class="flex items-center gap-3 w-3/4">
-            <button id="backBtn" onclick="AppCore.goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 flex items-center justify-center active:scale-90 transition shadow-sm"><i class="fas fa-chevron-left text-sm"></i></button>
+            <button id="backBtn" onclick="AppCore.goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center active:scale-90 shadow-sm flex-shrink-0"><i class="fas fa-chevron-left text-sm"></i></button>
             <div class="overflow-hidden">
-                <h1 id="pageTitle" class="font-bold text-base leading-tight truncate">Cronograma</h1>
-                <p id="pageSubtitle" class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">Visão Geral</p>
+                <h1 id="pageTitle" class="font-bold text-base truncate leading-tight">Cronograma</h1>
+                <p id="pageSubtitle" class="text-[10px] font-medium text-slate-500 uppercase truncate">Visão Geral</p>
             </div>
         </div>
-        <div class="flex gap-2">
-            <button onclick="AppUtils.toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-yellow-400 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition"><i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline"></i></button>
-            <button id="configRouteBtn" onclick="AppUI.modals.openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-300 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition"><i class="fas fa-sliders-h"></i></button>
+        <div class="flex gap-2 flex-shrink-0">
+            <button onclick="AppUtils.toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm"><i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline"></i></button>
+            <button id="configRouteBtn" onclick="AppUI.modals.openRouteConfig()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition"><i class="fas fa-sliders-h"></i></button>
             <button id="selectBtn" onclick="AppCore.toggleSelectionMode()" class="hidden px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase border border-slate-200 dark:border-slate-700">Select</button>
             <button id="editIndBtn" onclick="AppUI.modals.openEditIndustry()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90"><i class="fas fa-pen text-xs"></i></button>
         </div>
@@ -213,61 +157,69 @@
 
         <!-- VIEW 1: HOME -->
         <div id="view-home" class="view-section active">
-            <!-- Dashboard -->
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="card-modern p-4 relative overflow-hidden group">
-                    <div class="absolute right-[-10px] top-[-10px] w-16 h-16 bg-blue-500/10 rounded-full"></div>
-                    <div class="relative z-10">
-                        <div class="text-2xl font-black text-slate-800 dark:text-white mb-1" id="dashTotalInd"><div class="skeleton w-8 h-8"></div></div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Locais</div>
-                    </div>
-                    <i class="fas fa-map-marker-alt absolute bottom-3 right-3 text-slate-200 dark:text-slate-700 text-xl"></i>
+                <div class="card-modern p-4 bg-gradient-to-br from-blue-500/5 to-transparent border-blue-100">
+                    <div class="text-2xl font-black text-blue-600" id="dashTotalInd">0</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Locais</div>
                 </div>
-                <div class="card-modern p-4 relative overflow-hidden group">
-                    <div class="absolute right-[-10px] top-[-10px] w-16 h-16 bg-purple-500/10 rounded-full"></div>
-                    <div class="relative z-10">
-                        <div class="text-2xl font-black text-slate-800 dark:text-white mb-1" id="dashWorkLoad"><div class="skeleton w-12 h-8"></div></div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Carga Hoje</div>
-                    </div>
-                    <i class="fas fa-clock absolute bottom-3 right-3 text-slate-200 dark:text-slate-700 text-xl"></i>
+                <div class="card-modern p-4">
+                    <div class="text-2xl font-black text-slate-800 dark:text-white" id="dashWorkLoad">00:00h</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Carga Hoje</div>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between mb-3 px-1">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Agenda Semanal</span>
-                <span class="text-[10px] bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-md font-bold">Hoje</span>
+            <!-- Alertas de Visita -->
+            <div id="visitAlerts" class="hidden mb-6 p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 animate-fade-in">
+                <i class="fas fa-bell text-red-500 text-lg"></i>
+                <div class="flex-1">
+                    <p class="text-[11px] font-bold text-red-800 dark:text-red-400 uppercase">Atenção ao Cronograma</p>
+                    <p class="text-[10px] text-red-600 dark:text-red-500/80" id="visitAlertMsg">Existem locais sem visitas recentes.</p>
+                </div>
             </div>
 
             <div class="grid grid-cols-7 gap-1 mb-3" id="routeTabsContainer"></div>
-
-            <div class="card-modern min-h-[300px] flex flex-col justify-start">
-                <div id="routeListContent" class="w-full">
-                    <!-- Skeleton Loader Inicial -->
-                    <div class="p-4 space-y-4">
-                        <div class="flex items-center gap-3"><div class="skeleton w-10 h-10 rounded-lg"></div><div class="flex-1 space-y-2"><div class="skeleton w-3/4 h-3"></div><div class="skeleton w-1/2 h-2"></div></div></div>
-                        <div class="flex items-center gap-3"><div class="skeleton w-10 h-10 rounded-lg"></div><div class="flex-1 space-y-2"><div class="skeleton w-3/4 h-3"></div><div class="skeleton w-1/2 h-2"></div></div></div>
-                    </div>
+            <div class="card-modern min-h-[300px] flex flex-col justify-start" id="routeListContent">
+                <div class="p-4 space-y-4">
+                    <div class="skeleton w-full h-12"></div>
+                    <div class="skeleton w-full h-12"></div>
                 </div>
             </div>
 
-            <button onclick="AppCore.openAllPhotos()" class="mt-6 w-full py-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 font-bold text-xs uppercase shadow-sm active:scale-95 transition flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-700">
-                <i class="fas fa-layer-group text-lg"></i> Feed Global de Fotos
+            <button onclick="AppCore.openAllPhotos()" class="mt-6 w-full py-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 font-bold text-xs uppercase shadow-sm active:scale-95 transition flex items-center justify-center gap-2 hover:bg-slate-50">
+                <i class="fas fa-layer-group text-lg"></i> Galeria Global de Fotos
             </button>
         </div>
 
-        <!-- VIEW 2: LOCAIS (CRUD) - ATUALIZADO PARA 3 COLUNAS -->
+        <!-- VIEW 2: RELATÓRIOS -->
+        <div id="view-reports" class="view-section">
+            <div class="text-center py-6 mb-4">
+                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <h2 class="text-lg font-bold">Relatório Diário</h2>
+                <p class="text-xs text-slate-500 mt-1">Consolidação automática das visitas.</p>
+            </div>
+
+            <div class="card-modern p-4 mb-6">
+                <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Indústrias na Rota</h3>
+                <div id="dailyIndustriesList" class="space-y-3"></div>
+            </div>
+
+            <button onclick="AppCore.generateDailyConsolidatedReport()" class="btn-primary w-full py-5 flex items-center justify-center gap-3 text-sm tracking-wide shadow-lg">
+                <i class="fas fa-file-pdf text-xl"></i> GERAR RELATÓRIO DO DIA
+            </button>
+        </div>
+
+        <!-- VIEW 3: LOCAIS (CRUD) -->
         <div id="view-routes" class="view-section">
-            <div class="sticky top-16 z-30 bg-body/95 backdrop-blur-md pb-2 pt-2 space-y-2 -mx-4 px-4 border-b border-transparent transition-all duration-300">
+            <div class="sticky top-16 z-30 bg-body/95 backdrop-blur-md py-2 space-y-2">
                 <div class="relative">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" id="searchInput" onkeyup="AppCore.filterIndustries()" placeholder="Pesquisar local..." class="input-modern">
+                    <input type="text" id="searchInput" onkeyup="AppCore.filterIndustries()" placeholder="Pesquisar local..." class="input-modern pl-10">
                 </div>
-                <div class="relative">
-                    <select id="catSelectFilter" onchange="AppCore.filterIndustries()" class="input-modern appearance-none py-3 text-xs font-medium cursor-pointer">
-                        <option value="">Todas as Categorias</option>
-                    </select>
-                    <i class="fas fa-filter absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
-                </div>
+                <select id="catSelectFilter" onchange="AppCore.filterIndustries()" class="input-modern appearance-none py-3 text-xs font-medium cursor-pointer">
+                    <option value="">Todas as Categorias</option>
+                </select>
             </div>
 
             <div class="flex justify-between items-end px-1 mb-3 mt-4">
@@ -275,105 +227,92 @@
                 <span id="indCount" class="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md font-mono font-bold">0</span>
             </div>
 
-            <!-- GRID ALTERADA PARA 3 COLUNAS (grid-cols-3) -->
             <div id="industriesList" class="grid grid-cols-3 gap-2 pb-20"></div>
 
-            <button onclick="AppUI.modals.openAddIndustry()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg shadow-blue-500/40 flex items-center justify-center text-2xl active:scale-90 transition z-40 hover:-translate-y-1 hover:shadow-xl">
+            <button onclick="AppUI.modals.openAddIndustry()" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl active:scale-90 z-40 transition">
                 <i class="fas fa-plus"></i>
             </button>
         </div>
 
-        <!-- VIEW 3: DATAS -->
+        <!-- VIEW 4: DATAS -->
         <div id="view-dates" class="view-section">
             <div class="flex items-center justify-between mb-6 px-1">
-                <button onclick="AppCore.changeCalendarMonth(-1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent hover:border-slate-200 dark:hover:border-slate-600"><i class="fas fa-chevron-left"></i></button>
-                <span id="calendarTitle" class="text-lg font-bold text-slate-800 dark:text-white capitalize tracking-tight">Mês</span>
-                <button onclick="AppCore.changeCalendarMonth(1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent hover:border-slate-200 dark:hover:border-slate-600"><i class="fas fa-chevron-right"></i></button>
+                <button onclick="AppCore.changeCalendarMonth(-1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent"><i class="fas fa-chevron-left"></i></button>
+                <span id="calendarTitle" class="text-lg font-bold capitalize">Mês</span>
+                <button onclick="AppCore.changeCalendarMonth(1)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 border border-transparent"><i class="fas fa-chevron-right"></i></button>
             </div>
 
-            <div class="card-modern p-4 mb-6">
-                <div class="grid grid-cols-7 gap-2 mb-2 text-center">
-                    <span class="text-[10px] font-bold text-red-400">D</span>
-                    <span class="text-[10px] font-bold text-slate-400">S</span>
-                    <span class="text-[10px] font-bold text-slate-400">T</span>
-                    <span class="text-[10px] font-bold text-slate-400">Q</span>
-                    <span class="text-[10px] font-bold text-slate-400">Q</span>
-                    <span class="text-[10px] font-bold text-slate-400">S</span>
-                    <span class="text-[10px] font-bold text-slate-400">S</span>
-                </div>
-                <div id="calendarGrid" class="cal-grid"></div>
-            </div>
+            <div class="card-modern p-4 mb-6" id="calendarGrid"></div>
 
             <div class="grid grid-cols-2 gap-4">
-                <label class="btn-primary py-4 flex flex-col items-center justify-center gap-2 cursor-pointer bg-gradient-to-br from-blue-500 to-blue-700 border border-blue-400/20">
-                    <i class="fas fa-camera text-2xl"></i><span class="text-[10px] uppercase tracking-wide opacity-90 font-bold">Câmara</span>
+                <label class="btn-primary py-4 flex flex-col items-center justify-center gap-2 cursor-pointer shadow-blue-500/20">
+                    <i class="fas fa-camera text-2xl"></i><span class="text-[10px] font-bold">CÂMARA</span>
                     <input type="file" accept="image/*" capture="environment" class="hidden" onchange="AppCore.uploadPhoto(this)">
                 </label>
-                <label class="btn-primary py-4 flex flex-col items-center justify-center gap-2 cursor-pointer bg-gradient-to-br from-purple-500 to-purple-700 border border-purple-400/20">
-                    <i class="fas fa-images text-2xl"></i><span class="text-[10px] uppercase tracking-wide opacity-90 font-bold">Galeria</span>
+                <label class="btn-primary py-4 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-800 dark:bg-slate-700">
+                    <i class="fas fa-images text-2xl"></i><span class="text-[10px] font-bold">GALERIA</span>
                     <input type="file" accept="image/*" class="hidden" onchange="AppCore.uploadPhoto(this)">
                 </label>
             </div>
         </div>
 
-        <!-- VIEW 4: GALERIA -->
+        <!-- VIEW 5: GALERIA -->
         <div id="view-gallery" class="view-section">
-            <button onclick="AppCore.generatePDF()" class="w-full mb-4 py-3.5 rounded-xl bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg active:scale-95 border border-slate-700">
+            <button onclick="AppCore.generatePDF()" class="w-full mb-4 py-3.5 rounded-xl bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg">
                 <i class="fas fa-file-pdf text-red-400 text-lg"></i> Gerar Relatório PDF
             </button>
             <div id="photosContainer" class="photo-grid pb-24"></div>
         </div>
 
-        <!-- VIEW 5: TODAS AS FOTOS -->
+        <!-- VIEW 6: TODAS AS FOTOS -->
         <div id="view-all" class="view-section">
             <div id="allPhotosContainer" class="photo-grid pb-24"></div>
         </div>
 
     </main>
 
-    <!-- Barra de Ações: Fotos -->
-    <div id="selectionControls" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
-        <button onclick="AppCore.selectAllPhotos()" class="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-slate-600 dark:text-slate-300 text-sm active:scale-95 transition">Todas</button>
-        <button onclick="AppCore.deleteSelected()" class="w-14 bg-red-100 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
-        <button onclick="AppCore.shareSelected()" class="flex-1 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition shadow-lg shadow-blue-500/30">Partilhar (<span id="selCount">0</span>)</button>
+    <!-- Barra de Ações (Docks) -->
+    <div id="selectionControls" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-[0_-10px_25px_rgba(0,0,0,0.1)]">
+        <button onclick="AppCore.selectAllPhotos()" class="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-xs">Todas</button>
+        <button onclick="AppCore.deleteSelected()" class="w-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
+        <button onclick="AppUtils.showToast('Partilha em breve', 'loading')" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg">Partilhar (<span id="selCount">0</span>)</button>
     </div>
     
-    <!-- Barra de Ações: Feed Global -->
-    <div id="selectionControlsAll" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
-        <button onclick="AppCore.selectAllPhotos()" class="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-slate-600 dark:text-slate-300 text-sm active:scale-95 transition">Todas</button>
-        <button onclick="AppCore.deleteSelected()" class="w-14 bg-red-100 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
-        <button onclick="AppCore.shareSelected()" class="flex-1 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition shadow-lg shadow-blue-500/30">Partilhar (<span id="selCountAll">0</span>)</button>
+    <div id="selectionControlsAll" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-lg">
+        <button onclick="AppCore.selectAllPhotos()" class="px-6 py-3 rounded-xl bg-slate-100 font-bold text-xs">Todas</button>
+        <button onclick="AppCore.deleteSelected()" class="w-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
+        <button onclick="AppCore.shareReport()" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg">Partilhar (<span id="selCountAll">0</span>)</button>
     </div>
-    
-    <!-- Barra de Ações: Indústrias -->
-    <div id="industryActions" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
-        <button onclick="AppCore.deleteSelectedIndustries()" class="w-14 bg-red-100 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
+
+    <div id="industryActions" class="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t p-4 z-[60] fixed-bar-anim hidden-bar flex gap-3">
+        <button onclick="AppCore.deleteSelectedIndustries()" class="w-14 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-xl active:scale-95 transition"><i class="fas fa-trash-alt"></i></button>
         <button onclick="AppUI.modals.openBulkCategory()" class="flex-1 bg-blue-600 text-white rounded-xl font-bold active:scale-95 transition shadow-lg shadow-blue-500/30">Mudar Categoria</button>
     </div>
 
     <!-- Navegação Inferior (Dock) -->
     <nav id="mainNavBar" class="bottom-nav">
         <div id="nav-general" class="nav-btn active" onclick="AppCore.switchMainTab('general')">
-            <i class="fas fa-calendar-day mb-1"></i><span class="text-[10px] font-bold">Hoje</span>
+            <i class="fas fa-calendar-day"></i><span>Hoje</span>
+        </div>
+        <div id="nav-reports" class="nav-btn" onclick="AppCore.switchMainTab('reports')">
+            <i class="fas fa-file-invoice"></i><span>Relatório</span>
         </div>
         <div id="nav-routes" class="nav-btn" onclick="AppCore.switchMainTab('routes')">
-            <i class="fas fa-map-marked-alt mb-1"></i><span class="text-[10px] font-bold">Locais</span>
+            <i class="fas fa-map-marked-alt"></i><span>Locais</span>
         </div>
     </nav>
 
-    <!-- === MODAIS === -->
-
-    <!-- Configuração de Rotas -->
-    <div id="routeConfigModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4">
+    <!-- Modais -->
+    <div id="routeConfigModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4">
         <div class="bg-white dark:bg-slate-900 w-full sm:max-w-sm sm:rounded-2xl rounded-t-3xl p-6 shadow-2xl h-[85vh] flex flex-col animate-slide-up">
             <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6 sm:hidden"></div>
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Planeamento Semanal</h3>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Agenda Semanal</h3>
             
             <div class="grid grid-cols-7 gap-1 mb-4" id="routeConfigDays"></div>
 
             <div class="flex justify-between items-center mb-2 px-1">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Alocação de Horas</span>
-                <span id="currentConfigDay" class="text-[10px] font-bold text-blue-600 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-1 rounded">...</span>
+                <span id="currentConfigDay" class="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-1 rounded">...</span>
             </div>
 
             <div id="routeChecklist" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll"></div>
@@ -385,11 +324,10 @@
         </div>
     </div>
 
-    <!-- Adicionar/Editar Indústria -->
-    <div id="addModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4">
+    <div id="addModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4">
         <div class="bg-white dark:bg-slate-900 w-full sm:max-w-sm sm:rounded-2xl rounded-t-3xl p-6 shadow-2xl animate-slide-up">
             <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6 sm:hidden"></div>
-            <h3 id="modalTitle" class="text-lg font-bold text-slate-800 dark:text-white mb-6">Novo Local</h3>
+            <h3 id="modalTitle" class="text-lg font-bold text-slate-800 dark:text-white mb-6">Novo Registo</h3>
             
             <input type="hidden" id="editIndId">
             <div class="space-y-4 mb-6">
@@ -430,23 +368,10 @@
         </div>
     </div>
 
-    <!-- Bulk Category -->
-    <div id="bulkCatModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden flex items-center justify-center p-4">
-        <div class="card-modern w-full max-w-xs p-6 shadow-2xl animate-fade-in">
-            <h3 class="text-lg font-bold mb-4 text-slate-800 dark:text-white">Mudar Categoria</h3>
-            <p class="text-sm text-slate-500 mb-4">Aplicar para <span id="bulkCountDisplay" class="font-bold text-blue-600">0</span> locais.</p>
-            <select id="bulkCatSelect" class="input-modern mb-6 cursor-pointer"><option value="">Sem Categoria</option></select>
-            <div class="flex gap-3">
-                <button onclick="document.getElementById('bulkCatModal').classList.add('hidden')" class="flex-1 text-slate-400 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition py-3">Cancelar</button>
-                <button onclick="AppCore.saveBulkCategory()" class="flex-1 btn-primary py-3 text-xs shadow-lg">CONFIRMAR</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Photo Modal com Legenda -->
-    <div id="photoModal" class="fixed inset-0 bg-black/95 z-[100] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
+    <!-- Photo Modal -->
+    <div id="photoModal" class="fixed inset-0 bg-black/95 z-[110] hidden flex flex-col justify-center items-center opacity-0 transition-opacity duration-300">
         <div class="absolute top-0 w-full p-4 flex justify-between z-20">
-            <button onclick="AppUI.modals.closePhoto()" class="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full text-white flex items-center justify-center active:scale-90 transition"><i class="fas fa-times"></i></button>
+            <button onclick="AppUI.modals.closePhoto()" class="w-10 h-10 bg-white/10 rounded-full text-white flex items-center justify-center active:scale-90 transition"><i class="fas fa-times text-xl"></i></button>
             <button onclick="AppCore.deleteSinglePhoto()" class="w-10 h-10 bg-red-500/80 backdrop-blur-md rounded-full text-white flex items-center justify-center active:scale-90 transition shadow-lg shadow-red-500/20"><i class="fas fa-trash"></i></button>
         </div>
         <img id="previewImg" src="" class="max-h-[65vh] max-w-full object-contain mb-4 rounded-lg shadow-2xl">
@@ -460,12 +385,12 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="statusToast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl shadow-slate-500/20 text-xs font-bold flex items-center gap-3 transition-all opacity-0 -translate-y-10 z-[110]">
+    <div id="statusToast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl shadow-slate-500/20 text-xs font-bold flex items-center gap-3 transition-all opacity-0 -translate-y-10 z-[120]">
         <div id="toastIcon"></div>
         <span id="toastMsg">Notificação</span>
     </div>
 
-    <!-- ======================= LÓGICA JAVASCRIPT ======================= -->
+    <!-- === LÓGICA JAVASCRIPT === -->
     <script>
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
@@ -474,411 +399,413 @@
         const WEEK_DAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         const CATEGORY_COLORS = ['bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-purple-100 text-purple-600', 'bg-orange-100 text-orange-600', 'bg-pink-100 text-pink-600', 'bg-teal-100 text-teal-600'];
 
-        // --- ESTADO ---
         const AppState = {
             currentIndustry: null, currentDateFolder: null, industryPhotos: [], allIndustries: [], categories: [],
             routes: { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] },
             isSelectionMode: false, selectedPhotos: new Set(), selectedIndustries: new Set(),
             currentModalPhoto: null, coverImageFile: null, calendarCursor: new Date(), availableDates: new Set(),
-            configSelectedDay: null, viewSelectedDay: null, viewHistory: [], searchTimeout: null
+            configSelectedDay: null, viewSelectedDay: null, viewHistory: [], userId: 'anonymous', searchTimeout: null
         };
 
-        // --- UTILITÁRIOS ---
         const AppUtils = {
-            minutesToHM: (m) => { const h = Math.floor(m / 60); const min = m % 60; return `${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`; },
-            hmToMinutes: (hm) => { const [h, m] = hm.split(':').map(Number); return (h * 60) + m; },
-            resizeImage: (file) => { return new Promise((resolve) => { const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const max = 1200; const scale = max / Math.max(img.width, img.height); canvas.width = img.width * scale; canvas.height = img.height * scale; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height); canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85); }; img.src = e.target.result; }; reader.readAsDataURL(file); }); },
-            toggleDarkMode: () => { if (document.documentElement.classList.contains('dark')) { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); } else { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); } },
+            minutesToHM: (m) => `${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`,
+            hmToMinutes: (hm) => hm ? hm.split(':').map(Number).reduce((h, m) => h * 60 + m) : 0,
+            sanitize: (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"),
             showToast: (msg, type = 'loading') => {
-                const toast = document.getElementById('statusToast'); document.getElementById('toastMsg').innerText = msg;
+                const toast = document.getElementById('statusToast'); 
+                const msgEl = document.getElementById('toastMsg');
+                if(!toast || !msgEl) return;
+                msgEl.innerText = msg;
                 toast.classList.remove('opacity-0', '-translate-y-10');
                 const icon = document.getElementById('toastIcon');
-                if (type === 'success') icon.innerHTML = '<i class="fas fa-check text-green-400 text-lg"></i>';
-                else if (type === 'error') icon.innerHTML = '<i class="fas fa-times text-red-400 text-lg"></i>';
-                else icon.innerHTML = '<div class="loader w-4 h-4 border-white"></div>';
+                if (type === 'success') icon.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+                else if (type === 'error') icon.innerHTML = '<i class="fas fa-times text-red-400"></i>';
+                else icon.innerHTML = '<div class="loader"></div>';
                 setTimeout(() => toast.classList.add('opacity-0', '-translate-y-10'), 2500);
+            },
+            toggleDarkMode: () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); },
+            getGPS: () => new Promise((res) => {
+                if(!navigator.geolocation) return res(null);
+                navigator.geolocation.getCurrentPosition((p) => res(`${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`), () => res(null), { timeout: 3000 });
+            }),
+            resizeImage: (file) => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const max = 1200;
+                            const scale = max / Math.max(img.width, img.height);
+                            canvas.width = img.width * scale; canvas.height = img.height * scale;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
             }
         };
 
-        // --- LÓGICA CORE ---
         const AppCore = {
             init: async () => {
-                AppState.viewHistory = [];
                 if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
                 try {
-                    await AppCore.syncStorageWithDB();
                     await Promise.all([AppCore.loadIndustries(), AppCore.fetchRoutes(), AppCore.loadCategories()]);
+                    const today = WEEK_DAYS[new Date().getDay()];
+                    AppState.viewSelectedDay = today;
+                    AppUI.renderRouteList(today);
                     AppUI.updateDashboard();
-                    const hash = window.location.hash.substring(1);
-                    if (hash && document.getElementById(hash)) {
-                        if (hash === 'view-dates' && !AppState.currentIndustry) AppUI.navigateTo('view-home', false);
-                        else AppUI.navigateTo(hash, false);
-                    } else {
-                        const today = WEEK_DAYS[new Date().getDay()];
-                        AppState.viewSelectedDay = today;
-                        AppUI.renderRouteList(today);
-                    }
-                } catch (e) { console.error(e); AppUtils.showToast("Erro ao iniciar. Verifique a conexão.", "error"); }
+                    AppCore.checkAlerts();
+                } catch (e) { console.error(e); }
             },
-            syncStorageWithDB: async () => { try { const { data: stData } = await sb.storage.from(BUCKET).list('', { limit: 1000 }); if (!stData) return; const stFolders = stData.filter(i => i.name !== '.keep').map(i => i.name); const { data: dbData } = await sb.from('industrias').select('nome'); const dbNames = dbData ? dbData.map(i => i.nome) : []; const missing = stFolders.filter(n => !dbNames.includes(n)); if (missing.length > 0) { await sb.from('industrias').insert(missing.map(n => ({ nome: n, carga_semanal: 0 }))); } } catch (e) {} },
-            loadIndustries: async () => { try { const { data } = await sb.from('industrias').select('*, categorias(nome)').order('nome'); AppState.allIndustries = data || []; document.getElementById('indCount').innerText = AppState.allIndustries.length; AppCore.filterIndustries(); AppUI.updateDashboard(); } catch (e) {} },
-            fetchRoutes: async () => { try { const { data } = await sb.from('rotas').select('*'); if (data) { AppState.routes = { 'Domingo': [], 'Segunda': [], 'Terça': [], 'Quarta': [], 'Quinta': [], 'Sexta': [], 'Sábado': [] }; data.forEach(row => AppState.routes[row.dia] = row.industrias || []); } } catch (e) {} },
-            loadCategories: async () => { try { const { data } = await sb.from('categorias').select('*').order('nome'); AppState.categories = data || []; AppUI.renderCategoryOptions(); } catch (e) {} },
-            saveIndustry: async () => {
-                const id = document.getElementById('editIndId').value; const name = document.getElementById('newIndName').value.trim(); const hours = parseInt(document.getElementById('newIndHours').value) || 0; const catId = document.getElementById('catSelect').value || null;
-                if (!name) return AppUtils.showToast("Nome obrigatório", "error");
-                if (!confirm(`Confirmar ${id ? 'atualização' : 'criação'}?`)) return;
-                AppUtils.showToast("A guardar...", "loading");
-                let coverUrl = null;
-                try {
-                    const safeName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                    const now = new Date(); 
-                    if (AppState.coverImageFile) {
-                        const fileName = `${safeName}/cover_${now.getTime()}.jpg`; 
-                        const blob = await AppUtils.resizeImage(AppState.coverImageFile);
-                        const { error: uploadError } = await sb.storage.from(BUCKET).upload(fileName, blob, { 
-                            upsert: true, 
-                            contentType: 'image/jpeg' 
-                        });
-                        
-                        if (uploadError) throw uploadError;
-
-                        const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(fileName);
-                        coverUrl = urlData.publicUrl;
-                    }
-                    const payload = { nome: name, categoria_id: catId, carga_semanal: hours };
-                    if (coverUrl) payload.cover_url = coverUrl;
-                    if (id) await sb.from('industrias').update(payload).eq('id', id); else { await sb.storage.from(BUCKET).upload(`${safeName}/.keep`, new Blob(['']), { upsert: true }); await sb.from('industrias').insert(payload); }
-                    AppUtils.showToast("Guardado com sucesso!", "success"); AppUI.modals.closeAdd(); AppCore.loadIndustries();
-                } catch (e) { 
-                    console.error(e);
-                    AppUtils.showToast("Erro ao guardar", "error"); 
-                }
+            loadIndustries: async () => {
+                const { data } = await sb.from('industrias').select('*, categorias(nome)').order('nome');
+                AppState.allIndustries = data || [];
+                AppUI.renderIndustries(AppState.allIndustries);
+                AppUI.renderCategoryOptions();
             },
-            deleteIndustry: async (id, e, indName) => {
-                if (e) e.stopPropagation();
-                if (!confirm(`Tem a certeza que deseja apagar "${indName}" e TODAS as suas fotos?`)) return;
-                AppUtils.showToast("A apagar...", "loading");
-                try {
-                    const safeName = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                    const { data: files } = await sb.storage.from(BUCKET).list(safeName);
-                    if (files && files.length > 0) { const paths = files.map(f => `${safeName}/${f.name}`); await sb.storage.from(BUCKET).remove(paths); }
-                    await sb.storage.from(BUCKET).remove([`${safeName}/.keep`]);
-                    await sb.from('industrias').delete().eq('id', id);
-                    AppState.allIndustries = AppState.allIndustries.filter(i => i.id != id);
-                    AppUI.renderIndustries(AppState.allIndustries); AppUI.updateDashboard(); AppUtils.showToast("Apagado!", "success");
-                    if (AppState.currentIndustry && AppState.currentIndustry.id == id) AppUI.navigateTo('view-home');
-                } catch (e) { AppUtils.showToast("Erro ao apagar", "error"); }
+            fetchRoutes: async () => {
+                const { data } = await sb.from('rotas').select('*');
+                if (data) data.forEach(r => AppState.routes[r.dia] = r.industrias || []);
             },
-            filterIndustries: () => {
-                clearTimeout(AppState.searchTimeout);
-                AppState.searchTimeout = setTimeout(() => {
-                    const term = document.getElementById('searchInput').value.toLowerCase();
-                    const catFilter = document.getElementById('catSelectFilter').value;
-                    const filtered = AppState.allIndustries.filter(ind => { return ind.nome.toLowerCase().includes(term) && (catFilter === "" || ind.categoria_id == catFilter); });
-                    AppUI.renderIndustries(filtered);
-                }, 300);
-            },
-            loadDates: async (indName) => {
-                const safe = indName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                const { data } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false });
-                AppState.industryPhotos = data || []; AppState.availableDates.clear(); AppState.industryPhotos.forEach(p => AppState.availableDates.add(new Date(p.created_at).toLocaleDateString('pt-PT'))); AppUI.renderCalendar();
-            },
-            saveRouteConfig: async () => {
-                if (!confirm(`Guardar planeamento para ${AppState.configSelectedDay}?`)) return;
-                AppUtils.showToast("A guardar...");
-                await sb.from('rotas').upsert({ dia: AppState.configSelectedDay, industrias: AppState.routes[AppState.configSelectedDay] }, { onConflict: 'dia' });
-                AppUtils.showToast("Guardado!", "success");
-                if (AppState.configSelectedDay === AppState.viewSelectedDay) AppUI.renderRouteList(AppState.configSelectedDay);
-                AppUI.modals.closeRouteConfig(); AppUI.updateDashboard();
+            loadCategories: async () => {
+                const { data } = await sb.from('categorias').select('*').order('nome');
+                AppState.categories = data || [];
+                AppUI.renderCategoryOptions();
             },
             uploadPhoto: async (input) => {
-                const f = input.files[0]; 
-                if (!f) return;
-                if (!AppState.currentIndustry) {
-                     AppUtils.showToast("Selecione um local primeiro", "error");
-                     return;
-                }
-                
-                AppUtils.showToast("A processar imagem...", "loading");
+                const f = input.files[0]; if (!f || !AppState.currentIndustry) return;
+                AppUtils.showToast("A processar imagem e GPS...");
+                const gps = await AppUtils.getGPS();
                 try {
-                    const safe = AppState.currentIndustry.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-                    const now = new Date(); 
-                    const todayStr = now.toLocaleDateString('pt-PT');
-                    const targetDate = AppState.currentDateFolder || todayStr;
-                    const name = `${safe}/${targetDate}/FOTO_${now.getTime()}.jpg`;
-                    
+                    const safeName = AppUtils.sanitize(AppState.currentIndustry.nome);
+                    const now = new Date();
+                    const targetDate = AppState.currentDateFolder || now.toLocaleDateString('pt-PT').replace(/\//g, '-');
+                    const fileName = `${safeName}/${targetDate}/FOTO_${now.getTime()}.jpg`;
                     const blob = await AppUtils.resizeImage(f);
-                    
-                    AppUtils.showToast("A enviar...", "loading");
-                    const { error: uploadError } = await sb.storage.from(BUCKET).upload(name, blob, { 
-                        contentType: 'image/jpeg',
-                        upsert: false 
-                    });
-
-                    if (uploadError) {
-                        console.error("Upload Error:", uploadError);
-                        throw uploadError;
-                    }
-
-                    const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(name);
-                    
-                    // Fallback para evitar erro PGRST204 se a coluna não existir
-                    const photoPayload = { 
-                        created_at: now.toISOString(), 
-                        nome_arquivo: name, 
-                        url_publica: urlData.publicUrl,
-                        descricao: '' 
-                    };
-                    
-                    // Tenta inserir com industria_id
-                    try {
-                        await sb.from('fotos').insert({ ...photoPayload, industria_id: AppState.currentIndustry.id });
-                    } catch (dbErr) {
-                        // Se falhar (ex: coluna em falta), tenta sem o ID (modo compatibilidade)
-                        console.warn("Falha ao inserir com industria_id, tentando fallback...", dbErr);
-                        const { error: fallbackError } = await sb.from('fotos').insert(photoPayload);
-                        if (fallbackError) throw fallbackError;
-                    }
-
-                    AppUtils.showToast("Foto guardada!", "success"); 
+                    await sb.storage.from(BUCKET).upload(fileName, blob, { contentType: 'image/jpeg' });
+                    const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(fileName);
+                    await sb.from('fotos').insert({
+                        created_at: now.toISOString(), nome_arquivo: fileName, url_publica: urlData.publicUrl,
+                        industria_id: AppState.currentIndustry.id, descricao: gps ? `📍 GPS: ${gps}` : ''
+                    }).select();
+                    AppUtils.showToast("Foto guardada!", "success");
                     await AppCore.loadDates(AppState.currentIndustry.nome);
-                    
-                    if (AppState.currentDateFolder === targetDate && document.getElementById('view-gallery').classList.contains('active')) {
-                        AppUI.loadGalleryPhotos();
-                    }
-                } catch (e) { 
-                    console.error(e);
-                    if (e.code === 'PGRST204') {
-                         AppUtils.showToast("Erro de Base de Dados: Coluna em falta. Por favor execute o script SQL no Supabase.", "error");
-                    } else {
-                         AppUtils.showToast("Erro no envio: " + (e.message || "Desconhecido"), "error"); 
-                    }
-                } finally {
-                    input.value = '';
+                    if (document.getElementById('view-gallery').classList.contains('active')) AppUI.loadGalleryPhotos();
+                } catch (e) { AppUtils.showToast("Erro no envio", "error"); } finally { input.value = ''; }
+            },
+            loadDates: async (name) => {
+                const safe = AppUtils.sanitize(name);
+                const { data: allPhotos } = await sb.from('fotos').select('*').like('nome_arquivo', `${safe}/%`).order('created_at', { ascending: false });
+                AppState.industryPhotos = allPhotos || [];
+                AppState.availableDates.clear();
+                AppState.industryPhotos.forEach(p => AppState.availableDates.add(new Date(p.created_at).toLocaleDateString('pt-PT')));
+                AppUI.renderCalendar();
+            },
+            changeCalendarMonth: (o) => { AppState.calendarCursor.setMonth(AppState.calendarCursor.getMonth() + o); AppUI.renderCalendar(); },
+            checkAlerts: async () => {
+                const { data } = await sb.from('fotos').select('industria_id, created_at').order('created_at', { ascending: false });
+                const lastVisits = {};
+                data?.forEach(f => { if(!lastVisits[f.industria_id]) lastVisits[f.industria_id] = new Date(f.created_at); });
+                const threshold = new Date(); threshold.setDate(threshold.getDate() - 7);
+                const late = AppState.allIndustries.filter(i => !lastVisits[i.id] || lastVisits[i.id] < threshold);
+                if(late.length > 0) {
+                    document.getElementById('visitAlerts').classList.remove('hidden');
+                    document.getElementById('visitAlertMsg').innerText = `${late.length} locais sem visitas há mais de 7 dias.`;
                 }
             },
+            generateDailyConsolidatedReport: async () => {
+                const today = WEEK_DAYS[new Date().getDay()];
+                const route = AppState.routes[today] || [];
+                if(route.length === 0) return AppUtils.showToast("Nada agendado para hoje.", "error");
+                AppUtils.showToast("A gerar PDF diário...", "loading");
+                const { jsPDF } = window.jspdf; const doc = new jsPDF();
+                doc.setFontSize(18); doc.text("Relatório Industrial Diário", 10, 20);
+                doc.setFontSize(10); doc.text("Data: " + new Date().toLocaleDateString('pt-PT'), 10, 28);
+                doc.line(10, 32, 200, 32);
+                let y = 45;
+                for(const item of route) {
+                    const ind = AppState.allIndustries.find(i => i.nome === (item.nome || item));
+                    if(!ind) continue;
+                    const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+                    const { data: photos } = await sb.from('fotos').select('*').eq('industria_id', ind.id).gte('created_at', todayStart.toISOString());
+                    if (y > 240) { doc.addPage(); y = 20; }
+                    doc.setFontSize(14); doc.setTextColor(37, 99, 235); doc.text(ind.nome, 10, y); doc.setTextColor(0); y += 10;
+                    if(photos?.length > 0) {
+                        for(const f of photos) {
+                            try {
+                                const img = await fetch(f.url_publica).then(r => r.blob()).then(b => new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(b); }));
+                                if (y > 230) { doc.addPage(); y = 20; }
+                                doc.addImage(img, 'JPEG', 15, y, 40, 40);
+                                doc.setFontSize(9); const split = doc.splitTextToSize(f.descricao || "Sem notas.", 120); doc.text(split, 60, y + 5);
+                                y += 45;
+                            } catch(e) {}
+                        }
+                    } else { doc.setFontSize(9); doc.text("Nenhuma actividade hoje.", 15, y); y += 8; }
+                    y += 5;
+                }
+                doc.save(`Relatorio_Hoje.pdf`); AppUtils.showToast("Relatório Concluído!", "success");
+            },
+            saveIndustry: async () => {
+                const id = document.getElementById('editIndId').value;
+                const name = document.getElementById('newIndName').value.trim();
+                const hours = parseInt(document.getElementById('newIndHours').value) || 0;
+                const catId = document.getElementById('catSelect').value || null;
+                if(!name || !confirm("Deseja gravar as alterações?")) return;
+                AppUtils.showToast("A guardar...");
+                const payload = { nome: name, categoria_id: catId, carga_semanal: hours };
+                if(id) await sb.from('industrias').update(payload).eq('id', id).select();
+                else await sb.from('industrias').insert(payload).select();
+                AppUI.modals.closeAdd(); AppCore.loadIndustries(); AppUtils.showToast("Guardado!", "success");
+            },
+            deleteIndustry: async (id, e, indName) => {
+                if(e) e.stopPropagation();
+                if(!confirm(`Apagar "${indName}" e TODAS as fotos?`)) return;
+                AppUtils.showToast("A apagar...");
+                await sb.from('industrias').delete().eq('id', id);
+                AppCore.loadIndustries(); AppUtils.showToast("Eliminado", "success");
+            },
+            deleteCurrentIndustry: async () => { if(!confirm("Eliminar local atual?")) return; AppUI.modals.closeAdd(); await AppCore.deleteIndustry(AppState.currentIndustry.id, null, AppState.currentIndustry.nome); AppUI.navigateTo('view-home'); },
             savePhotoDescription: async () => {
-                if (!AppState.currentModalPhoto) return;
-                const desc = document.getElementById('photoDescInput').value; AppUtils.showToast("A guardar nota...");
-                const { error } = await sb.from('fotos').update({ descricao: desc }).eq('id', AppState.currentModalPhoto.id);
-                if (!error) { const p = AppState.industryPhotos.find(x => x.id === AppState.currentModalPhoto.id); if (p) p.descricao = desc; AppUtils.showToast("Nota guardada!", "success"); AppUI.loadGalleryPhotos(); } 
-                else { AppUtils.showToast("Erro", "error"); }
+                if(!AppState.currentModalPhoto) return;
+                const desc = document.getElementById('photoDescInput').value;
+                await sb.from('fotos').update({ descricao: desc }).eq('id', AppState.currentModalPhoto.id).select();
+                AppState.currentModalPhoto.descricao = desc; AppUtils.showToast("Guardado", "success"); AppUI.loadGalleryPhotos();
             },
-            generatePDF: async () => {
-                if (!AppState.industryPhotos.length) return; AppUtils.showToast("A gerar PDF...", "loading");
-                try {
-                    const { jsPDF } = window.jspdf; const doc = new jsPDF();
-                    doc.setFontSize(16); doc.text(`${AppState.currentIndustry.nome}`, 10, 15); doc.setFontSize(12); doc.text(`Data: ${AppState.currentDateFolder}`, 10, 22); doc.line(10, 25, 200, 25);
-                    let y = 35; const photos = AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder);
-                    for (const photo of photos) {
-                        try {
-                            const res = await fetch(photo.url_publica); const blob = await res.blob();
-                            const base64 = await new Promise(r => { const reader = new FileReader(); reader.onloadend = () => r(reader.result); reader.readAsDataURL(blob); });
-                            if (y > 220) { doc.addPage(); y = 20; }
-                            doc.addImage(base64, "JPEG", 15, y, 60, 60); doc.setFontSize(9); const desc = photo.descricao || "Sem observações."; const splitDesc = doc.splitTextToSize(desc, 100); doc.text(splitDesc, 80, y + 10); y += 70;
-                        } catch(e) {}
-                    }
-                    doc.save("Relatorio.pdf"); AppUtils.showToast("PDF Transferido!", "success");
-                } catch (e) { AppUtils.showToast("Erro no PDF", "error"); }
+            saveRouteConfig: async () => {
+                if(!confirm("Salvar agenda semanal?")) return;
+                AppUtils.showToast("A guardar...");
+                await sb.from('rotas').upsert({ dia: AppState.configSelectedDay, industrias: AppState.routes[AppState.configSelectedDay] }, { onConflict: 'dia' }).select();
+                if (AppState.configSelectedDay === AppState.viewSelectedDay) AppUI.renderRouteList(AppState.configSelectedDay);
+                AppUI.modals.closeRouteConfig(); AppUI.updateDashboard(); AppUtils.showToast("Agenda Guardada", "success");
             },
-            deleteSelected: async () => {
-                if (!confirm("Apagar itens selecionados?")) return; AppUtils.showToast("A apagar...");
-                const ids = Array.from(AppState.selectedPhotos); await sb.from('fotos').delete().in('id', ids);
-                AppState.selectedPhotos.clear(); AppCore.toggleSelectionMode(); AppUtils.showToast("Concluído", "success");
-            },
+            switchMainTab: (t) => { AppState.viewHistory = []; const m = { general: 'view-home', reports: 'view-reports', routes: 'view-routes' }; AppUI.navigateTo(m[t], false); },
+            goBack: () => { AppUI.navigateTo(AppState.viewHistory.pop() || 'view-home', false); },
             toggleSelectionMode: () => {
-                AppState.isSelectionMode = !AppState.isSelectionMode; const b = document.getElementById('selectBtn'); const bars = [document.getElementById('selectionControls'), document.getElementById('selectionControlsAll')]; const isAll = document.getElementById('view-all').classList.contains('active');
-                if (AppState.isSelectionMode) { b.innerText = "Cancelar"; b.classList.add('text-red-500'); if (isAll) bars[1].classList.remove('hidden-bar'); else bars[0].classList.remove('hidden-bar'); } 
-                else { b.innerText = "Select"; b.classList.remove('text-red-500'); bars.forEach(bar => bar?.classList.add('hidden-bar')); AppState.selectedPhotos.clear(); }
-                if (isAll) AppCore.openAllPhotos(); else AppUI.loadGalleryPhotos();
+                AppState.isSelectionMode = !AppState.isSelectionMode;
+                const b = document.getElementById('selectBtn');
+                const bars = ['selectionControls', 'selectionControlsAll', 'industryActions'];
+                bars.forEach(id => document.getElementById(id).classList.add('hidden-bar'));
+                if (AppState.isSelectionMode) {
+                    b.innerText = "Cancelar"; b.classList.add('text-red-500');
+                    if (document.getElementById('view-routes').classList.contains('active')) document.getElementById('industryActions').classList.remove('hidden-bar');
+                    else if (document.getElementById('view-all').classList.contains('active')) document.getElementById('selectionControlsAll').classList.remove('hidden-bar');
+                    else document.getElementById('selectionControls').classList.remove('hidden-bar');
+                } else {
+                    b.innerText = "Select"; b.classList.remove('text-red-500');
+                    AppState.selectedPhotos.clear(); AppState.selectedIndustries.clear();
+                }
+                if (document.getElementById('view-routes').classList.contains('active')) AppUI.renderIndustries(AppState.allIndustries);
+                else AppUI.loadGalleryPhotos();
             },
+            handlePhotoClick: (f) => {
+                if (AppState.isSelectionMode) { if (AppState.selectedPhotos.has(f.id)) AppState.selectedPhotos.delete(f.id); else AppState.selectedPhotos.add(f.id); document.getElementById('selCount').innerText = AppState.selectedPhotos.size; AppUI.loadGalleryPhotos(); } 
+                else { AppState.currentModalPhoto = f; AppUI.modals.openPhoto(f); }
+            },
+            handleCoverChange: (e) => { const f = e.target.files[0]; if(!f) return; AppState.coverImageFile = f; document.getElementById('coverPreview').src = URL.createObjectURL(f); document.getElementById('coverPreview').classList.remove('hidden'); document.getElementById('coverPlaceholder').classList.add('hidden'); },
+            filterIndustries: () => {
+                const term = document.getElementById('searchInput').value.toLowerCase();
+                const cat = document.getElementById('catSelectFilter').value;
+                const filtered = AppState.allIndustries.filter(i => i.nome.toLowerCase().includes(term) && (cat === "" || i.categoria_id == cat));
+                AppUI.renderIndustries(filtered);
+            },
+            selectAllPhotos: () => { AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder).forEach(f => AppState.selectedPhotos.add(f.id)); AppUI.loadGalleryPhotos(); },
+            deleteSelected: async () => { if(!confirm("Apagar fotos?")) return; await sb.from('fotos').delete().in('id', Array.from(AppState.selectedPhotos)); AppState.selectedPhotos.clear(); AppCore.toggleSelectionMode(); if(AppState.currentIndustry) AppCore.loadDates(AppState.currentIndustry.nome); },
+            deleteSinglePhoto: async () => { if(!confirm("Apagar?")) return; await sb.from('fotos').delete().eq('id', AppState.currentModalPhoto.id); AppUI.modals.closePhoto(); if(AppState.currentIndustry) AppCore.loadDates(AppState.currentIndustry.nome); AppUI.loadGalleryPhotos(); },
             openAllPhotos: async () => {
-                AppUI.navigateTo('view-all'); const c = document.getElementById('allPhotosContainer');
-                c.innerHTML = '<div class="col-span-3 text-center py-10"><div class="loader mx-auto"></div></div>';
-                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(200); c.innerHTML = '';
-                if (!data || data.length === 0) { c.innerHTML = '<div class="col-span-3 text-center text-slate-400 text-xs">Vazio</div>'; return; }
-                data.forEach(f => { const d = document.createElement('div'); d.className = `photo-thumb ${AppState.selectedPhotos.has(f.id) ? 'selected' : ''}`; d.innerHTML = `<img src="${f.url_publica}" loading="lazy">`; d.onclick = () => AppUI.handlePhotoClick(f); c.appendChild(d); });
+                AppUI.navigateTo('view-all'); const c = document.getElementById('allPhotosContainer'); c.innerHTML = '<div class="col-span-3 py-20 flex justify-center"><div class="loader"></div></div>';
+                const { data } = await sb.from('fotos').select('*').order('created_at', { ascending: false }).limit(60);
+                c.innerHTML = '';
+                data?.forEach(f => {
+                    const d = document.createElement('div'); d.className = `photo-thumb ${AppState.selectedPhotos.has(f.id) ? 'selected' : ''}`;
+                    d.onclick = () => AppCore.handlePhotoClick(f); d.innerHTML = `<img src="${f.url_publica}">`; c.appendChild(d);
+                });
             },
-            
             saveBulkCategory: async () => { const catId = document.getElementById('bulkCatSelect').value || null; const ids = Array.from(AppState.selectedIndustries); if(!confirm("Aplicar categorias?")) return; AppUtils.showToast("Atualizando...", "loading"); try { await sb.from('industrias').update({ categoria_id: catId }).in('id', ids); AppUtils.showToast("Atualizado!", "success"); document.getElementById('bulkCatModal').classList.add('hidden'); AppState.selectedIndustries.clear(); await AppCore.loadIndustries(); } catch (e) { AppUtils.showToast("Erro", "error"); } },
             deleteSelectedIndustries: async () => { if (AppState.selectedIndustries.size === 0) return; if (!confirm("Apagar selecionados?")) return; AppUtils.showToast("Apagando...", "loading"); try { await sb.from('industrias').delete().in('id', Array.from(AppState.selectedIndustries)); AppState.selectedIndustries.clear(); await AppCore.loadIndustries(); AppUtils.showToast("Apagado!", "success"); } catch (e) { AppUtils.showToast("Erro", "error"); } },
-            deleteSinglePhoto: async () => { if(!AppState.currentModalPhoto) return; if(!confirm("Apagar?")) return; await sb.from('fotos').delete().eq('id', AppState.currentModalPhoto.id); AppUI.modals.closePhoto(); AppUI.loadGalleryPhotos(); },
-            deleteCurrentIndustry: async () => { if(!confirm("Apagar local atual?")) return; AppUI.modals.closeAdd(); await AppCore.deleteIndustry(AppState.currentIndustry.id, null, AppState.currentIndustry.nome); AppUI.navigateTo('view-home'); },
-            handleCoverChange: (e) => { const f = e.target.files[0]; if(!f) return; AppState.coverImageFile = f; document.getElementById('coverPreview').src = URL.createObjectURL(f); document.getElementById('coverPreview').classList.remove('hidden'); document.getElementById('coverPlaceholder').classList.add('hidden'); },
-            switchMainTab: (t) => { AppState.viewHistory = []; if(t==='general') AppUI.navigateTo('view-home'); else AppUI.navigateTo('view-routes'); },
-            goBack: () => { if (AppState.viewHistory.length === 0) AppUI.navigateTo('view-home'); else AppUI.navigateTo(AppState.viewHistory.pop(), false); },
-            changeCalendarMonth: (o) => { AppState.calendarCursor.setMonth(AppState.calendarCursor.getMonth() + o); AppUI.renderCalendar(); },
-            selectAllPhotos: () => { 
-                const isAll = document.getElementById('view-all').classList.contains('active');
-                const photos = isAll ? [] : AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder);
-                if(!isAll) {
-                    photos.forEach(f => AppState.selectedPhotos.add(f.id));
-                    AppUI.updateSelectionUI();
-                    AppUI.loadGalleryPhotos();
+            generatePDF: async () => {
+                AppUtils.showToast("A gerar PDF...");
+                const { jsPDF } = window.jspdf; const doc = new jsPDF();
+                doc.setFontSize(16); doc.text(AppState.currentIndustry.nome, 10, 15);
+                doc.setFontSize(10); doc.text("Data: " + AppState.currentDateFolder, 10, 22);
+                doc.line(10, 25, 200, 25);
+                let y = 35;
+                const photos = AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder);
+                for(const f of photos) {
+                    try {
+                        const img = await fetch(f.url_publica).then(r => r.blob()).then(b => new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(b); }));
+                        if (y > 240) { doc.addPage(); y = 20; }
+                        doc.addImage(img, 'JPEG', 10, y, 60, 60);
+                        doc.setFontSize(9); const splitText = doc.splitTextToSize(f.descricao || "Sem notas.", 120); doc.text(splitText, 75, y + 10);
+                        y += 65;
+                    } catch(e) {}
                 }
+                doc.save(`Relatorio_${AppUtils.sanitize(AppState.currentIndustry.nome)}.pdf`);
+                AppUtils.showToast("PDF Transferido!", "success");
             },
-            shareSelected: () => { AppUtils.showToast("Em desenvolvimento", "error"); },
-            
-            handlePhotoClick: (f) => {
-                if (AppState.isSelectionMode) {
-                    if (AppState.selectedPhotos.has(f.id)) AppState.selectedPhotos.delete(f.id);
-                    else AppState.selectedPhotos.add(f.id);
-                    AppUI.updateSelectionUI();
-                    
-                    const isAll = document.getElementById('view-all').classList.contains('active');
-                    if (isAll) AppCore.openAllPhotos(); 
-                    else AppUI.loadGalleryPhotos();
-                } else {
-                    AppState.currentModalPhoto = f;
-                    AppUI.modals.openPhoto(f);
-                }
+            shareReport: async () => {
+                AppUtils.showToast("A preparar relatório...", "loading");
+                // Fallback para download simples já que Share API com ficheiro requer contexto HTTPS seguro e ficheiro físico.
+                AppCore.generatePDF();
             }
         };
 
-        // --- UI RENDERERS ---
         const AppUI = {
             navigateTo: (id, hist = true) => {
-                const activeSection = document.querySelector('.view-section.active');
-                if (hist && activeSection) AppState.viewHistory.push(activeSection.id);
-                
+                const active = document.querySelector('.view-section.active');
+                if (hist && active) AppState.viewHistory.push(active.id);
                 document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
-                const target = document.getElementById(id);
-                if (target) target.classList.add('active');
-                
+                document.getElementById(id).classList.add('active');
                 const els = { back: 'backBtn', config: 'configRouteBtn', sel: 'selectBtn', nav: 'mainNavBar', edit: 'editIndBtn' };
-                const getEl = (eid) => document.getElementById(els[eid]);
-                const show = (eid) => getEl(eid)?.classList.remove('hidden');
-                const hide = (eid) => getEl(eid)?.classList.add('hidden');
-                const navHide = () => getEl('nav')?.classList.add('hidden-nav');
-                const navShow = () => getEl('nav')?.classList.remove('hidden-nav');
-
-                hide('back'); hide('config'); hide('sel'); hide('edit'); navHide();
-                ['selectionControls', 'selectionControlsAll', 'industryActions'].forEach(id => document.getElementById(id)?.classList.add('hidden-bar'));
-                AppState.isSelectionMode = false; AppState.selectedPhotos.clear(); AppState.selectedIndustries.clear();
-
-                if (id === 'view-home') { show('config'); navShow(); document.getElementById('nav-general').classList.add('active'); document.getElementById('nav-routes').classList.remove('active'); }
-                else if (id === 'view-routes') { show('sel'); navShow(); document.getElementById('selectBtn').innerText = "Select"; document.getElementById('nav-routes').classList.add('active'); document.getElementById('nav-general').classList.remove('active'); }
+                const show = (eid) => document.getElementById(els[eid])?.classList.remove('hidden');
+                const hide = (eid) => document.getElementById(els[eid])?.classList.add('hidden');
+                hide('back'); hide('config'); hide('sel'); hide('edit');
+                ['selectionControls', 'selectionControlsAll', 'industryActions'].forEach(dock => document.getElementById(dock)?.classList.add('hidden-bar'));
+                if (id === 'view-home') show('config');
+                else if (id === 'view-routes') show('sel');
                 else if (id === 'view-dates') { show('back'); show('edit'); }
                 else if (id === 'view-gallery' || id === 'view-all') { show('back'); show('sel'); }
                 else show('back');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                const navMap = { 'view-home': 'general', 'view-routes': 'routes', 'view-reports': 'reports' };
+                if(navMap[id]) document.getElementById('nav-' + navMap[id]).classList.add('active');
+                if(id === 'view-reports') AppUI.renderDailyIndustries();
             },
-
-            updateSelectionUI: () => {
-                document.getElementById('selCount').innerText = AppState.selectedPhotos.size;
-                document.getElementById('selCountAll').innerText = AppState.selectedPhotos.size;
+            updateDashboard: () => {
+                document.getElementById('dashTotalInd').innerText = AppState.allIndustries.length;
+                const today = WEEK_DAYS[new Date().getDay()];
+                const route = AppState.routes[today] || [];
+                let total = 0; route.forEach(i => total += (i.minutos || 0));
+                document.getElementById('dashWorkLoad').innerText = AppUtils.minutesToHM(total) + 'h';
             },
-
             renderIndustries: (list) => {
-                const container = document.getElementById('industriesList'); container.innerHTML = '';
-                if (list.length === 0) { container.innerHTML = '<div class="col-span-2 text-center py-20 text-slate-400 text-xs italic">Nenhum local encontrado.</div>'; return; }
+                const c = document.getElementById('industriesList'); c.innerHTML = '';
+                if(list.length === 0) { c.innerHTML = '<div class="col-span-3 py-20 text-center opacity-40 italic">Sem locais</div>'; return; }
                 list.forEach(ind => {
-                    const el = document.createElement('div'); el.className = 'ind-card cursor-pointer';
-                    // Adiciona classe visual de seleção
-                    if (AppState.selectedIndustries.has(ind.id)) el.classList.add('selected-item');
-                    
-                    el.onclick = (e) => AppUI.handleIndustryClick(ind, e);
-                    const catName = ind.categorias ? ind.categorias.nome : '';
-                    const colorClass = ind.categorias ? `cat-badge ${CATEGORY_COLORS[(ind.categoria_id - 1) % CATEGORY_COLORS.length]}` : 'cat-badge bg-slate-100 text-slate-500';
-                    const coverUrl = ind.cover_url ? `${ind.cover_url}?t=${Date.now()}` : '';
-                    const coverEl = coverUrl ? `<img src="${coverUrl}">` : `<i class="fas fa-industry text-2xl text-slate-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></i>`;
-                    el.innerHTML = `<div class="cover-wrapper">${coverEl}</div><h3 class="font-bold text-[11px] text-center leading-tight line-clamp-2 w-full px-1">${ind.nome}</h3><div class="flex flex-col items-center gap-1 w-full mt-1">${catName ? `<div class="${colorClass}">${catName}</div>` : ''}<span class="text-[9px] text-slate-400 font-mono font-bold">${ind.carga_semanal || 0}H/SEM</span></div><button class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/80 dark:bg-black/50 backdrop-blur-sm shadow-sm flex items-center justify-center text-slate-500 hover:text-red-500 transition" onclick="event.stopPropagation(); AppCore.deleteIndustry('${ind.id}', event, '${ind.nome}')"><i class="fas fa-trash-alt text-[10px]"></i></button>`;
-                    container.appendChild(el);
+                    const d = document.createElement('div'); d.className = `ind-card cursor-pointer ${AppState.selectedIndustries.has(ind.id) ? 'selected-item' : ''}`;
+                    d.onclick = () => {
+                        if (AppState.isSelectionMode) { 
+                            if(AppState.selectedIndustries.has(ind.id)) AppState.selectedIndustries.delete(ind.id); 
+                            else AppState.selectedIndustries.add(ind.id);
+                            AppUI.renderIndustries(AppState.allIndustries);
+                        } else { AppState.currentIndustry = ind; AppState.calendarCursor = new Date(); AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); }
+                    };
+                    const cat = ind.categorias ? `<div class="cat-badge ${CATEGORY_COLORS[(ind.categoria_id - 1) % 6]}">${ind.categorias.nome}</div>` : '';
+                    const img = ind.cover_url ? `<img src="${ind.cover_url}">` : '<i class="fas fa-industry text-2xl text-slate-200"></i>';
+                    d.innerHTML = `<div class="cover-wrapper flex items-center justify-center">${img}</div><h3 class="font-bold text-[10px] text-center truncate w-full px-1">${ind.nome}</h3>${cat}<span class="text-[8px] text-slate-400 font-bold uppercase">${ind.carga_semanal || 0}H/SEM</span>`;
+                    c.appendChild(d);
                 });
             },
-
             renderRouteList: (day) => {
-                AppState.viewSelectedDay = day; const container = document.getElementById('routeListContent'); container.innerHTML = '';
+                const c = document.getElementById('routeListContent'); c.innerHTML = '';
                 const tabs = document.getElementById('routeTabsContainer'); tabs.innerHTML = '';
                 WEEK_DAYS.forEach(d => {
                     const t = document.createElement('div'); t.innerText = d.substring(0, 3);
-                    t.className = `day-tab cursor-pointer ${d === day ? 'active' : ''} ${d === 'Domingo' ? 'text-red-400' : ''}`;
+                    t.className = `day-tab ${d === day ? 'active' : ''} ${d === 'Domingo' ? 'text-red-400' : ''}`;
                     t.onclick = () => AppUI.renderRouteList(d); tabs.appendChild(t);
                 });
-                const dayItems = AppState.routes[day] || [];
-                if (dayItems.length === 0) { container.innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-slate-400"><i class="far fa-calendar-times text-3xl mb-2"></i><p class="text-xs">Dia livre</p></div>'; return; }
-                dayItems.forEach(item => {
-                    const indName = (typeof item === 'string') ? item : item.nome; const indTime = (typeof item === 'object' && item.minutos) ? AppUtils.minutesToHM(item.minutos) : null;
-                    const ind = AppState.allIndustries.find(i => i.nome === indName); if (!ind) return;
-                    const row = document.createElement('div'); row.className = 'route-item cursor-pointer'; row.onclick = () => AppUI.openIndustry(ind);
-                    const imgEl = ind.cover_url ? `<img src="${ind.cover_url}" class="w-10 h-10 rounded-xl object-cover bg-slate-100 mr-3">` : `<div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 mr-3"><i class="fas fa-industry"></i></div>`;
-                    const timeBadge = indTime ? `<div class="ml-auto flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg"><i class="fas fa-clock text-[10px] text-slate-400"></i><span class="text-[10px] font-bold font-mono">${indTime}h</span></div>` : '';
-                    row.innerHTML = `${imgEl}<div class="flex flex-col overflow-hidden mr-2"><span class="font-bold text-sm truncate text-slate-700 dark:text-slate-200">${ind.nome}</span><span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">${ind.categorias ? ind.categorias.nome : 'Geral'}</span></div>${timeBadge}`;
-                    container.appendChild(row);
+                const items = AppState.routes[day] || [];
+                if(items.length === 0) { c.innerHTML = '<div class="py-12 flex flex-col items-center justify-center text-slate-300"><i class="fas fa-calendar-check text-4xl mb-2"></i><p class="text-[10px] uppercase font-bold">Dia Livre</p></div>'; return; }
+                items.forEach(item => {
+                    const ind = AppState.allIndustries.find(i => i.nome === (item.nome || item));
+                    if(!ind) return;
+                    const row = document.createElement('div'); row.className = 'route-item';
+                    row.onclick = () => { AppState.currentIndustry = ind; AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); };
+                    row.innerHTML = `<div class="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden mr-3 flex-shrink-0">${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center bg-slate-50"><i class="fas fa-industry text-slate-300"></i></div>'}</div><div class="flex-1 overflow-hidden"><div class="font-bold text-sm truncate">${ind.nome}</div><div class="text-[9px] text-slate-400 font-bold uppercase">${ind.categorias?.nome || 'Geral'}</div></div><div class="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">${AppUtils.minutesToHM(item.minutos || 0)}h</div>`;
+                    c.appendChild(row);
                 });
             },
-
-            updateDashboard: () => {
-                document.getElementById('dashTotalInd').innerText = AppState.allIndustries.length;
-                const today = WEEK_DAYS[new Date().getDay()]; const todaysRoute = AppState.routes[today] || [];
-                let totalMin = 0; todaysRoute.forEach(item => { if (typeof item === 'object' && item.minutos) totalMin += item.minutos; });
-                document.getElementById('dashWorkLoad').innerText = AppUtils.minutesToHM(totalMin) + 'h';
-            },
-
-            renderCategoryOptions: () => {
-                const selects = [document.getElementById('catSelect'), document.getElementById('bulkCatSelect'), document.getElementById('catSelectFilter')];
-                selects.forEach(sel => { if (sel.id === 'catSelectFilter') sel.innerHTML = '<option value="">Todas as Categorias</option>'; else sel.innerHTML = '<option value="">Geral</option>'; AppState.categories.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.nome}</option>`); });
-            },
-
-            modals: {
-                openAddIndustry: () => { document.getElementById('addModal').classList.remove('hidden'); document.getElementById('btnDeleteInd').classList.add('hidden'); document.getElementById('modalTitle').innerText="Novo Local"; document.getElementById('editIndId').value=""; document.getElementById('newIndName').value=""; document.getElementById('newIndHours').value=""; document.getElementById('coverPreview').classList.add('hidden'); document.getElementById('coverPlaceholder').classList.remove('hidden'); AppState.coverImageFile = null; },
-                closeAdd: () => document.getElementById('addModal').classList.add('hidden'),
-                openEditIndustry: () => { if (!AppState.currentIndustry) return; document.getElementById('addModal').classList.remove('hidden'); document.getElementById('btnDeleteInd').classList.remove('hidden'); document.getElementById('modalTitle').innerText="Editar Local"; document.getElementById('editIndId').value = AppState.currentIndustry.id; document.getElementById('newIndName').value = AppState.currentIndustry.nome; document.getElementById('newIndHours').value = AppState.currentIndustry.carga_semanal; const img = document.getElementById('coverPreview'); const ph = document.getElementById('coverPlaceholder'); if (AppState.currentIndustry.cover_url) { img.src = AppState.currentIndustry.cover_url; img.classList.remove('hidden'); ph.classList.add('hidden'); } else { img.classList.add('hidden'); ph.classList.remove('hidden'); } },
-                openRouteConfig: () => { document.getElementById('routeConfigModal').classList.remove('hidden'); AppCore.selectRouteConfigDay(AppState.viewSelectedDay || 'Segunda'); },
-                closeRouteConfig: () => document.getElementById('routeConfigModal').classList.add('hidden'),
-                openBulkCategory: () => { if(AppState.selectedIndustries.size === 0) return; document.getElementById('bulkCatModal').classList.remove('hidden'); document.getElementById('bulkCountDisplay').innerText = AppState.selectedIndustries.size; },
-                
-                openPhoto: (f) => {
-                    document.getElementById('previewImg').src = f.url_publica;
-                    document.getElementById('photoDescInput').value = f.descricao || '';
-                    const modal = document.getElementById('photoModal');
-                    modal.classList.remove('hidden');
-                    setTimeout(() => modal.classList.remove('opacity-0'), 10);
-                },
-                closePhoto: () => { document.getElementById('photoModal').classList.add('opacity-0'); setTimeout(()=>document.getElementById('photoModal').classList.add('hidden'),300); }
-            },
-
-            handleIndustryClick: (ind, e) => { if (AppState.isSelectionMode) { if (AppState.selectedIndustries.has(ind.id)) AppState.selectedIndustries.delete(ind.id); else AppState.selectedIndustries.add(ind.id); AppUI.renderIndustries(AppState.allIndustries); } else { AppUI.openIndustry(ind); } },
-            openIndustry: (ind) => { AppState.currentIndustry = ind; AppState.calendarCursor = new Date(); AppUI.navigateTo('view-dates'); AppCore.loadDates(ind.nome); },
-            
             renderCalendar: () => {
-                const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
+                const c = document.getElementById('calendarGrid'); c.innerHTML = '<div class="grid grid-cols-7 gap-1 mb-2 text-center text-[10px] font-bold text-slate-400 uppercase tracking-tighter"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>';
+                const grid = document.createElement('div'); grid.className = 'cal-grid';
                 const y = AppState.calendarCursor.getFullYear(), m = AppState.calendarCursor.getMonth();
                 document.getElementById('calendarTitle').innerText = new Date(y, m).toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
                 const first = new Date(y, m, 1).getDay(); const days = new Date(y, m + 1, 0).getDate();
                 for(let i=0; i<first; i++) grid.appendChild(document.createElement('div'));
+                const todayStr = new Date().toLocaleDateString('pt-PT');
                 for(let d=1; d<=days; d++) {
-                    const b = document.createElement('div'); const s = new Date(y, m, d).toLocaleDateString('pt-PT');
-                    b.className = `cal-day ${AppState.availableDates.has(s) ? 'active' : ''}`; b.innerText = d;
-                    if(AppState.availableDates.has(s)) { b.innerHTML = `${d}<div class="dot"></div>`; b.onclick = () => { AppState.currentDateFolder = s; AppUI.navigateTo('view-gallery'); AppUI.loadGalleryPhotos(); }; }
+                    const dateStr = new Date(y, m, d).toLocaleDateString('pt-PT');
+                    const b = document.createElement('div'); b.className = `cal-day ${AppState.availableDates.has(dateStr) ? 'active' : ''} ${dateStr === todayStr ? 'today' : ''}`; b.innerText = d;
+                    if(AppState.availableDates.has(dateStr)) b.onclick = () => { AppState.currentDateFolder = dateStr; AppUI.navigateTo('view-gallery'); AppUI.loadGalleryPhotos(); };
                     grid.appendChild(b);
                 }
+                c.appendChild(grid);
             },
-
             loadGalleryPhotos: () => {
-                const c = document.getElementById('photosContainer');
-                c.innerHTML = '';
+                const c = document.getElementById('photosContainer'); c.innerHTML = '';
                 const p = AppState.industryPhotos.filter(f => new Date(f.created_at).toLocaleDateString('pt-PT') === AppState.currentDateFolder);
-                
-                if(p.length === 0) {
-                    c.innerHTML = '<div class="col-span-3 py-10 text-center text-xs text-slate-400">Pasta vazia.</div>';
-                    return;
-                }
-                
                 p.forEach(f => {
-                    const d = document.createElement('div');
-                    d.className = `photo-thumb ${AppState.selectedPhotos.has(f.id) ? 'selected' : ''}`;
-                    d.onclick = () => AppCore.handlePhotoClick(f);
-                    const badge = f.descricao ? `<div class="absolute bottom-1 right-1 w-2 h-2 bg-yellow-400 rounded-full shadow-sm"></div>` : '';
-                    d.innerHTML = `<img src="${f.url_publica}" loading="lazy">${badge}`;
+                    const d = document.createElement('div'); d.className = `photo-thumb ${AppState.selectedPhotos.has(f.id) ? 'selected' : ''}`;
+                    d.onclick = () => AppCore.handlePhotoClick(f); d.innerHTML = `<img src="${f.url_publica}" loading="lazy">${f.descricao ? '<div class="absolute bottom-1 right-1 w-2 h-2 bg-yellow-400 rounded-full shadow-sm"></div>' : ''}`;
                     c.appendChild(d);
                 });
             },
-            handlePhotoClick: (f) => { AppCore.handlePhotoClick(f); }
+            renderDailyIndustries: () => {
+                const c = document.getElementById('dailyIndustriesList'); c.innerHTML = '';
+                const today = WEEK_DAYS[new Date().getDay()];
+                const route = AppState.routes[today] || [];
+                if(route.length === 0) { c.innerHTML = '<p class="text-center py-4 text-xs italic opacity-50">Nenhum local na rota de hoje.</p>'; return; }
+                route.forEach(item => {
+                    const d = document.createElement('div'); d.className = 'flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg';
+                    d.innerHTML = `<span class="text-sm font-bold">${item.nome || item}</span><i class="fas fa-check-circle text-blue-500"></i>`;
+                    c.appendChild(d);
+                });
+            },
+            renderRouteChecklist: () => {
+                const l = document.getElementById('routeChecklist'); l.innerHTML = '';
+                const day = AppState.configSelectedDay || 'Segunda';
+                AppState.allIndustries.forEach(ind => {
+                    const item = AppState.routes[day]?.find(r => (r.nome || r) === ind.nome);
+                    const d = document.createElement('div'); d.className = 'flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm';
+                    d.innerHTML = `<input type="checkbox" ${item?'checked':''} onchange="AppUI.toggleRouteCheck('${ind.nome.replace(/'/g, "\\'")}', this.checked)"><span class="flex-1 text-xs font-bold truncate">${ind.nome}</span><input type="time" class="time-input" value="${AppUtils.minutesToHM(item?.minutos || 0)}" onchange="AppUI.updateRouteMins('${ind.nome.replace(/'/g, "\\'")}', this.value)">`;
+                    l.appendChild(d);
+                });
+            },
+            toggleRouteCheck: (name, checked) => {
+                const day = AppState.configSelectedDay;
+                if(!AppState.routes[day]) AppState.routes[day] = [];
+                if(checked) AppState.routes[day].push({ nome: name, minutos: 0 });
+                else AppState.routes[day] = AppState.routes[day].filter(r => (r.nome || r) !== name);
+                AppUI.renderRouteChecklist();
+            },
+            updateRouteMins: (name, val) => {
+                const item = AppState.routes[AppState.configSelectedDay]?.find(r => (r.nome || r) === name);
+                if(item) item.minutos = AppUtils.hmToMinutes(val);
+            },
+            renderCategoryOptions: () => {
+                ['catSelect', 'catSelectFilter', 'bulkCatSelect'].forEach(id => {
+                    const s = document.getElementById(id); if(!s) return;
+                    s.innerHTML = id === 'catSelectFilter' ? '<option value="">Categorias</option>' : '<option value="">Geral</option>';
+                    AppState.categories.forEach(c => s.innerHTML += `<option value="${c.id}">${c.nome}</option>`);
+                });
+            },
+            modals: {
+                openRouteConfig: () => { 
+                    AppState.configSelectedDay = WEEK_DAYS[new Date().getDay()];
+                    document.getElementById('routeConfigModal').classList.remove('hidden');
+                    const c = document.getElementById('routeConfigDays'); c.innerHTML = '';
+                    WEEK_DAYS.forEach(d => {
+                        const b = document.createElement('button'); b.innerText = d.substring(0,1);
+                        b.className = `p-2.5 rounded-lg text-[10px] font-black ${d === AppState.configSelectedDay ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'}`;
+                        b.onclick = () => { AppState.configSelectedDay = d; AppUI.modals.openRouteConfig(); };
+                        c.appendChild(b);
+                    });
+                    document.getElementById('currentConfigDay').innerText = AppState.configSelectedDay; AppUI.renderRouteChecklist();
+                },
+                closeRouteConfig: () => document.getElementById('routeConfigModal').classList.add('hidden'),
+                openAddIndustry: () => { document.getElementById('addModal').classList.remove('hidden'); document.getElementById('btnDeleteInd').classList.add('hidden'); document.getElementById('modalTitle').innerText="Novo Local"; document.getElementById('editIndId').value=""; document.getElementById('newIndName').value=""; document.getElementById('newIndHours').value=""; document.getElementById('coverPreview').classList.add('hidden'); document.getElementById('coverPlaceholder').classList.remove('hidden'); },
+                openEditIndustry: () => { if(!AppState.currentIndustry) return; AppUI.modals.openAddIndustry(); document.getElementById('modalTitle').innerText="Editar"; document.getElementById('btnDeleteInd').classList.remove('hidden'); document.getElementById('editIndId').value = AppState.currentIndustry.id; document.getElementById('newIndName').value = AppState.currentIndustry.nome; document.getElementById('newIndHours').value = AppState.currentIndustry.carga_semanal; },
+                closeAdd: () => document.getElementById('addModal').classList.add('hidden'),
+                openPhoto: (f) => { document.getElementById('previewImg').src = f.url_publica; document.getElementById('photoDescInput').value = f.descricao || ''; const m = document.getElementById('photoModal'); m.classList.remove('hidden'); setTimeout(() => m.classList.add('opacity-100'), 10); },
+                closePhoto: () => { const m = document.getElementById('photoModal'); m.classList.remove('opacity-100'); setTimeout(() => m.classList.add('hidden'), 300); },
+                openBulkCategory: () => { if(AppState.selectedIndustries.size === 0) return; document.getElementById('bulkCatModal').classList.remove('hidden'); document.getElementById('bulkCountDisplay').innerText = AppState.selectedIndustries.size; }
+            }
         };
 
         window.onload = AppCore.init;
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); document.getElementById('installBtn').classList.remove('hidden'); });
     </script>
 </body>
 </html>
