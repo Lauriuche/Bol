@@ -1,468 +1,619 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Gestor Industrial Pro</title>
 
-/**
- * GESTOR INDUSTRIAL PRO - Versão Simplificada (Sem Cronograma)
- * * Foco: Gestão de locais e registos fotográficos sem agendamento semanal.
- */
+    <!-- Dependências -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-// --- CONFIGURAÇÃO SUPABASE ---
-const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
-const BUCKET = 'galeria';
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.9);
+            --border: #e2e8f0;
+            --primary: #2563eb;
+        }
 
-// --- ÍCONES SVG INLINE ---
-const Icons = {
-  Industry: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/><path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/><path d="M14 8V4L3 9v3"/></svg>,
-  Calendar: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>,
-  Send: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>,
-  Plus: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>,
-  ChevronLeft: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>,
-  ChevronRight: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>,
-  Camera: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>,
-  ImageIcon: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>,
-  Trash: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>,
-  Bell: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
-  Search: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
-  LayoutGrid: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>,
-  Check: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-};
+        .dark {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-glass: rgba(15, 23, 42, 0.9);
+            --border: #334155;
+            --primary: #3b82f6;
+        }
 
-// --- UTILITÁRIOS ---
-const utils = {
-  sanitize: (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_"),
-  getGPS: () => new Promise((res) => {
-    if (!navigator.geolocation) return res(null);
-    navigator.geolocation.getCurrentPosition(
-      (p) => res(`${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`),
-      () => res(null),
-      { timeout: 3000 }
-    );
-  })
-};
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: background-color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-export default function App() {
-  const [supabaseClient, setSupabaseClient] = useState(null);
-  const [view, setView] = useState('home');
-  const [history, setHistory] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
-  const [industries, setIndustries] = useState([]);
-  const [allPhotos, setAllPhotos] = useState([]);
-  const [currentIndustry, setCurrentIndustry] = useState(null);
-  const [currentDateFolder, setCurrentDateFolder] = useState(null);
-  const [calendarCursor, setCalendarCursor] = useState(new Date());
-  const [searchTerm, setSearchTerm] = useState('');
-  const [toast, setToast] = useState({ show: false, msg: '', type: 'loading' });
-  
-  const [modals, setModals] = useState({
-    addIndustry: false,
-    photoPreview: false,
-    lateAlerts: false
-  });
-  
-  const [newInd, setNewInd] = useState({ nome: '' });
-  const [selectedPhotoData, setSelectedPhotoData] = useState(null);
+        .glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
 
-  // --- INICIALIZAÇÃO ---
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    script.async = true;
-    script.onload = () => {
-      if (window.supabase) {
-        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        setSupabaseClient(client);
-      }
-    };
-    document.head.appendChild(script);
+        .bottom-nav {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+        }
 
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) setDarkMode(true);
-    return () => { if(document.head.contains(script)) document.head.removeChild(script); };
-  }, []);
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
 
-  useEffect(() => {
-    if (supabaseClient) fetchData();
-  }, [supabaseClient]);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-  const fetchData = async () => {
-    if (!supabaseClient) return;
-    try {
-      const { data: indData } = await supabaseClient.from('industrias').select('*').order('nome');
-      const { data: photoData } = await supabaseClient.from('fotos').select('*').order('created_at', { ascending: false });
-      setIndustries(indData || []);
-      setAllPhotos(photoData || []);
-    } catch (e) {
-      showToast("Erro ao sincronizar dados", "error");
-    }
-  };
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-  const showToast = (msg, type = 'loading') => {
-    setToast({ show: true, msg, type });
-    if (type !== 'loading') setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2500);
-  };
+        /* Estilo de Calendário */
+        .cal-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .cal-day.has-photos {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .cal-day.empty { color: #94a3b8; }
+    </style>
+</head>
+<body class="antialiased">
 
-  // --- NAVEGAÇÃO ---
-  const navigateTo = (nextView) => {
-    setHistory(prev => [...prev, view]);
-    setView(nextView);
-  };
-
-  const goBack = () => {
-    const prev = history.pop();
-    if (prev) {
-      setHistory([...history]);
-      setView(prev);
-    }
-  };
-
-  // --- LÓGICA DE FOTOS ---
-  const uploadPhoto = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !currentIndustry || !supabaseClient) return;
-
-    showToast("A processar imagem...");
-    const gps = await utils.getGPS();
-    
-    try {
-      const safeName = utils.sanitize(currentIndustry.nome);
-      const now = new Date();
-      const dateStr = currentDateFolder || now.toLocaleDateString('pt-PT').replace(/\//g, '-');
-      const fileName = `${safeName}/${dateStr}/FOTO_${now.getTime()}.jpg`;
-      
-      const { error: storageError } = await supabaseClient.storage.from(BUCKET).upload(fileName, file, { contentType: 'image/jpeg' });
-      if (storageError) throw storageError;
-
-      const { data: urlData } = supabaseClient.storage.from(BUCKET).getPublicUrl(fileName);
-      
-      await supabaseClient.from('fotos').insert({
-        created_at: now.toISOString(),
-        nome_arquivo: fileName,
-        url_publica: urlData.publicUrl,
-        industria_id: currentIndustry.id,
-        descricao: gps ? `📍 GPS: ${gps}` : ''
-      });
-
-      showToast("Foto salva!", "success");
-      fetchData();
-    } catch (e) {
-      showToast("Erro no envio", "error");
-    }
-  };
-
-  // --- DERIVADOS ---
-  const industryPhotosFiltered = useMemo(() => {
-    if (!currentIndustry || !currentDateFolder) return [];
-    return allPhotos.filter(p => 
-      p.industria_id === currentIndustry.id && 
-      new Date(p.created_at).toLocaleDateString('pt-PT') === currentDateFolder
-    );
-  }, [allPhotos, currentIndustry, currentDateFolder]);
-
-  const availableDates = useMemo(() => {
-    if (!currentIndustry) return new Set();
-    const dates = new Set();
-    allPhotos.filter(p => p.industria_id === currentIndustry.id)
-             .forEach(p => dates.add(new Date(p.created_at).toLocaleDateString('pt-PT')));
-    return dates;
-  }, [allPhotos, currentIndustry]);
-
-  const lateIndustries = useMemo(() => {
-    const threshold = new Date();
-    threshold.setDate(threshold.getDate() - 7);
-    const lastVisits = {};
-    allPhotos.forEach(p => {
-      if (!lastVisits[p.industria_id]) lastVisits[p.industria_id] = new Date(p.created_at);
-    });
-    return industries.filter(ind => !lastVisits[ind.id] || lastVisits[ind.id] < threshold);
-  }, [industries, allPhotos]);
-
-  // --- COMPONENTES ---
-
-  const Header = () => (
-    <header className={`fixed top-0 w-full h-16 z-50 flex items-center justify-between px-4 glass border-b transition-colors ${darkMode ? 'dark border-slate-800' : 'border-slate-200'}`}>
-      <div className="flex items-center gap-3">
-        {history.length > 0 && (
-          <button onClick={goBack} className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 transition">
-            <Icons.ChevronLeft />
-          </button>
-        )}
-        <div>
-          <h1 className="font-bold text-sm leading-tight dark:text-white">Gestor Industrial</h1>
-          <p className="text-[9px] font-medium text-slate-500 uppercase tracking-wider">
-            {view === 'home' ? 'Painel de Controlo' : currentIndustry?.nome || 'Navegação'}
-          </p>
-        </div>
-      </div>
-      <button onClick={() => setDarkMode(!darkMode)} className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition">
-        {darkMode ? <span className="text-yellow-400">☀️</span> : <span>🌙</span>}
-      </button>
-    </header>
-  );
-
-  const BottomNav = () => (
-    <nav className="fixed bottom-0 left-0 right-0 h-16 glass border-t border-slate-200 dark:border-slate-800 z-50 flex justify-around items-center px-4 pb-safe">
-      <button onClick={() => setView('home')} className={`flex flex-col items-center gap-1 transition ${view === 'home' ? 'text-blue-600' : 'text-slate-400'}`}>
-        <Icons.Industry />
-        <span className="text-[10px] font-bold">Locais</span>
-      </button>
-      <button onClick={() => navigateTo('all')} className={`flex flex-col items-center gap-1 transition ${view === 'all' ? 'text-blue-600' : 'text-slate-400'}`}>
-        <Icons.LayoutGrid />
-        <span className="text-[10px] font-bold">Galeria</span>
-      </button>
-      <button onClick={() => setView('reports')} className={`flex flex-col items-center gap-1 transition ${view === 'reports' ? 'text-blue-600' : 'text-slate-400'}`}>
-        <Icons.Send />
-        <span className="text-[10px] font-bold">Partilhar</span>
-      </button>
-    </nav>
-  );
-
-  if (!supabaseClient) return <div className="h-screen flex items-center justify-center bg-slate-950 text-white font-bold animate-pulse text-xs uppercase tracking-widest">Iniciando Sistema...</div>;
-
-  return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} font-sans pb-20`}>
-      <Header />
-      
-      {/* Toast */}
-      <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-300 transform ${toast.show ? 'translate-y-0 opacity-100' : '-translate-y-12 opacity-0'}`}>
-        <div className="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
-          {toast.type === 'loading' && <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>}
-          <span className="text-xs font-bold">{toast.msg}</span>
-        </div>
-      </div>
-
-      <main className="max-w-md mx-auto p-4 pt-20">
-        {/* DASHBOARD & LISTA DE LOCAIS */}
-        {view === 'home' && (
-          <div className="animate-in fade-in duration-500">
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className="text-2xl font-black text-blue-600">{industries.length}</div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Total de Locais</div>
-              </div>
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className="text-2xl font-black">{allPhotos.length}</div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Total de Fotos</div>
-              </div>
-            </div>
-
-            {lateIndustries.length > 0 && (
-              <div onClick={() => setModals(m => ({ ...m, lateAlerts: true }))} className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 cursor-pointer active:scale-95 transition-transform">
-                <div className="w-10 h-10 bg-red-100 dark:bg-red-800 text-red-600 rounded-full flex items-center justify-center"><Icons.Bell /></div>
-                <div className="flex-1">
-                    <p className="text-[10px] font-bold text-red-800 dark:text-red-400 uppercase">Alerta de Visita</p>
-                    <p className="text-[10px]">{lateIndustries.length} locais em atraso (+7 dias).</p>
-                </div>
-              </div>
-            )}
-
-            <div className="relative mb-6">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icons.Search /></span>
-              <input 
-                type="text" 
-                placeholder="Pesquisar por nome do local..." 
-                className="w-full pl-11 pr-4 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm outline-none shadow-sm focus:ring-2 ring-blue-500/10 transition-all" 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 pb-10">
-              {industries.filter(i => i.nome.toLowerCase().includes(searchTerm.toLowerCase())).map(ind => (
-                <div 
-                  key={ind.id} 
-                  onClick={() => { setCurrentIndustry(ind); navigateTo('dates'); }} 
-                  className="bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 aspect-square flex flex-col items-center justify-between text-center active:scale-95 transition shadow-sm"
-                >
-                  <div className="w-full flex-1 bg-slate-50 dark:bg-slate-800 rounded-xl mb-2 flex items-center justify-center overflow-hidden">
-                    {ind.cover_url ? <img src={ind.cover_url} className="w-full h-full object-cover" /> : <Icons.Industry />}
-                  </div>
-                  <h3 className="font-bold text-[10px] w-full truncate dark:text-white px-1">{ind.nome}</h3>
-                </div>
-              ))}
-              <button 
-                onClick={() => setModals({ ...modals, addIndustry: true })} 
-                className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 border-2 border-dashed border-blue-200 dark:border-blue-900/40 rounded-2xl aspect-square flex flex-col items-center justify-center gap-1 active:scale-95 transition"
-              >
-                <Icons.Plus />
-                <span className="text-[9px] font-bold uppercase">Novo</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* CALENDÁRIO DO LOCAL */}
-        {view === 'dates' && (
-          <div className="animate-in slide-in-from-right-4 duration-300">
-            <div className="flex items-center justify-between mb-6">
-              <button onClick={() => setCalendarCursor(new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() - 1, 1))} className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center"><Icons.ChevronLeft /></button>
-              <h2 className="font-bold text-base capitalize dark:text-white">{calendarCursor.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' })}</h2>
-              <button onClick={() => setCalendarCursor(new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + 1, 1))} className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center"><Icons.ChevronRight /></button>
-            </div>
-            
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm">
-              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase mb-2">
-                {['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d => <span key={d}>{d}</span>)}
-              </div>
-              <div className="grid grid-cols-7 gap-1">
-                {(() => {
-                  const days = [];
-                  const firstDay = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth(), 1).getDay();
-                  const totalDays = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + 1, 0).getDate();
-                  for (let i = 0; i < firstDay; i++) days.push(<div key={`e-${i}`} />);
-                  for (let d = 1; d <= totalDays; d++) {
-                    const dateStr = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth(), d).toLocaleDateString('pt-PT');
-                    const hasPhotos = availableDates.has(dateStr);
-                    days.push(
-                      <button key={d} onClick={() => { if(hasPhotos) { setCurrentDateFolder(dateStr); navigateTo('gallery'); } }} className={`aspect-square rounded-xl flex items-center justify-center text-xs font-bold transition-all ${hasPhotos ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'text-slate-300 dark:text-slate-700'}`}>{d}</button>
-                    );
-                  }
-                  return days;
-                })()}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <label className="bg-blue-600 text-white p-6 rounded-3xl flex flex-col items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/20 active:scale-95 transition">
-                <Icons.Camera />
-                <span className="text-[10px] font-black uppercase tracking-widest">Câmara</span>
-                <input type="file" capture="environment" accept="image/*" className="hidden" onChange={uploadPhoto} />
-              </label>
-              <label className="bg-slate-800 dark:bg-slate-900 text-white p-6 rounded-3xl flex flex-col items-center gap-2 cursor-pointer active:scale-95 transition shadow-lg">
-                <Icons.ImageIcon />
-                <span className="text-[10px] font-black uppercase tracking-widest">Galeria</span>
-                <input type="file" accept="image/*" className="hidden" onChange={uploadPhoto} />
-              </label>
-            </div>
-            
-            <button 
-              onClick={async () => {
-                if(!confirm(`Deseja eliminar ${currentIndustry.nome}?`)) return;
-                await supabaseClient.from('industrias').delete().eq('id', currentIndustry.id);
-                setView('home');
-                fetchData();
-              }}
-              className="mt-10 w-full py-4 text-red-500/40 text-[9px] font-bold uppercase tracking-widest"
-            >
-              Eliminar este Local
+    <!-- Header -->
+    <header class="fixed top-0 w-full h-16 glass z-50 flex items-center justify-between px-4">
+        <div class="flex items-center gap-3">
+            <button id="backBtn" onclick="app.goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dark:text-white"><path d="m15 18-6-6 6-6"/></svg>
             </button>
-          </div>
-        )}
-
-        {/* GALERIA DO DIA */}
-        {view === 'gallery' && (
-          <div className="animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl mb-4 border border-slate-100 dark:border-slate-800 flex justify-between items-center">
-              <span className="text-xs font-bold dark:text-white uppercase tracking-tighter">{currentDateFolder}</span>
-              <span className="text-[10px] text-slate-400 font-bold">{industryPhotosFiltered.length} Registos</span>
+            <div>
+                <h1 id="headerTitle" class="font-bold text-sm dark:text-white">Gestor Industrial</h1>
+                <p id="headerSubtitle" class="text-[9px] font-medium text-slate-500 uppercase tracking-wider">Painel de Controlo</p>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {industryPhotosFiltered.map(f => (
-                <div key={f.id} onClick={() => { setSelectedPhotoData(f); setModals(m => ({ ...m, photoPreview: true })); }} className="aspect-square rounded-xl overflow-hidden cursor-pointer shadow-sm active:scale-95 transition-transform">
-                  <img src={f.url_publica} className="w-full h-full object-cover" loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* GALERIA GLOBAL */}
-        {view === 'all' && (
-          <div className="animate-in fade-in duration-300">
-            <div className="grid grid-cols-3 gap-2">
-              {allPhotos.slice(0, 48).map(f => (
-                <div key={f.id} onClick={() => { setSelectedPhotoData(f); setModals(m => ({ ...m, photoPreview: true })); }} className="aspect-square rounded-xl overflow-hidden cursor-pointer shadow-sm">
-                  <img src={f.url_publica} className="w-full h-full object-cover" loading="lazy" />
-                </div>
-              ))}
-            </div>
-            {allPhotos.length === 0 && <div className="py-20 text-center text-slate-300 font-bold text-xs uppercase">Sem fotos no sistema</div>}
-          </div>
-        )}
-
-        {/* PARTILHA */}
-        {view === 'reports' && (
-          <div className="animate-in fade-in duration-500 text-center py-10">
-            <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.Send /></div>
-            <h2 className="text-xl font-bold dark:text-white">Partilhar Registos</h2>
-            <p className="text-xs text-slate-500 mt-2 mb-8">Selecione as fotos para enviar via WhatsApp.</p>
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm text-left mb-6">
-                <label className="text-[9px] font-bold text-slate-400 uppercase block mb-2">Mensagem do WhatsApp</label>
-                <textarea className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs outline-none border-0 h-24 resize-none" placeholder="Olá! Seguem os registos das visitas industriais..." />
-            </div>
-            <button className="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-blue-500/30 active:scale-95 transition">PREPARAR WHATSAPP</button>
-          </div>
-        )}
-      </main>
-
-      <BottomNav />
-
-      {/* MODAL: ADD INDUSTRY */}
-      {modals.addIndustry && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex flex-col justify-end p-0">
-          <div className="bg-white dark:bg-slate-900 w-full rounded-t-3xl p-6 animate-in slide-in-from-bottom-full duration-300">
-            <h3 className="text-lg font-bold mb-6 dark:text-white">Adicionar Novo Local</h3>
-            <div className="mb-6">
-                <label className="text-[9px] font-bold text-slate-400 uppercase block mb-2">Nome da Empresa ou Local</label>
-                <input type="text" placeholder="Ex: Fábrica Norte" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none border border-transparent focus:border-blue-500 transition-colors" value={newInd.nome} onChange={(e) => setNewInd({...newInd, nome: e.target.value})} />
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => setModals({ ...modals, addIndustry: false })} className="flex-1 py-4 text-slate-400 font-bold text-[10px] uppercase tracking-widest">Cancelar</button>
-              <button onClick={async () => {
-                if(!newInd.nome) return;
-                showToast("A guardar...");
-                await supabaseClient.from('industrias').insert({ nome: newInd.nome, carga_semanal: 0 });
-                setNewInd({ nome: '' });
-                setModals({ ...modals, addIndustry: false });
-                fetchData();
-                showToast("Sucesso!", "success");
-              }} className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/20">Salvar Local</button>
-            </div>
-          </div>
         </div>
-      )}
+        <button onclick="app.toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition">
+            <span id="themeIcon">🌙</span>
+        </button>
+    </header>
 
-      {/* MODAL: PHOTO PREVIEW */}
-      {modals.photoPreview && selectedPhotoData && (
-        <div className="fixed inset-0 bg-black/95 z-[110] flex flex-col justify-center items-center p-4">
-          <button onClick={() => setModals({ ...modals, photoPreview: false })} className="absolute top-10 right-6 text-white bg-white/10 w-12 h-12 rounded-full flex items-center justify-center"><Icons.ChevronLeft /></button>
-          <img src={selectedPhotoData.url_publica} className="max-h-[60vh] w-full object-contain rounded-2xl shadow-2xl mb-6" />
-          <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl p-4 rounded-3xl border border-white/20">
-            <div className="mb-4">
-                <p className="text-[10px] text-white/60 uppercase font-bold mb-1">Nota / GPS</p>
-                <p className="text-sm text-white font-medium">{selectedPhotoData.descricao || 'Sem anotação'}</p>
-            </div>
-            <button onClick={async () => {
-              if(!confirm("Deseja eliminar este registo permanentemente?")) return;
-              await supabaseClient.from('fotos').delete().eq('id', selectedPhotoData.id);
-              setModals({ ...modals, photoPreview: false });
-              fetchData();
-              showToast("Foto eliminada", "success");
-            }} className="w-full py-4 bg-red-500 text-white font-black text-[10px] uppercase rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"><Icons.Trash /> Eliminar Registo</button>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: LATE ALERTS */}
-      {modals.lateAlerts && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex flex-col justify-end p-0">
-          <div className="bg-white dark:bg-slate-900 w-full rounded-t-3xl p-6 h-[70vh] flex flex-col shadow-2xl">
-            <div className="w-12 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full mx-auto mb-6"></div>
-            <h3 className="text-lg font-bold mb-4 text-red-600 flex items-center gap-2">Locais sem Visita Recente</h3>
-            <p className="text-[10px] text-slate-400 uppercase font-bold mb-4 tracking-tighter">Última foto registada há mais de 7 dias</p>
-            <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scroll">
-              {lateIndustries.map(ind => (
-                <div key={ind.id} onClick={() => { setCurrentIndustry(ind); setModals(m => ({ ...m, lateAlerts: false })); navigateTo('dates'); }} className="p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/30 flex justify-between items-center active:scale-95 transition-transform cursor-pointer">
-                  <span className="font-bold text-sm dark:text-red-400">{ind.nome}</span>
-                  <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black text-red-500 uppercase">Ver Local</span>
-                      <Icons.ChevronRight />
-                  </div>
+    <!-- Main Content -->
+    <main class="max-w-md mx-auto p-4 pt-20 pb-24">
+        
+        <!-- View: Home -->
+        <section id="view-home" class="view-section active">
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div id="stat-industries" class="text-2xl font-black text-blue-600">0</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase">Total de Locais</div>
                 </div>
-              ))}
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div id="stat-photos" class="text-2xl font-black dark:text-white">0</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase">Total de Fotos</div>
+                </div>
             </div>
-            <button onClick={() => setModals({ ...modals, lateAlerts: false })} className="mt-6 py-4 bg-slate-100 dark:bg-slate-800 rounded-2xl font-bold text-[10px] uppercase tracking-widest active:bg-slate-200 transition-colors">Fechar</button>
-          </div>
+
+            <div id="alert-late" onclick="app.openLateAlerts()" class="hidden mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 cursor-pointer active:scale-95 transition-transform">
+                <div class="w-10 h-10 bg-red-100 dark:bg-red-800 text-red-600 rounded-full flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                </div>
+                <div class="flex-1">
+                    <p class="text-[10px] font-bold text-red-800 dark:text-red-400 uppercase">Alerta de Visita</p>
+                    <p id="alert-text" class="text-[10px] dark:text-red-300">0 locais em atraso (+7 dias).</p>
+                </div>
+            </div>
+
+            <div class="relative mb-6">
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </div>
+                <input type="text" id="searchInput" oninput="app.filterIndustries()" placeholder="Pesquisar local..." class="w-full pl-11 pr-4 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm outline-none shadow-sm focus:ring-2 ring-blue-500/10 transition-all dark:text-white">
+            </div>
+
+            <div id="industriesList" class="flex flex-col gap-2 pb-10">
+                <!-- Lista será injetada aqui -->
+            </div>
+            
+            <button onclick="app.openModal('addIndustry')" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center active:scale-90 transition-transform z-40">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+        </section>
+
+        <!-- View: Dates (Calendário) -->
+        <section id="view-dates" class="view-section">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="app.changeMonth(-1)" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center active:scale-90 transition dark:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <h2 id="calendarMonth" class="font-bold text-base capitalize dark:text-white text-center">Mês</h2>
+                <button onclick="app.changeMonth(1)" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center active:scale-90 transition dark:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+            </div>
+            
+            <div id="calendarGrid" class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm">
+                <!-- Grid injetada via JS -->
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <label class="bg-blue-600 text-white p-6 rounded-3xl flex flex-col items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/20 active:scale-95 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Câmara</span>
+                    <input type="file" capture="environment" accept="image/*" class="hidden" onchange="app.handleUpload(this)">
+                </label>
+                <label class="bg-slate-800 dark:bg-slate-700 text-white p-6 rounded-3xl flex flex-col items-center gap-2 cursor-pointer active:scale-95 transition shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Galeria</span>
+                    <input type="file" accept="image/*" class="hidden" onchange="app.handleUpload(this)">
+                </label>
+            </div>
+            
+            <button onclick="app.deleteCurrentIndustry()" class="mt-10 w-full py-4 text-red-500/40 text-[9px] font-bold uppercase tracking-widest active:text-red-500 transition-colors">Eliminar este Local</button>
+        </section>
+
+        <!-- View: Gallery (Fotos do Dia) -->
+        <section id="view-gallery" class="view-section">
+            <div id="galleryContainer" class="grid grid-cols-3 gap-2">
+                <!-- Fotos injetadas aqui -->
+            </div>
+        </section>
+
+        <!-- View: Global Gallery (Tudo) -->
+        <section id="view-all" class="view-section">
+            <div id="allPhotosContainer" class="grid grid-cols-3 gap-2">
+                <!-- Fotos globais -->
+            </div>
+        </section>
+
+        <!-- View: Reports (Partilha) -->
+        <section id="view-reports" class="view-section text-center py-10">
+            <div class="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            </div>
+            <h2 class="text-xl font-bold dark:text-white">Partilhar Registos</h2>
+            <p class="text-xs text-slate-500 mt-2 mb-8">Partilhe o estado atual dos locais industriais.</p>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm text-left mb-6">
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-2">Mensagem Adicional</label>
+                <textarea id="shareMessage" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs outline-none border-0 h-24 resize-none dark:text-white" placeholder="Olá! Seguem os registos das visitas industriais..."></textarea>
+            </div>
+            <button onclick="app.shareViaWhatsapp()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-blue-500/30 active:scale-95 transition">PREPARAR WHATSAPP</button>
+        </section>
+
+    </main>
+
+    <!-- Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 h-16 bottom-nav z-50 flex justify-around items-center px-4 pb-safe">
+        <button onclick="app.navigateTo('home')" class="nav-item flex flex-col items-center gap-1 text-blue-600" data-tab="home">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/><path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/><path d="M14 8V4L3 9v3"/></svg>
+            <span class="text-[10px] font-bold">Locais</span>
+        </button>
+        <button onclick="app.navigateTo('all')" class="nav-item flex flex-col items-center gap-1 text-slate-400" data-tab="all">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+            <span class="text-[10px] font-bold">Galeria</span>
+        </button>
+        <button onclick="app.navigateTo('reports')" class="nav-item flex flex-col items-center gap-1 text-slate-400" data-tab="reports">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            <span class="text-[10px] font-bold">Partilhar</span>
+        </button>
+    </nav>
+
+    <!-- Modal: Add Industry -->
+    <div id="modal-addIndustry" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end p-0">
+        <div class="bg-white dark:bg-slate-900 w-full rounded-t-3xl p-6 animate-slide-up">
+            <h3 class="text-lg font-bold mb-6 dark:text-white">Adicionar Novo Local</h3>
+            <div class="mb-6">
+                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-2">Nome da Empresa / Local</label>
+                <input type="text" id="newIndName" placeholder="Ex: Fábrica de Calçado" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none border border-transparent focus:border-blue-500 transition-colors dark:text-white">
+            </div>
+            <div class="flex gap-3">
+                <button onclick="app.closeModal('addIndustry')" class="flex-1 py-4 text-slate-400 font-bold text-[10px] uppercase">Cancelar</button>
+                <button onclick="app.saveNewIndustry()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold text-[10px] uppercase shadow-lg">Salvar</button>
+            </div>
         </div>
-      )}
     </div>
-  );
-}
+
+    <!-- Modal: Late Alerts -->
+    <div id="modal-lateAlerts" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end p-0">
+        <div class="bg-white dark:bg-slate-900 w-full rounded-t-3xl p-6 h-[70vh] flex flex-col shadow-2xl">
+            <h3 class="text-lg font-bold mb-4 text-red-600">Locais Sem Visita Recente</h3>
+            <p class="text-[10px] text-slate-400 uppercase font-bold mb-4">+7 dias desde o último registo</p>
+            <div id="lateIndustriesList" class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scroll">
+                <!-- Injetado aqui -->
+            </div>
+            <button onclick="app.closeModal('lateAlerts')" class="mt-6 py-4 bg-slate-100 dark:bg-slate-800 rounded-2xl font-bold text-[10px] dark:text-white uppercase">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal: Photo Preview -->
+    <div id="modal-photoPreview" class="fixed inset-0 bg-black/95 z-[110] hidden flex flex-col justify-center items-center p-4">
+        <button onclick="app.closeModal('photoPreview')" class="absolute top-10 right-6 text-white w-12 h-12 flex items-center justify-center bg-white/10 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <img id="previewImg" src="" class="max-h-[60vh] w-full object-contain rounded-2xl shadow-2xl mb-6">
+        <div class="w-full max-w-sm bg-white/10 backdrop-blur-xl p-4 rounded-3xl border border-white/20">
+            <p id="previewDesc" class="text-white text-sm font-medium mb-4 text-center">Sem anotação</p>
+            <button onclick="app.deletePhoto()" class="w-full py-4 bg-red-500 text-white font-black text-[10px] uppercase rounded-2xl flex items-center justify-center gap-2 shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                Eliminar Registo
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[130] transition-all duration-300 transform -translate-y-12 opacity-0 pointer-events-none">
+        <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+            <div id="toastSpinner" class="hidden w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <span id="toastMsg" class="text-xs font-bold">Mensagem</span>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO ---
+        const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
+        const BUCKET = 'galeria';
+
+        const app = {
+            supabase: null,
+            view: 'home',
+            history: [],
+            darkMode: false,
+            industries: [],
+            allPhotos: [],
+            currentIndustry: null,
+            currentDateFolder: null,
+            calendarCursor: new Date(),
+            selectedPhoto: null,
+
+            init: async function() {
+                // Supabase init
+                if (window.supabase) {
+                    this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                }
+
+                // Dark mode init
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    this.toggleDarkMode();
+                }
+
+                await this.fetchData();
+            },
+
+            fetchData: async function() {
+                if (!this.supabase) return;
+                try {
+                    const { data: indData } = await this.supabase.from('industrias').select('*').order('nome');
+                    const { data: photoData } = await this.supabase.from('fotos').select('*').order('created_at', { ascending: false });
+                    
+                    this.industries = indData || [];
+                    this.allPhotos = photoData || [];
+                    
+                    this.updateStats();
+                    this.renderIndustries();
+                    this.checkAlerts();
+                } catch (e) {
+                    this.showToast("Erro ao sincronizar dados", "error");
+                }
+            },
+
+            updateStats: function() {
+                document.getElementById('stat-industries').innerText = this.industries.length;
+                document.getElementById('stat-photos').innerText = this.allPhotos.length;
+            },
+
+            renderIndustries: function() {
+                const list = document.getElementById('industriesList');
+                const term = document.getElementById('searchInput').value.toLowerCase();
+                list.innerHTML = '';
+
+                this.industries.filter(i => i.nome.toLowerCase().includes(term)).forEach(ind => {
+                    const item = document.createElement('div');
+                    item.className = 'bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center active:scale-[0.98] transition-all shadow-sm';
+                    item.onclick = () => { this.currentIndustry = ind; this.navigateTo('dates'); this.renderCalendar(); };
+                    
+                    item.innerHTML = `
+                        <div class="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                            ${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover">` : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/></svg>`}
+                        </div>
+                        <div class="flex-1 ml-4 overflow-hidden">
+                            <h3 class="font-bold text-sm dark:text-white truncate">${ind.nome}</h3>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Ver Registos</p>
+                        </div>
+                        <div class="text-slate-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            },
+
+            filterIndustries: function() {
+                this.renderIndustries();
+            },
+
+            checkAlerts: function() {
+                const threshold = new Date();
+                threshold.setDate(threshold.getDate() - 7);
+                
+                const lastVisits = {};
+                this.allPhotos.forEach(p => {
+                    if (!lastVisits[p.industria_id]) lastVisits[p.industria_id] = new Date(p.created_at);
+                });
+
+                const lateOnes = this.industries.filter(ind => !lastVisits[ind.id] || lastVisits[ind.id] < threshold);
+                
+                const alertEl = document.getElementById('alert-late');
+                if (lateOnes.length > 0) {
+                    alertEl.classList.remove('hidden');
+                    document.getElementById('alert-text').innerText = `${lateOnes.length} locais sem visitas recentes.`;
+                    
+                    const modalList = document.getElementById('lateIndustriesList');
+                    modalList.innerHTML = '';
+                    lateOnes.forEach(ind => {
+                        const row = document.createElement('div');
+                        row.className = 'p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/30 flex justify-between items-center cursor-pointer';
+                        row.onclick = () => { this.currentIndustry = ind; this.closeModal('lateAlerts'); this.navigateTo('dates'); this.renderCalendar(); };
+                        row.innerHTML = `<span class="font-bold text-sm dark:text-red-400">${ind.nome}</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="m9 18 6-6-6-6"/></svg>`;
+                        modalList.appendChild(row);
+                    });
+                } else {
+                    alertEl.classList.add('hidden');
+                }
+            },
+
+            // --- NAVEGAÇÃO ---
+            navigateTo: function(viewId) {
+                this.history.push(this.view);
+                document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+                document.getElementById(`view-${viewId}`).classList.add('active');
+                
+                // Update header
+                const titles = { home: 'Painel de Controlo', dates: 'Calendário de Visitas', gallery: 'Registos do Dia', all: 'Galeria Global', reports: 'Partilha de Dados' };
+                document.getElementById('headerSubtitle').innerText = titles[viewId] || 'Gestor';
+                document.getElementById('headerTitle').innerText = (viewId === 'dates' || viewId === 'gallery') ? this.currentIndustry?.nome : 'Gestor Industrial';
+
+                // Botão voltar
+                document.getElementById('backBtn').classList.toggle('hidden', viewId === 'home');
+                
+                // Update Nav
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.toggle('text-blue-600', item.dataset.tab === viewId);
+                    item.classList.toggle('text-slate-400', item.dataset.tab !== viewId);
+                });
+
+                if (viewId === 'all') this.renderGlobalGallery();
+                this.view = viewId;
+            },
+
+            goBack: function() {
+                const prev = this.history.pop();
+                if (prev) {
+                    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+                    document.getElementById(`view-${prev}`).classList.add('active');
+                    this.view = prev;
+                    this.navigateTo(prev); // Trigger header updates
+                    this.history.pop(); // Remove o duplicado criado pelo navigateTo
+                }
+            },
+
+            // --- CALENDÁRIO ---
+            renderCalendar: function() {
+                const grid = document.getElementById('calendarGrid');
+                grid.innerHTML = '<div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase mb-2"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>';
+                
+                const gridDays = document.createElement('div');
+                gridDays.className = 'grid grid-cols-7 gap-1';
+                
+                const y = this.calendarCursor.getFullYear();
+                const m = this.calendarCursor.getMonth();
+                
+                document.getElementById('calendarMonth').innerText = new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric' }).format(this.calendarCursor);
+
+                const firstDay = new Date(y, m, 1).getDay();
+                const totalDays = new Date(y, m + 1, 0).getDate();
+
+                // Datas com fotos
+                const datesWithPhotos = new Set();
+                this.allPhotos
+                    .filter(p => p.industria_id === this.currentIndustry?.id)
+                    .forEach(p => datesWithPhotos.add(new Date(p.created_at).toLocaleDateString('pt-PT')));
+
+                for (let i = 0; i < firstDay; i++) gridDays.appendChild(document.createElement('div'));
+                
+                for (let d = 1; d <= totalDays; d++) {
+                    const dateObj = new Date(y, m, d);
+                    const dateStr = dateObj.toLocaleDateString('pt-PT');
+                    const hasPhotos = datesWithPhotos.has(dateStr);
+                    
+                    const btn = document.createElement('button');
+                    btn.className = `cal-day ${hasPhotos ? 'has-photos' : 'empty'} active:scale-95 transition`;
+                    btn.innerText = d;
+                    
+                    if (hasPhotos) {
+                        btn.onclick = () => { 
+                            this.currentDateFolder = dateStr; 
+                            this.renderGallery(dateStr);
+                            this.navigateTo('gallery'); 
+                        };
+                    }
+                    
+                    gridDays.appendChild(btn);
+                }
+                grid.appendChild(gridDays);
+            },
+
+            changeMonth: function(delta) {
+                this.calendarCursor.setMonth(this.calendarCursor.getMonth() + delta);
+                this.renderCalendar();
+            },
+
+            // --- GALERIA ---
+            renderGallery: function(dateStr) {
+                const container = document.getElementById('galleryContainer');
+                container.innerHTML = '';
+                
+                const photos = this.allPhotos.filter(p => 
+                    p.industria_id === this.currentIndustry?.id && 
+                    new Date(p.created_at).toLocaleDateString('pt-PT') === dateStr
+                );
+
+                photos.forEach(photo => {
+                    const div = document.createElement('div');
+                    div.className = 'aspect-square rounded-xl overflow-hidden shadow-sm active:scale-95 transition-transform cursor-pointer';
+                    div.innerHTML = `<img src="${photo.url_publica}" class="w-full h-full object-cover" loading="lazy">`;
+                    div.onclick = () => this.openPhotoPreview(photo);
+                    container.appendChild(div);
+                });
+            },
+
+            renderGlobalGallery: function() {
+                const container = document.getElementById('allPhotosContainer');
+                container.innerHTML = '';
+                this.allPhotos.slice(0, 50).forEach(photo => {
+                    const div = document.createElement('div');
+                    div.className = 'aspect-square rounded-xl overflow-hidden shadow-sm cursor-pointer';
+                    div.innerHTML = `<img src="${photo.url_publica}" class="w-full h-full object-cover" loading="lazy">`;
+                    div.onclick = () => this.openPhotoPreview(photo);
+                    container.appendChild(div);
+                });
+            },
+
+            // --- FOTOS ---
+            handleUpload: async function(input) {
+                const file = input.files[0];
+                if (!file || !this.supabase || !this.currentIndustry) return;
+
+                this.showToast("A processar...", "loading");
+                const now = new Date();
+                const datePath = this.currentDateFolder || now.toLocaleDateString('pt-PT').replace(/\//g, '-');
+                const safeIndName = this.currentIndustry.nome.replace(/[^a-zA-Z0-9]/g, '_');
+                const fileName = `${safeIndName}/${datePath}/FOTO_${now.getTime()}.jpg`;
+
+                try {
+                    const { error: storageError } = await this.supabase.storage.from(BUCKET).upload(fileName, file);
+                    if (storageError) throw storageError;
+
+                    const { data: urlData } = this.supabase.storage.from(BUCKET).getPublicUrl(fileName);
+                    
+                    await this.supabase.from('fotos').insert({
+                        created_at: now.toISOString(),
+                        nome_arquivo: fileName,
+                        url_publica: urlData.publicUrl,
+                        industria_id: this.currentIndustry.id,
+                        descricao: ""
+                    });
+
+                    this.showToast("Foto salva!", "success");
+                    await this.fetchData();
+                    this.renderCalendar();
+                } catch (e) {
+                    this.showToast("Erro no envio", "error");
+                }
+            },
+
+            openPhotoPreview: function(photo) {
+                this.selectedPhoto = photo;
+                document.getElementById('previewImg').src = photo.url_publica;
+                document.getElementById('previewDesc').innerText = photo.descricao || 'Sem anotação';
+                this.openModal('photoPreview');
+            },
+
+            deletePhoto: async function() {
+                if (!confirm("Eliminar registo permanentemente?")) return;
+                try {
+                    await this.supabase.from('fotos').delete().eq('id', this.selectedPhoto.id);
+                    this.closeModal('photoPreview');
+                    this.showToast("Eliminado!", "success");
+                    await this.fetchData();
+                    if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
+                    else if (this.view === 'all') this.renderGlobalGallery();
+                } catch(e) { this.showToast("Erro ao eliminar", "error"); }
+            },
+
+            // --- LOCAIS ---
+            saveNewIndustry: async function() {
+                const name = document.getElementById('newIndName').value;
+                if (!name) return;
+                this.showToast("A guardar...");
+                try {
+                    await this.supabase.from('industrias').insert({ nome: name, carga_semanal: 0 });
+                    document.getElementById('newIndName').value = '';
+                    this.closeModal('addIndustry');
+                    this.showToast("Guardado!", "success");
+                    await this.fetchData();
+                } catch(e) { this.showToast("Erro", "error"); }
+            },
+
+            deleteCurrentIndustry: async function() {
+                if (!confirm(`Deseja eliminar permanentemente ${this.currentIndustry.nome}?`)) return;
+                try {
+                    await this.supabase.from('industrias').delete().eq('id', this.currentIndustry.id);
+                    this.navigateTo('home');
+                    this.showToast("Eliminado", "success");
+                    await this.fetchData();
+                } catch(e) { this.showToast("Erro", "error"); }
+            },
+
+            // --- UI HELPERS ---
+            toggleDarkMode: function() {
+                this.darkMode = !this.darkMode;
+                document.documentElement.classList.toggle('dark', this.darkMode);
+                document.getElementById('themeIcon').innerText = this.darkMode ? '☀️' : '🌙';
+            },
+
+            openModal: function(id) {
+                document.getElementById(`modal-${id}`).classList.remove('hidden');
+                document.getElementById(`modal-${id}`).classList.add('flex');
+            },
+
+            closeModal: function(id) {
+                document.getElementById(`modal-${id}`).classList.add('hidden');
+                document.getElementById(`modal-${id}`).classList.remove('flex');
+            },
+
+            showToast: function(msg, type = 'success') {
+                const toast = document.getElementById('toast');
+                const toastMsg = document.getElementById('toastMsg');
+                const spinner = document.getElementById('toastSpinner');
+                
+                toastMsg.innerText = msg;
+                spinner.classList.toggle('hidden', type !== 'loading');
+                
+                toast.classList.remove('-translate-y-12', 'opacity-0');
+                if (type !== 'loading') {
+                    setTimeout(() => toast.classList.add('-translate-y-12', 'opacity-0'), 2500);
+                }
+            },
+
+            openLateAlerts: function() {
+                this.openModal('lateAlerts');
+            },
+
+            shareViaWhatsapp: function() {
+                const msg = document.getElementById('shareMessage').value || "Seguem os registos das visitas industriais.";
+                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            }
+        };
+
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
