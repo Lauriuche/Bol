@@ -24,7 +24,7 @@
         .dark {
             --bg-body: #0f172a;
             --bg-card: #1e293b;
-            --bg-glass: rgba(15, 23, 42, 0.9);
+            --bg-glass: rgba(15, 23, 42, 0.95);
             --border: #334155;
             --primary: #3b82f6;
         }
@@ -35,19 +35,20 @@
             color: var(--text-main);
             transition: background-color 0.3s ease;
             -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
 
         .glass {
             background: var(--bg-glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
         }
 
         .bottom-nav {
             background: var(--bg-glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-top: 1px solid var(--border);
         }
 
@@ -55,30 +56,85 @@
         .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Estilo de Calendário */
+        /* Calendário */
         .cal-day {
             aspect-ratio: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 0.875rem;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
         }
         .cal-day.has-photos {
             background-color: var(--primary);
             color: white;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
         .cal-day.empty { color: #94a3b8; }
+        .cal-day:active { transform: scale(0.9); }
+
+        /* Photo Cards Enhanced */
+        .photo-card {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--bg-card);
+        }
+        .photo-card.selected {
+            border-color: var(--primary);
+            transform: scale(0.92);
+            box-shadow: 0 0 0 2px var(--bg-body), 0 0 15px rgba(37, 99, 235, 0.4);
+        }
+        .photo-card.selected::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(37, 99, 235, 0.2);
+            z-index: 10;
+        }
+        .photo-card.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--primary);
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            z-index: 20;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .btn-action {
+            transition: all 0.2s;
+        }
+        .btn-action:active { transform: scale(0.95); }
+
+        /* Animações de Modal */
+        .animate-slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -86,182 +142,223 @@
     <!-- Header -->
     <header class="fixed top-0 w-full h-16 glass z-50 flex items-center justify-between px-4">
         <div class="flex items-center gap-3">
-            <button id="backBtn" onclick="app.goBack()" class="hidden w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dark:text-white"><path d="m15 18-6-6 6-6"/></svg>
+            <button id="backBtn" onclick="app.goBack()" class="hidden w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center active:scale-90 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="dark:text-white"><path d="m15 18-6-6 6-6"/></svg>
             </button>
-            <div>
-                <h1 id="headerTitle" class="font-bold text-sm dark:text-white">Gestor Industrial</h1>
-                <p id="headerSubtitle" class="text-[9px] font-medium text-slate-500 uppercase tracking-wider">Painel de Controlo</p>
+            <div class="overflow-hidden">
+                <h1 id="headerTitle" class="font-extrabold text-base dark:text-white truncate">Gestor Industrial Pro</h1>
+                <p id="headerSubtitle" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Painel de Controlo</p>
             </div>
         </div>
-        <button onclick="app.toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition">
-            <span id="themeIcon">🌙</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <button id="selectAllBtn" onclick="app.selectAllInGallery()" class="hidden px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold uppercase dark:text-white transition">Tudo</button>
+            <button id="selectModeBtn" onclick="app.toggleSelectionMode()" class="hidden px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase border border-blue-100 dark:border-blue-800 transition">
+                Selecionar
+            </button>
+            <button onclick="app.toggleDarkMode()" class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 active:scale-90 transition shadow-sm">
+                <span id="themeIcon" class="text-lg">🌙</span>
+            </button>
+        </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-md mx-auto p-4 pt-20 pb-24">
+    <main class="max-w-md mx-auto p-4 pt-20 pb-28">
         
         <!-- View: Home -->
         <section id="view-home" class="view-section active">
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div id="stat-industries" class="text-2xl font-black text-blue-600">0</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase">Total de Locais</div>
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <div id="stat-industries" class="text-3xl font-black text-blue-600">0</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Total de Locais</div>
                 </div>
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div id="stat-photos" class="text-2xl font-black dark:text-white">0</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase">Total de Fotos</div>
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <div id="stat-photos" class="text-3xl font-black dark:text-white">0</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Total de Fotos</div>
                 </div>
             </div>
 
-            <div id="alert-late" onclick="app.openLateAlerts()" class="hidden mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-3 cursor-pointer active:scale-95 transition-transform">
-                <div class="w-10 h-10 bg-red-100 dark:bg-red-800 text-red-600 rounded-full flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <div id="alert-late" onclick="app.openLateAlerts()" class="hidden mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl flex items-center gap-4 cursor-pointer active:scale-95 transition-all">
+                <div class="w-11 h-11 bg-red-100 dark:bg-red-800 text-red-600 rounded-2xl flex items-center justify-center shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                 </div>
                 <div class="flex-1">
-                    <p class="text-[10px] font-bold text-red-800 dark:text-red-400 uppercase">Alerta de Visita</p>
-                    <p id="alert-text" class="text-[10px] dark:text-red-300">0 locais em atraso (+7 dias).</p>
+                    <p class="text-[11px] font-black text-red-800 dark:text-red-400 uppercase tracking-tight">Alerta de Visita</p>
+                    <p id="alert-text" class="text-[11px] font-medium dark:text-red-300 opacity-80">0 locais em atraso (+7 dias).</p>
                 </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-red-300"><path d="m9 18 6-6-6-6"/></svg>
             </div>
 
             <div class="relative mb-6">
                 <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </div>
-                <input type="text" id="searchInput" oninput="app.filterIndustries()" placeholder="Pesquisar local..." class="w-full pl-11 pr-4 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm outline-none shadow-sm focus:ring-2 ring-blue-500/10 transition-all dark:text-white">
+                <input type="text" id="searchInput" oninput="app.filterIndustries()" placeholder="Pesquisar local ou empresa..." class="w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-medium outline-none shadow-sm focus:ring-2 ring-blue-500/10 transition-all dark:text-white">
             </div>
 
-            <div id="industriesList" class="flex flex-col gap-2 pb-10">
+            <div id="industriesList" class="flex flex-col gap-2.5 pb-10">
                 <!-- Lista será injetada aqui -->
             </div>
             
-            <button onclick="app.openModal('addIndustry')" class="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center active:scale-90 transition-transform z-40">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            <button onclick="app.openModal('addIndustry')" class="fixed bottom-24 right-6 w-16 h-16 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center active:scale-90 transition-all z-40 shadow-blue-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
             </button>
         </section>
 
         <!-- View: Dates (Calendário) -->
         <section id="view-dates" class="view-section">
             <div class="flex items-center justify-between mb-6">
-                <button onclick="app.changeMonth(-1)" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center active:scale-90 transition dark:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
-                <h2 id="calendarMonth" class="font-bold text-base capitalize dark:text-white text-center">Mês</h2>
-                <button onclick="app.changeMonth(1)" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center active:scale-90 transition dark:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+                <button onclick="app.changeMonth(-1)" class="w-11 h-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center active:scale-90 transition dark:text-white shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <h2 id="calendarMonth" class="font-extrabold text-base capitalize dark:text-white text-center">Mês</h2>
+                <button onclick="app.changeMonth(1)" class="w-11 h-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center active:scale-90 transition dark:text-white shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
             </div>
             
-            <div id="calendarGrid" class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm">
+            <div id="calendarGrid" class="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800 mb-8 shadow-sm">
                 <!-- Grid injetada via JS -->
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <label class="bg-blue-600 text-white p-6 rounded-3xl flex flex-col items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/20 active:scale-95 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Câmara</span>
+                <label class="bg-blue-600 text-white p-7 rounded-[2rem] flex flex-col items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/30 active:scale-95 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                    <span class="text-[10px] font-black uppercase tracking-[0.15em]">Câmara</span>
                     <input type="file" capture="environment" accept="image/*" class="hidden" onchange="app.handleUpload(this)">
                 </label>
-                <label class="bg-slate-800 dark:bg-slate-700 text-white p-6 rounded-3xl flex flex-col items-center gap-2 cursor-pointer active:scale-95 transition shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Galeria</span>
+                <label class="bg-slate-800 dark:bg-slate-700 text-white p-7 rounded-[2rem] flex flex-col items-center gap-2 cursor-pointer active:scale-95 transition shadow-lg shadow-slate-900/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    <span class="text-[10px] font-black uppercase tracking-[0.15em]">Galeria</span>
                     <input type="file" accept="image/*" class="hidden" onchange="app.handleUpload(this)">
                 </label>
             </div>
             
-            <button onclick="app.deleteCurrentIndustry()" class="mt-10 w-full py-4 text-red-500/40 text-[9px] font-bold uppercase tracking-widest active:text-red-500 transition-colors">Eliminar este Local</button>
+            <button onclick="app.confirmDeleteIndustry()" class="mt-12 w-full py-4 text-red-500/40 text-[10px] font-black uppercase tracking-[0.2em] active:text-red-500 transition-colors">Eliminar este Local</button>
         </section>
 
         <!-- View: Gallery (Fotos do Dia) -->
         <section id="view-gallery" class="view-section">
-            <div id="galleryContainer" class="grid grid-cols-3 gap-2">
+            <div id="galleryContainer" class="grid grid-cols-3 gap-2.5 pb-10">
                 <!-- Fotos injetadas aqui -->
             </div>
         </section>
 
         <!-- View: Global Gallery (Tudo) -->
         <section id="view-all" class="view-section">
-            <div id="allPhotosContainer" class="grid grid-cols-3 gap-2">
+            <div id="allPhotosContainer" class="grid grid-cols-3 gap-2.5 pb-10">
                 <!-- Fotos globais -->
             </div>
         </section>
 
         <!-- View: Reports (Partilha) -->
         <section id="view-reports" class="view-section text-center py-10">
-            <div class="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            <div class="w-24 h-24 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             </div>
-            <h2 class="text-xl font-bold dark:text-white">Partilhar Registos</h2>
-            <p class="text-xs text-slate-500 mt-2 mb-8">Partilhe o estado atual dos locais industriais.</p>
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm text-left mb-6">
-                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-2">Mensagem Adicional</label>
-                <textarea id="shareMessage" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs outline-none border-0 h-24 resize-none dark:text-white" placeholder="Olá! Seguem os registos das visitas industriais..."></textarea>
+            <h2 class="text-2xl font-black dark:text-white">Partilhar Registos</h2>
+            <p class="text-sm text-slate-500 mt-2 mb-10 px-6">Envie relatórios fotográficos profissionais via WhatsApp para os seus supervisores.</p>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm text-left mb-8">
+                <label class="text-[10px] font-black text-slate-400 uppercase block mb-3 tracking-widest">Mensagem Padrão</label>
+                <textarea id="shareMessage" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl text-sm font-medium outline-none border-0 h-32 resize-none dark:text-white focus:ring-2 ring-blue-500/10 transition-all" placeholder="Olá! Seguem os registos das visitas industriais efetuadas hoje..."></textarea>
             </div>
-            <button onclick="app.shareViaWhatsapp()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-blue-500/30 active:scale-95 transition">PREPARAR WHATSAPP</button>
+            <button onclick="app.shareViaWhatsapp()" class="w-full py-5 bg-blue-600 text-white rounded-[1.5rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-500/30 active:scale-95 transition-all">PREPARAR WHATSAPP</button>
         </section>
 
     </main>
 
+    <!-- Selection Bar - MELHORADO -->
+    <div id="selectionBar" class="fixed bottom-20 left-4 right-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-4 rounded-3xl z-[60] flex items-center justify-between shadow-2xl transition-all duration-300 translate-y-[150%] opacity-0 pointer-events-none">
+        <div class="flex flex-col">
+            <span id="selectionCount" class="text-xs font-black dark:text-white uppercase tracking-tight">0 selecionadas</span>
+            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Ações em lote</span>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="app.confirmDeleteSelected()" class="w-12 h-12 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-2xl flex items-center justify-center active:scale-90 transition shadow-sm border border-red-100 dark:border-red-900/40">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+            <button onclick="app.shareSelectedPhotos()" class="bg-blue-600 text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase shadow-lg shadow-blue-500/30 active:scale-95 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                Enviar
+            </button>
+        </div>
+    </div>
+
     <!-- Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 h-16 bottom-nav z-50 flex justify-around items-center px-4 pb-safe">
-        <button onclick="app.navigateTo('home')" class="nav-item flex flex-col items-center gap-1 text-blue-600" data-tab="home">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/><path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/><path d="M14 8V4L3 9v3"/></svg>
-            <span class="text-[10px] font-bold">Locais</span>
+    <nav class="fixed bottom-0 left-0 right-0 h-16 bottom-nav z-50 flex justify-around items-center px-4 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
+        <button onclick="app.navigateTo('home')" class="nav-item flex flex-col items-center gap-1 text-blue-600 group" data-tab="home">
+            <div class="p-1 rounded-xl group-active:bg-blue-50 dark:group-active:bg-blue-900/20 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/><path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/><path d="M14 8V4L3 9v3"/></svg>
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-tighter">Locais</span>
         </button>
-        <button onclick="app.navigateTo('all')" class="nav-item flex flex-col items-center gap-1 text-slate-400" data-tab="all">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-            <span class="text-[10px] font-bold">Galeria</span>
+        <button onclick="app.navigateTo('all')" class="nav-item flex flex-col items-center gap-1 text-slate-400 group" data-tab="all">
+            <div class="p-1 rounded-xl group-active:bg-slate-100 dark:group-active:bg-slate-800 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-tighter">Galeria</span>
         </button>
-        <button onclick="app.navigateTo('reports')" class="nav-item flex flex-col items-center gap-1 text-slate-400" data-tab="reports">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-            <span class="text-[10px] font-bold">Partilhar</span>
+        <button onclick="app.navigateTo('reports')" class="nav-item flex flex-col items-center gap-1 text-slate-400 group" data-tab="reports">
+            <div class="p-1 rounded-xl group-active:bg-slate-100 dark:group-active:bg-slate-800 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-tighter">Partilhar</span>
         </button>
     </nav>
 
+    <!-- Modal: Confirmation -->
+    <div id="modal-confirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-6">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-6 shadow-2xl">
+            <h3 class="text-lg font-black dark:text-white mb-2">Confirmar Ação</h3>
+            <p id="confirmMsg" class="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium text-center">Tem a certeza?</p>
+            <div class="flex gap-3">
+                <button onclick="app.closeModal('confirm')" class="flex-1 py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black text-[10px] uppercase rounded-2xl">Cancelar</button>
+                <button id="confirmActionBtn" class="flex-1 py-3.5 bg-red-600 text-white font-black text-[10px] uppercase rounded-2xl shadow-lg">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Add Industry -->
     <div id="modal-addIndustry" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end p-0">
-        <div class="bg-white dark:bg-slate-900 w-full rounded-t-3xl p-6 animate-slide-up">
-            <h3 class="text-lg font-bold mb-6 dark:text-white">Adicionar Novo Local</h3>
-            <div class="mb-6">
-                <label class="text-[9px] font-bold text-slate-400 uppercase block mb-2">Nome da Empresa / Local</label>
-                <input type="text" id="newIndName" placeholder="Ex: Fábrica de Calçado" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none border border-transparent focus:border-blue-500 transition-colors dark:text-white">
+        <div class="bg-white dark:bg-slate-900 w-full rounded-t-[2.5rem] p-8 shadow-2xl">
+            <h3 class="text-xl font-black mb-8 dark:text-white text-center">Novo Local Industrial</h3>
+            <div class="mb-8">
+                <label class="text-[10px] font-black text-slate-400 uppercase block mb-3 tracking-widest text-center">Nome da Empresa</label>
+                <input type="text" id="newIndName" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold outline-none text-center dark:text-white border-2 border-transparent focus:border-blue-500 transition-all">
             </div>
-            <div class="flex gap-3">
-                <button onclick="app.closeModal('addIndustry')" class="flex-1 py-4 text-slate-400 font-bold text-[10px] uppercase">Cancelar</button>
-                <button onclick="app.saveNewIndustry()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold text-[10px] uppercase shadow-lg">Salvar</button>
+            <div class="flex gap-4">
+                <button onclick="app.closeModal('addIndustry')" class="flex-1 py-5 text-slate-400 font-black text-xs uppercase tracking-widest">Sair</button>
+                <button onclick="app.saveNewIndustry()" class="flex-1 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl">Criar</button>
             </div>
         </div>
     </div>
 
     <!-- Modal: Late Alerts -->
     <div id="modal-lateAlerts" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end p-0">
-        <div class="bg-white dark:bg-slate-900 w-full rounded-t-3xl p-6 h-[70vh] flex flex-col shadow-2xl">
-            <h3 class="text-lg font-bold mb-4 text-red-600">Locais Sem Visita Recente</h3>
-            <p class="text-[10px] text-slate-400 uppercase font-bold mb-4">+7 dias desde o último registo</p>
-            <div id="lateIndustriesList" class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scroll">
-                <!-- Injetado aqui -->
-            </div>
-            <button onclick="app.closeModal('lateAlerts')" class="mt-6 py-4 bg-slate-100 dark:bg-slate-800 rounded-2xl font-bold text-[10px] dark:text-white uppercase">Fechar</button>
+        <div class="bg-white dark:bg-slate-900 w-full rounded-t-[2.5rem] p-8 h-[70vh] flex flex-col">
+            <h3 class="text-xl font-black mb-6 text-red-600 text-center uppercase tracking-tight">Locais em Atraso</h3>
+            <div id="lateIndustriesList" class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scroll"></div>
+            <button onclick="app.closeModal('lateAlerts')" class="mt-6 py-5 bg-slate-100 dark:bg-slate-800 rounded-2xl font-black text-[11px] dark:text-white uppercase tracking-widest">Fechar</button>
         </div>
     </div>
 
     <!-- Modal: Photo Preview -->
-    <div id="modal-photoPreview" class="fixed inset-0 bg-black/95 z-[110] hidden flex flex-col justify-center items-center p-4">
-        <button onclick="app.closeModal('photoPreview')" class="absolute top-10 right-6 text-white w-12 h-12 flex items-center justify-center bg-white/10 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        </button>
-        <img id="previewImg" src="" class="max-h-[60vh] w-full object-contain rounded-2xl shadow-2xl mb-6">
-        <div class="w-full max-w-sm bg-white/10 backdrop-blur-xl p-4 rounded-3xl border border-white/20">
-            <p id="previewDesc" class="text-white text-sm font-medium mb-4 text-center">Sem anotação</p>
-            <button onclick="app.deletePhoto()" class="w-full py-4 bg-red-500 text-white font-black text-[10px] uppercase rounded-2xl flex items-center justify-center gap-2 shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                Eliminar Registo
-            </button>
+    <div id="modal-photoPreview" class="fixed inset-0 bg-black/98 z-[110] hidden flex flex-col justify-center items-center p-0">
+        <button onclick="app.closeModal('photoPreview')" class="absolute top-12 left-6 text-white w-12 h-12 flex items-center justify-center bg-white/10 rounded-2xl backdrop-blur-md"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="w-full h-full flex items-center justify-center p-4">
+            <img id="previewImg" src="" class="max-h-[75vh] w-auto max-w-full object-contain rounded-2xl">
+        </div>
+        <div class="w-full p-6 pb-12 bg-black/40 backdrop-blur-2xl border-t border-white/10">
+            <div class="max-w-md mx-auto">
+                <textarea id="previewDescInput" class="w-full bg-white/5 rounded-2xl p-4 text-white text-sm font-medium outline-none resize-none h-20 mb-4 border border-white/10" placeholder="Sem anotação..."></textarea>
+                <div class="flex gap-3">
+                    <button onclick="app.savePhotoDesc()" class="flex-1 py-4 bg-blue-600 text-white font-black text-[10px] uppercase rounded-2xl">Guardar Nota</button>
+                    <button onclick="app.confirmDeleteSingle()" class="w-16 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center border border-red-500/30"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[130] transition-all duration-300 transform -translate-y-12 opacity-0 pointer-events-none">
-        <div class="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+    <!-- Toast -->
+    <div id="toast" class="fixed top-8 left-1/2 -translate-x-1/2 z-[130] transition-all duration-500 transform -translate-y-20 opacity-0 pointer-events-none">
+        <div class="bg-slate-900 text-white px-7 py-4 rounded-full shadow-2xl flex items-center gap-3 border border-white/10">
             <div id="toastSpinner" class="hidden w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <span id="toastMsg" class="text-xs font-bold">Mensagem</span>
+            <span id="toastMsg" class="text-[11px] font-black uppercase tracking-wider"></span>
         </div>
     </div>
 
@@ -272,28 +369,13 @@
         const BUCKET = 'galeria';
 
         const app = {
-            supabase: null,
-            view: 'home',
-            history: [],
-            darkMode: false,
-            industries: [],
-            allPhotos: [],
-            currentIndustry: null,
-            currentDateFolder: null,
-            calendarCursor: new Date(),
-            selectedPhoto: null,
+            supabase: null, view: 'home', history: [], darkMode: false, industries: [], allPhotos: [],
+            currentIndustry: null, currentDateFolder: null, calendarCursor: new Date(),
+            selectedPhoto: null, isSelectionMode: false, selectedPhotos: new Set(),
 
             init: async function() {
-                // Supabase init
-                if (window.supabase) {
-                    this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                }
-
-                // Dark mode init
-                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    this.toggleDarkMode();
-                }
-
+                if (window.supabase) this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) this.toggleDarkMode();
                 await this.fetchData();
             },
 
@@ -302,16 +384,10 @@
                 try {
                     const { data: indData } = await this.supabase.from('industrias').select('*').order('nome');
                     const { data: photoData } = await this.supabase.from('fotos').select('*').order('created_at', { ascending: false });
-                    
                     this.industries = indData || [];
                     this.allPhotos = photoData || [];
-                    
-                    this.updateStats();
-                    this.renderIndustries();
-                    this.checkAlerts();
-                } catch (e) {
-                    this.showToast("Erro ao sincronizar dados", "error");
-                }
+                    this.updateStats(); this.renderIndustries(); this.checkAlerts();
+                } catch (e) { this.showToast("Erro de Sincronização", "error"); }
             },
 
             updateStats: function() {
@@ -323,77 +399,60 @@
                 const list = document.getElementById('industriesList');
                 const term = document.getElementById('searchInput').value.toLowerCase();
                 list.innerHTML = '';
-
                 this.industries.filter(i => i.nome.toLowerCase().includes(term)).forEach(ind => {
                     const item = document.createElement('div');
-                    item.className = 'bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center active:scale-[0.98] transition-all shadow-sm';
+                    item.className = 'bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center active:scale-[0.98] transition-all shadow-sm';
                     item.onclick = () => { this.currentIndustry = ind; this.navigateTo('dates'); this.renderCalendar(); };
-                    
                     item.innerHTML = `
-                        <div class="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
-                            ${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover">` : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/></svg>`}
+                        <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 border border-slate-50 dark:border-slate-700">
+                            ${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover">` : `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 opacity-50"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/></svg>`}
                         </div>
-                        <div class="flex-1 ml-4 overflow-hidden">
-                            <h3 class="font-bold text-sm dark:text-white truncate">${ind.nome}</h3>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Ver Registos</p>
-                        </div>
-                        <div class="text-slate-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                        </div>
+                        <div class="flex-1 ml-4 overflow-hidden"><h3 class="font-black text-sm dark:text-white truncate">${ind.nome}</h3><p class="text-[9px] text-slate-400 font-black uppercase tracking-widest">Painel Industrial</p></div>
+                        <div class="text-slate-200 dark:text-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>
                     `;
                     list.appendChild(item);
                 });
             },
 
-            filterIndustries: function() {
-                this.renderIndustries();
-            },
+            filterIndustries: function() { this.renderIndustries(); },
 
             checkAlerts: function() {
-                const threshold = new Date();
-                threshold.setDate(threshold.getDate() - 7);
-                
+                const threshold = new Date(); threshold.setDate(threshold.getDate() - 7);
                 const lastVisits = {};
-                this.allPhotos.forEach(p => {
-                    if (!lastVisits[p.industria_id]) lastVisits[p.industria_id] = new Date(p.created_at);
-                });
-
+                this.allPhotos.forEach(p => { if (!lastVisits[p.industria_id]) lastVisits[p.industria_id] = new Date(p.created_at); });
                 const lateOnes = this.industries.filter(ind => !lastVisits[ind.id] || lastVisits[ind.id] < threshold);
-                
                 const alertEl = document.getElementById('alert-late');
                 if (lateOnes.length > 0) {
                     alertEl.classList.remove('hidden');
-                    document.getElementById('alert-text').innerText = `${lateOnes.length} locais sem visitas recentes.`;
-                    
+                    document.getElementById('alert-text').innerText = `${lateOnes.length} locais em atraso de monitorização.`;
                     const modalList = document.getElementById('lateIndustriesList');
                     modalList.innerHTML = '';
                     lateOnes.forEach(ind => {
                         const row = document.createElement('div');
                         row.className = 'p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/30 flex justify-between items-center cursor-pointer';
                         row.onclick = () => { this.currentIndustry = ind; this.closeModal('lateAlerts'); this.navigateTo('dates'); this.renderCalendar(); };
-                        row.innerHTML = `<span class="font-bold text-sm dark:text-red-400">${ind.nome}</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="m9 18 6-6-6-6"/></svg>`;
+                        row.innerHTML = `<span class="font-black text-sm dark:text-red-400">${ind.nome}</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="m9 18 6-6-6-6"/></svg>`;
                         modalList.appendChild(row);
                     });
-                } else {
-                    alertEl.classList.add('hidden');
-                }
+                } else alertEl.classList.add('hidden');
             },
 
-            // --- NAVEGAÇÃO ---
             navigateTo: function(viewId) {
                 this.history.push(this.view);
                 document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-                document.getElementById(`view-${viewId}`).classList.add('active');
+                const target = document.getElementById(`view-${viewId}`);
+                if (target) target.classList.add('active');
                 
-                // Update header
                 const titles = { home: 'Painel de Controlo', dates: 'Calendário de Visitas', gallery: 'Registos do Dia', all: 'Galeria Global', reports: 'Partilha de Dados' };
                 document.getElementById('headerSubtitle').innerText = titles[viewId] || 'Gestor';
-                document.getElementById('headerTitle').innerText = (viewId === 'dates' || viewId === 'gallery') ? this.currentIndustry?.nome : 'Gestor Industrial';
-
-                // Botão voltar
-                document.getElementById('backBtn').classList.toggle('hidden', viewId === 'home');
+                document.getElementById('headerTitle').innerText = (viewId === 'dates' || viewId === 'gallery') ? this.currentIndustry?.nome : 'Gestor Industrial Pro';
                 
-                // Update Nav
+                document.getElementById('backBtn').classList.toggle('hidden', viewId === 'home');
+                document.getElementById('selectModeBtn').classList.toggle('hidden', viewId !== 'gallery' && viewId !== 'all');
+                
+                // Forçar o fecho da barra de seleção ao navegar
+                this.cancelSelection();
+
                 document.querySelectorAll('.nav-item').forEach(item => {
                     item.classList.toggle('text-blue-600', item.dataset.tab === viewId);
                     item.classList.toggle('text-slate-400', item.dataset.tab !== viewId);
@@ -403,213 +462,218 @@
                 this.view = viewId;
             },
 
-            goBack: function() {
-                const prev = this.history.pop();
-                if (prev) {
-                    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-                    document.getElementById(`view-${prev}`).classList.add('active');
-                    this.view = prev;
-                    this.navigateTo(prev); // Trigger header updates
-                    this.history.pop(); // Remove o duplicado criado pelo navigateTo
+            goBack: function() { const prev = this.history.pop(); if (prev) { this.navigateTo(prev); this.history.pop(); } },
+
+            toggleSelectionMode: function() {
+                this.isSelectionMode = !this.isSelectionMode;
+                const btn = document.getElementById('selectModeBtn');
+                
+                if (this.isSelectionMode) {
+                    btn.innerText = 'Cancelar';
+                    btn.classList.add('bg-red-50', 'text-red-500');
+                    document.getElementById('selectAllBtn').classList.remove('hidden');
+                    this.updateSelectionBar();
+                } else {
+                    this.cancelSelection();
+                }
+                
+                if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
+                else if (this.view === 'all') this.renderGlobalGallery();
+            },
+
+            cancelSelection: function() {
+                this.isSelectionMode = false;
+                this.selectedPhotos.clear();
+                
+                const bar = document.getElementById('selectionBar');
+                bar.classList.add('translate-y-[150%]', 'opacity-0', 'pointer-events-none');
+                
+                const btn = document.getElementById('selectModeBtn');
+                if (btn) {
+                    btn.innerText = 'Selecionar';
+                    btn.classList.remove('bg-red-50', 'text-red-500');
+                }
+                
+                document.getElementById('selectAllBtn').classList.add('hidden');
+            },
+
+            updateSelectionBar: function() {
+                const bar = document.getElementById('selectionBar');
+                const countText = document.getElementById('selectionCount');
+                const size = this.selectedPhotos.size;
+                
+                countText.innerText = `${size} selecionada${size !== 1 ? 's' : ''}`;
+                
+                // Mostrar apenas se o modo estiver ativo
+                if (this.isSelectionMode) {
+                    bar.classList.remove('translate-y-[150%]', 'opacity-0', 'pointer-events-none');
+                } else {
+                    bar.classList.add('translate-y-[150%]', 'opacity-0', 'pointer-events-none');
                 }
             },
 
-            // --- CALENDÁRIO ---
+            handlePhotoClick: function(photo) {
+                if (this.isSelectionMode) {
+                    if (this.selectedPhotos.has(photo.id)) this.selectedPhotos.delete(photo.id);
+                    else this.selectedPhotos.add(photo.id);
+                    this.updateSelectionBar();
+                    if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
+                    else if (this.view === 'all') this.renderGlobalGallery();
+                } else this.openPhotoPreview(photo);
+            },
+
+            selectAllInGallery: function() {
+                const currentSet = (this.view === 'gallery' ? this.allPhotos.filter(p => p.industria_id === this.currentIndustry?.id && new Date(p.created_at).toLocaleDateString('pt-PT') === this.currentDateFolder) : this.allPhotos.slice(0, 50));
+                if (this.selectedPhotos.size === currentSet.length) this.selectedPhotos.clear();
+                else currentSet.forEach(p => this.selectedPhotos.add(p.id));
+                this.updateSelectionBar();
+                if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
+                else if (this.view === 'all') this.renderGlobalGallery();
+            },
+
+            openConfirm: function(msg, onConfirm) {
+                document.getElementById('confirmMsg').innerText = msg;
+                const btn = document.getElementById('confirmActionBtn');
+                btn.onclick = () => { onConfirm(); this.closeModal('confirm'); };
+                this.openModal('confirm');
+            },
+
+            confirmDeleteSingle: function() { this.openConfirm("Eliminar este registo?", () => this.deletePhoto()); },
+            confirmDeleteSelected: function() { this.openConfirm(`Eliminar ${this.selectedPhotos.size} registos?`, () => this.deleteSelectedPhotos()); },
+            confirmDeleteIndustry: function() { this.openConfirm(`Deseja eliminar ${this.currentIndustry.nome}?`, () => this.deleteCurrentIndustry()); },
+
+            deletePhoto: async function() {
+                this.showToast("A eliminar...", "loading");
+                try {
+                    await this.supabase.from('fotos').delete().eq('id', this.selectedPhoto.id);
+                    this.closeModal('photoPreview'); this.showToast("Eliminado", "success"); await this.fetchData();
+                    if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
+                    else if (this.view === 'all') this.renderGlobalGallery();
+                } catch(e) { this.showToast("Erro", "error"); }
+            },
+
+            deleteSelectedPhotos: async function() {
+                this.showToast("A eliminar lote...", "loading");
+                try {
+                    await this.supabase.from('fotos').delete().in('id', Array.from(this.selectedPhotos));
+                    this.cancelSelection();
+                    this.showToast("Fotos Eliminadas", "success"); await this.fetchData();
+                    if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
+                    else if (this.view === 'all') this.renderGlobalGallery();
+                } catch(e) { this.showToast("Erro", "error"); }
+            },
+
+            deleteCurrentIndustry: async function() {
+                this.showToast("A eliminar local...", "loading");
+                try {
+                    await this.supabase.from('industrias').delete().eq('id', this.currentIndustry.id);
+                    this.navigateTo('home'); this.showToast("Removido", "success"); await this.fetchData();
+                } catch(e) { this.showToast("Erro", "error"); }
+            },
+
             renderCalendar: function() {
                 const grid = document.getElementById('calendarGrid');
-                grid.innerHTML = '<div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase mb-2"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>';
-                
-                const gridDays = document.createElement('div');
-                gridDays.className = 'grid grid-cols-7 gap-1';
-                
-                const y = this.calendarCursor.getFullYear();
-                const m = this.calendarCursor.getMonth();
-                
+                grid.innerHTML = '<div class="grid grid-cols-7 gap-2 text-center text-[10px] font-black text-slate-400 uppercase mb-4 tracking-tighter"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>';
+                const gridDays = document.createElement('div'); gridDays.className = 'grid grid-cols-7 gap-2';
+                const y = this.calendarCursor.getFullYear(), m = this.calendarCursor.getMonth();
                 document.getElementById('calendarMonth').innerText = new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric' }).format(this.calendarCursor);
-
-                const firstDay = new Date(y, m, 1).getDay();
-                const totalDays = new Date(y, m + 1, 0).getDate();
-
-                // Datas com fotos
+                const firstDay = new Date(y, m, 1).getDay(), totalDays = new Date(y, m + 1, 0).getDate();
                 const datesWithPhotos = new Set();
-                this.allPhotos
-                    .filter(p => p.industria_id === this.currentIndustry?.id)
-                    .forEach(p => datesWithPhotos.add(new Date(p.created_at).toLocaleDateString('pt-PT')));
-
+                this.allPhotos.filter(p => p.industria_id === this.currentIndustry?.id).forEach(p => datesWithPhotos.add(new Date(p.created_at).toLocaleDateString('pt-PT')));
                 for (let i = 0; i < firstDay; i++) gridDays.appendChild(document.createElement('div'));
-                
                 for (let d = 1; d <= totalDays; d++) {
-                    const dateObj = new Date(y, m, d);
-                    const dateStr = dateObj.toLocaleDateString('pt-PT');
-                    const hasPhotos = datesWithPhotos.has(dateStr);
-                    
+                    const dateStr = new Date(y, m, d).toLocaleDateString('pt-PT'), hasPhotos = datesWithPhotos.has(dateStr);
                     const btn = document.createElement('button');
-                    btn.className = `cal-day ${hasPhotos ? 'has-photos' : 'empty'} active:scale-95 transition`;
+                    btn.className = `cal-day ${hasPhotos ? 'has-photos' : 'empty dark:text-slate-600'} shadow-sm`;
                     btn.innerText = d;
-                    
-                    if (hasPhotos) {
-                        btn.onclick = () => { 
-                            this.currentDateFolder = dateStr; 
-                            this.renderGallery(dateStr);
-                            this.navigateTo('gallery'); 
-                        };
-                    }
-                    
+                    if (hasPhotos) btn.onclick = () => { this.currentDateFolder = dateStr; this.renderGallery(dateStr); this.navigateTo('gallery'); };
                     gridDays.appendChild(btn);
                 }
                 grid.appendChild(gridDays);
             },
 
-            changeMonth: function(delta) {
-                this.calendarCursor.setMonth(this.calendarCursor.getMonth() + delta);
-                this.renderCalendar();
-            },
+            changeMonth: function(delta) { this.calendarCursor.setMonth(this.calendarCursor.getMonth() + delta); this.renderCalendar(); },
 
-            // --- GALERIA ---
             renderGallery: function(dateStr) {
-                const container = document.getElementById('galleryContainer');
-                container.innerHTML = '';
-                
-                const photos = this.allPhotos.filter(p => 
-                    p.industria_id === this.currentIndustry?.id && 
-                    new Date(p.created_at).toLocaleDateString('pt-PT') === dateStr
-                );
-
+                const container = document.getElementById('galleryContainer'); container.innerHTML = '';
+                const photos = this.allPhotos.filter(p => p.industria_id === this.currentIndustry?.id && new Date(p.created_at).toLocaleDateString('pt-PT') === dateStr);
                 photos.forEach(photo => {
                     const div = document.createElement('div');
-                    div.className = 'aspect-square rounded-xl overflow-hidden shadow-sm active:scale-95 transition-transform cursor-pointer';
+                    div.className = `photo-card shadow-sm active:scale-95 transition-transform cursor-pointer ${this.selectedPhotos.has(photo.id) ? 'selected' : ''}`;
                     div.innerHTML = `<img src="${photo.url_publica}" class="w-full h-full object-cover" loading="lazy">`;
-                    div.onclick = () => this.openPhotoPreview(photo);
-                    container.appendChild(div);
+                    div.onclick = () => this.handlePhotoClick(photo); container.appendChild(div);
                 });
+                if (photos.length === 0) container.innerHTML = '<div class="col-span-3 py-10 text-center text-slate-400 font-bold text-[10px] uppercase">Sem fotos</div>';
             },
 
             renderGlobalGallery: function() {
-                const container = document.getElementById('allPhotosContainer');
-                container.innerHTML = '';
+                const container = document.getElementById('allPhotosContainer'); container.innerHTML = '';
                 this.allPhotos.slice(0, 50).forEach(photo => {
                     const div = document.createElement('div');
-                    div.className = 'aspect-square rounded-xl overflow-hidden shadow-sm cursor-pointer';
+                    div.className = `photo-card shadow-sm cursor-pointer ${this.selectedPhotos.has(photo.id) ? 'selected' : ''}`;
                     div.innerHTML = `<img src="${photo.url_publica}" class="w-full h-full object-cover" loading="lazy">`;
-                    div.onclick = () => this.openPhotoPreview(photo);
-                    container.appendChild(div);
+                    div.onclick = () => this.handlePhotoClick(photo); container.appendChild(div);
                 });
             },
 
-            // --- FOTOS ---
             handleUpload: async function(input) {
-                const file = input.files[0];
-                if (!file || !this.supabase || !this.currentIndustry) return;
-
-                this.showToast("A processar...", "loading");
-                const now = new Date();
-                const datePath = this.currentDateFolder || now.toLocaleDateString('pt-PT').replace(/\//g, '-');
-                const safeIndName = this.currentIndustry.nome.replace(/[^a-zA-Z0-9]/g, '_');
+                const file = input.files[0]; if (!file || !this.supabase || !this.currentIndustry) return;
+                this.showToast("A Carregar...", "loading");
+                const now = new Date(), datePath = now.toLocaleDateString('pt-PT').replace(/\//g, '-'), safeIndName = this.currentIndustry.nome.replace(/[^a-zA-Z0-9]/g, '_');
                 const fileName = `${safeIndName}/${datePath}/FOTO_${now.getTime()}.jpg`;
-
                 try {
-                    const { error: storageError } = await this.supabase.storage.from(BUCKET).upload(fileName, file);
-                    if (storageError) throw storageError;
-
-                    const { data: urlData } = this.supabase.storage.from(BUCKET).getPublicUrl(fileName);
-                    
-                    await this.supabase.from('fotos').insert({
-                        created_at: now.toISOString(),
-                        nome_arquivo: fileName,
-                        url_publica: urlData.publicUrl,
-                        industria_id: this.currentIndustry.id,
-                        descricao: ""
-                    });
-
-                    this.showToast("Foto salva!", "success");
-                    await this.fetchData();
-                    this.renderCalendar();
-                } catch (e) {
-                    this.showToast("Erro no envio", "error");
-                }
+                    const { error } = await this.supabase.storage.from(BUCKET).upload(fileName, file); if (error) throw error;
+                    const { data } = this.supabase.storage.from(BUCKET).getPublicUrl(fileName);
+                    await this.supabase.from('fotos').insert({ created_at: now.toISOString(), nome_arquivo: fileName, url_publica: data.publicUrl, industria_id: this.currentIndustry.id, descricao: "" });
+                    this.showToast("Guardado", "success"); await this.fetchData(); this.renderCalendar();
+                } catch (e) { this.showToast("Falha", "error"); }
             },
 
             openPhotoPreview: function(photo) {
-                this.selectedPhoto = photo;
-                document.getElementById('previewImg').src = photo.url_publica;
-                document.getElementById('previewDesc').innerText = photo.descricao || 'Sem anotação';
-                this.openModal('photoPreview');
+                this.selectedPhoto = photo; document.getElementById('previewImg').src = photo.url_publica;
+                document.getElementById('previewDescInput').value = photo.descricao || ''; this.openModal('photoPreview');
             },
 
-            deletePhoto: async function() {
-                if (!confirm("Eliminar registo permanentemente?")) return;
+            savePhotoDesc: async function() {
+                const desc = document.getElementById('previewDescInput').value; this.showToast("A Guardar...", "loading");
                 try {
-                    await this.supabase.from('fotos').delete().eq('id', this.selectedPhoto.id);
-                    this.closeModal('photoPreview');
-                    this.showToast("Eliminado!", "success");
-                    await this.fetchData();
-                    if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
-                    else if (this.view === 'all') this.renderGlobalGallery();
-                } catch(e) { this.showToast("Erro ao eliminar", "error"); }
+                    await this.supabase.from('fotos').update({ descricao: desc }).eq('id', this.selectedPhoto.id);
+                    this.showToast("Nota Guardada", "success"); await this.fetchData();
+                } catch(e) { this.showToast("Erro", "error"); }
             },
 
-            // --- LOCAIS ---
             saveNewIndustry: async function() {
-                const name = document.getElementById('newIndName').value;
-                if (!name) return;
-                this.showToast("A guardar...");
+                const name = document.getElementById('newIndName').value; if (!name) return;
+                this.showToast("A Criar...", "loading");
                 try {
                     await this.supabase.from('industrias').insert({ nome: name, carga_semanal: 0 });
-                    document.getElementById('newIndName').value = '';
-                    this.closeModal('addIndustry');
-                    this.showToast("Guardado!", "success");
-                    await this.fetchData();
+                    document.getElementById('newIndName').value = ''; this.closeModal('addIndustry');
+                    this.showToast("Local Criado", "success"); await this.fetchData();
                 } catch(e) { this.showToast("Erro", "error"); }
             },
 
-            deleteCurrentIndustry: async function() {
-                if (!confirm(`Deseja eliminar permanentemente ${this.currentIndustry.nome}?`)) return;
-                try {
-                    await this.supabase.from('industrias').delete().eq('id', this.currentIndustry.id);
-                    this.navigateTo('home');
-                    this.showToast("Eliminado", "success");
-                    await this.fetchData();
-                } catch(e) { this.showToast("Erro", "error"); }
-            },
-
-            // --- UI HELPERS ---
             toggleDarkMode: function() {
-                this.darkMode = !this.darkMode;
-                document.documentElement.classList.toggle('dark', this.darkMode);
+                this.darkMode = !this.darkMode; document.documentElement.classList.toggle('dark', this.darkMode);
                 document.getElementById('themeIcon').innerText = this.darkMode ? '☀️' : '🌙';
             },
-
-            openModal: function(id) {
-                document.getElementById(`modal-${id}`).classList.remove('hidden');
-                document.getElementById(`modal-${id}`).classList.add('flex');
-            },
-
-            closeModal: function(id) {
-                document.getElementById(`modal-${id}`).classList.add('hidden');
-                document.getElementById(`modal-${id}`).classList.remove('flex');
-            },
-
+            openModal: function(id) { const m = document.getElementById(`modal-${id}`); if(m) { m.classList.remove('hidden'); m.classList.add('flex'); } },
+            closeModal: function(id) { const m = document.getElementById(`modal-${id}`); if(m) { m.classList.add('hidden'); m.classList.remove('flex'); } },
             showToast: function(msg, type = 'success') {
-                const toast = document.getElementById('toast');
-                const toastMsg = document.getElementById('toastMsg');
-                const spinner = document.getElementById('toastSpinner');
-                
-                toastMsg.innerText = msg;
-                spinner.classList.toggle('hidden', type !== 'loading');
-                
-                toast.classList.remove('-translate-y-12', 'opacity-0');
-                if (type !== 'loading') {
-                    setTimeout(() => toast.classList.add('-translate-y-12', 'opacity-0'), 2500);
-                }
+                const toast = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg;
+                document.getElementById('toastSpinner').classList.toggle('hidden', type !== 'loading');
+                toast.classList.remove('-translate-y-20', 'opacity-0');
+                if (type !== 'loading') setTimeout(() => toast.classList.add('-translate-y-20', 'opacity-0'), 2500);
             },
-
-            openLateAlerts: function() {
-                this.openModal('lateAlerts');
-            },
-
+            openLateAlerts: function() { this.openModal('lateAlerts'); },
             shareViaWhatsapp: function() {
-                const msg = document.getElementById('shareMessage').value || "Seguem os registos das visitas industriais.";
+                const msg = document.getElementById('shareMessage').value || "Registos Industriais";
                 window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+            shareSelectedPhotos: function() {
+                const selected = this.allPhotos.filter(p => this.selectedPhotos.has(p.id));
+                let links = `Registos de ${this.currentIndustry?.nome || 'Monitorização'}:\n\n`;
+                selected.forEach((p, i) => links += `${i+1}: ${p.url_publica}\n`);
+                window.open(`https://wa.me/?text=${encodeURIComponent(links)}`, '_blank');
             }
         };
 
