@@ -87,7 +87,7 @@
         .photo-card {
             position: relative;
             aspect-ratio: 1;
-            border-radius: 16px;
+            border-radius: 10px;
             overflow: hidden;
             border: 2px solid transparent;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -95,8 +95,8 @@
         }
         .photo-card.selected {
             border-color: var(--primary);
-            transform: scale(0.92);
-            box-shadow: 0 0 0 2px var(--bg-body), 0 0 15px rgba(37, 99, 235, 0.4);
+            transform: scale(0.9);
+            box-shadow: 0 0 0 2px var(--bg-body), 0 0 10px rgba(37, 99, 235, 0.4);
         }
         .photo-card.selected::before {
             content: "";
@@ -108,20 +108,19 @@
         .photo-card.selected::after {
             content: "✓";
             position: absolute;
-            top: 8px;
-            right: 8px;
+            top: 4px;
+            right: 4px;
             background: var(--primary);
             color: white;
-            width: 22px;
-            height: 22px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            font-weight: 800;
+            font-size: 9px;
+            font-weight: 900;
             z-index: 20;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .btn-action { transition: all 0.2s; }
@@ -208,7 +207,7 @@
         <!-- View: Dates (Calendário) -->
         <section id="view-dates" class="view-section">
             <div class="flex items-center justify-between mb-6">
-                <button onclick="app.changeMonth(-1)" class="w-11 h-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center active:scale-90 transition dark:text-white shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <button onclick="window.history.back()" class="w-11 h-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center active:scale-90 transition dark:text-white shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
                 <h2 id="calendarMonth" class="font-extrabold text-base capitalize dark:text-white text-center">Mês</h2>
                 <button onclick="app.changeMonth(1)" class="w-11 h-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center active:scale-90 transition dark:text-white shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
             </div>
@@ -233,9 +232,9 @@
             <button onclick="app.confirmDeleteIndustry()" class="mt-12 w-full py-4 text-red-500/40 text-[10px] font-black uppercase tracking-[0.2em] active:text-red-500 transition-colors">Eliminar este Local</button>
         </section>
 
-        <!-- View: Gallery -->
+        <!-- View: Gallery (Grade de 5 colunas) -->
         <section id="view-gallery" class="view-section">
-            <div id="galleryContainer" class="grid grid-cols-3 gap-2.5 mb-10"></div>
+            <div id="galleryContainer" class="grid grid-cols-5 gap-1.5 mb-10"></div>
             <div class="grid grid-cols-2 gap-4 mt-8 pb-10">
                 <label class="bg-blue-600 text-white p-6 rounded-[2rem] flex flex-col items-center gap-2 cursor-pointer shadow-lg active:scale-95 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
@@ -250,9 +249,9 @@
             </div>
         </section>
 
-        <!-- View: Global Gallery -->
+        <!-- View: Global Gallery (Separado por datas) -->
         <section id="view-all" class="view-section">
-            <div id="allPhotosContainer" class="grid grid-cols-3 gap-2.5 pb-10"></div>
+            <div id="allPhotosContainer" class="pb-10"></div>
         </section>
 
         <!-- View: Reports -->
@@ -287,7 +286,7 @@
         </div>
     </div>
 
-    <!-- Navigation -->
+    <!-- Navegação -->
     <nav class="fixed bottom-0 left-0 right-0 h-16 bottom-nav z-50 flex justify-around items-center px-4 pb-safe shadow-sm">
         <button onclick="app.navigateTo('home')" class="nav-item flex flex-col items-center gap-1 text-blue-600" data-tab="home">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/><path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/><path d="M14 8V4L3 9v3"/></svg>
@@ -309,7 +308,7 @@
             <h3 class="text-lg font-black dark:text-white mb-2 text-center">Confirmar Ação</h3>
             <p id="confirmMsg" class="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium text-center">Tem a certeza?</p>
             <div class="flex gap-3">
-                <button onclick="app.closeModal('confirm')" class="flex-1 py-3.5 bg-slate-100 dark:bg-slate-800 font-black text-[10px] uppercase rounded-2xl">Cancelar</button>
+                <button onclick="window.history.back()" class="flex-1 py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black text-[10px] uppercase rounded-2xl">Cancelar</button>
                 <button id="confirmActionBtn" class="flex-1 py-3.5 bg-red-600 text-white font-black text-[10px] uppercase rounded-2xl shadow-lg">Confirmar</button>
             </div>
         </div>
@@ -320,7 +319,7 @@
             <h3 class="text-xl font-black mb-8 dark:text-white text-center">Novo Local Industrial</h3>
             <input type="text" id="newIndName" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold outline-none text-center dark:text-white border-2 border-transparent focus:border-blue-500 transition-all mb-8 shadow-inner">
             <div class="flex gap-4">
-                <button onclick="app.closeModal('addIndustry')" class="flex-1 py-5 text-slate-400 font-black text-xs uppercase tracking-widest">Sair</button>
+                <button onclick="window.history.back()" class="flex-1 py-5 text-slate-400 font-black text-xs uppercase tracking-widest">Sair</button>
                 <button onclick="app.saveNewIndustry()" class="flex-1 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-500/20">Criar</button>
             </div>
         </div>
@@ -331,14 +330,14 @@
             <h3 class="text-xl font-black mb-8 dark:text-white text-center">Configurações</h3>
             <textarea id="settingDefaultCaption" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl font-medium text-sm outline-none dark:text-white h-28 resize-none mb-8 shadow-inner"></textarea>
             <div class="flex gap-4">
-                <button onclick="app.closeModal('settings')" class="flex-1 py-5 text-slate-400 font-black text-xs uppercase">Fechar</button>
+                <button onclick="window.history.back()" class="flex-1 py-5 text-slate-400 font-black text-xs uppercase">Fechar</button>
                 <button onclick="app.saveSettings()" class="flex-1 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase shadow-xl">Guardar</button>
             </div>
         </div>
     </div>
 
     <div id="modal-photoPreview" class="fixed inset-0 bg-black/98 z-[110] hidden flex flex-col justify-center items-center p-0">
-        <button onclick="app.closeModal('photoPreview')" class="absolute top-12 left-6 text-white w-12 h-12 flex items-center justify-center bg-white/10 rounded-2xl backdrop-blur-md active:scale-90 transition shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+        <button onclick="window.history.back()" class="absolute top-12 left-6 text-white w-12 h-12 flex items-center justify-center bg-white/10 rounded-2xl backdrop-blur-md active:scale-90 transition shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
         <div class="w-full h-full flex items-center justify-center p-4">
             <img id="previewImg" src="" class="max-h-[70vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl">
         </div>
@@ -357,7 +356,7 @@
         <div class="bg-white dark:bg-slate-900 w-full rounded-t-[2.5rem] p-8 h-[70vh] flex flex-col shadow-2xl">
             <h3 class="text-xl font-black mb-6 text-red-600 text-center uppercase tracking-tight">Locais em Atraso</h3>
             <div id="lateIndustriesList" class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scroll"></div>
-            <button onclick="app.closeModal('lateAlerts')" class="mt-6 py-5 bg-slate-100 dark:bg-slate-800 rounded-2xl font-black text-[11px] dark:text-white uppercase tracking-widest active:bg-slate-200 transition-colors">Fechar</button>
+            <button onclick="window.history.back()" class="mt-6 py-5 bg-slate-100 dark:bg-slate-800 rounded-2xl font-black text-[11px] dark:text-white uppercase tracking-widest active:bg-slate-200 transition-colors">Fechar</button>
         </div>
     </div>
 
@@ -398,12 +397,34 @@
                     document.getElementById('shareMessage').value = this.defaultCaption;
                 }
                 if (window.matchMedia('(prefers-color-scheme: dark)').matches) this.toggleDarkMode();
+                
                 window.onpopstate = (event) => {
+                    // Fechar qualquer modal aberto ao recuar no histórico
+                    this.closeAllModals();
+
                     if (event.state && event.state.viewId) {
-                        this.renderInternalView(event.state.viewId, event.state.data, false);
+                        // Se o estado for o visualizador de fotos, não fazemos nada (já fechado no closeAllModals)
+                        // Senão, navegamos para a vista correta
+                        if (event.state.viewId !== 'photo_preview' && 
+                            event.state.viewId !== 'settings' && 
+                            event.state.viewId !== 'addIndustry' && 
+                            event.state.viewId !== 'lateAlerts' && 
+                            event.state.viewId !== 'confirm') {
+                            this.renderInternalView(event.state.viewId, event.state.data, false);
+                        }
                     }
                 };
                 await this.fetchData();
+            },
+
+            closeAllModals: function() {
+                ['photoPreview', 'settings', 'addIndustry', 'lateAlerts', 'confirm'].forEach(m => {
+                    const el = document.getElementById(`modal-${m}`);
+                    if (el) {
+                        el.classList.add('hidden');
+                        el.classList.remove('flex');
+                    }
+                });
             },
 
             formatToISO: (date) => {
@@ -466,7 +487,8 @@
                     lateOnes.forEach(ind => {
                         const row = document.createElement('div');
                         row.className = 'p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/30 flex justify-between items-center cursor-pointer active:scale-95 transition-transform';
-                        row.onclick = () => { this.currentIndustry = ind; this.closeModal('lateAlerts'); this.navigateTo('dates'); };
+                        row.onclick = () => { this.currentIndustry = ind; window.history.back(); // Fecha o alerta
+                                              setTimeout(() => this.navigateTo('dates'), 100); };
                         row.innerHTML = `<span class="font-black text-sm dark:text-red-400">${ind.nome}</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="m9 18 6-6-6-6"/></svg>`;
                         modalList.appendChild(row);
                     });
@@ -588,13 +610,13 @@
                 localStorage.setItem('industrial_default_caption', newCaption);
                 document.getElementById('shareMessage').value = newCaption;
                 this.showToast("Definições Guardadas", "success");
-                this.closeModal('settings');
+                window.history.back(); // Fecha o modal
             },
 
             openConfirm: function(msg, onConfirm) {
                 document.getElementById('confirmMsg').innerText = msg;
                 const btn = document.getElementById('confirmActionBtn');
-                btn.onclick = () => { onConfirm(); this.closeModal('confirm'); };
+                btn.onclick = () => { onConfirm(); window.history.back(); };
                 this.openModal('confirm');
             },
 
@@ -606,7 +628,8 @@
                 this.showToast("A eliminar...", "loading");
                 try {
                     await this.supabase.from('fotos').delete().eq('id', this.selectedPhoto.id);
-                    this.closeModal('photoPreview'); this.showToast("Eliminado", "success"); await this.fetchData();
+                    this.showToast("Eliminado", "success"); 
+                    await this.fetchData();
                     if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
                     else if (this.view === 'all') this.renderGlobalGallery();
                 } catch(e) { this.showToast("Erro", "error"); }
@@ -627,7 +650,8 @@
                 this.showToast("A eliminar local...", "loading");
                 try {
                     await this.supabase.from('industrias').delete().eq('id', this.currentIndustry.id);
-                    this.navigateTo('home'); this.showToast("Removido", "success"); await this.fetchData();
+                    this.renderInternalView('home', null, false);
+                    this.showToast("Removido", "success"); await this.fetchData();
                 } catch(e) { this.showToast("Erro", "error"); }
             },
 
@@ -670,16 +694,40 @@
                     div.innerHTML = `<img src="${photo.url_publica}" class="w-full h-full object-cover" loading="lazy">`;
                     div.onclick = () => this.handlePhotoClick(photo); container.appendChild(div);
                 });
-                if (photos.length === 0) container.innerHTML = '<div class="col-span-3 py-10 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest opacity-50">Sem fotos registadas</div>';
+                if (photos.length === 0) container.innerHTML = '<div class="col-span-5 py-10 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest opacity-50">Sem fotos registadas</div>';
             },
 
             renderGlobalGallery: function() {
-                const container = document.getElementById('allPhotosContainer'); container.innerHTML = '';
-                this.allPhotos.slice(0, 80).forEach(photo => {
-                    const div = document.createElement('div');
-                    div.className = `photo-card shadow-sm cursor-pointer ${this.selectedPhotos.has(photo.id) ? 'selected' : ''}`;
-                    div.innerHTML = `<img src="${photo.url_publica}" class="w-full h-full object-cover" loading="lazy">`;
-                    div.onclick = () => this.handlePhotoClick(photo); container.appendChild(div);
+                const container = document.getElementById('allPhotosContainer');
+                container.innerHTML = '';
+                if (this.allPhotos.length === 0) {
+                    container.innerHTML = '<div class="py-20 text-center text-slate-300 font-bold text-xs uppercase tracking-widest opacity-50">Sem fotos no sistema</div>';
+                    return;
+                }
+                const groups = {};
+                this.allPhotos.forEach(photo => {
+                    const dateKey = this.formatToISO(photo.created_at);
+                    if (!groups[dateKey]) groups[dateKey] = [];
+                    groups[dateKey].push(photo);
+                });
+                const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+                sortedDates.forEach(date => {
+                    const header = document.createElement('div');
+                    header.className = 'w-full mt-6 mb-3 px-1 border-b border-slate-100 dark:border-slate-800 pb-2';
+                    const [y, m, d] = date.split('-');
+                    header.innerHTML = `<span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${d}/${m}/${y}</span>`;
+                    container.appendChild(header);
+                    const grid = document.createElement('div');
+                    grid.className = 'grid grid-cols-5 gap-1.5 mb-6';
+                    groups[date].forEach(photo => {
+                        const div = document.createElement('div');
+                        const isSelected = this.selectedPhotos.has(photo.id);
+                        div.className = `photo-card shadow-sm cursor-pointer ${isSelected ? 'selected' : ''}`;
+                        div.innerHTML = `<img src="${photo.url_publica}" class="w-full h-full object-cover" loading="lazy">`;
+                        div.onclick = () => this.handlePhotoClick(photo);
+                        grid.appendChild(div);
+                    });
+                    container.appendChild(grid);
                 });
             },
 
@@ -709,13 +757,10 @@
                         descricao: "" 
                     }).select();
                     if (dbError) throw dbError;
-
-                    // Adicionar manualmente o novo registo à lista local para garantir visibilidade imediata
                     if (newRecords && newRecords[0]) {
                         this.allPhotos.unshift(newRecords[0]);
                         this.updateStats();
                     }
-
                     this.showToast("Registo Guardado", "success"); 
                     if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
                     else this.renderCalendar();
@@ -723,18 +768,26 @@
             },
 
             openPhotoPreview: function(photo) {
-                this.selectedPhoto = photo; document.getElementById('previewImg').src = photo.url_publica;
-                document.getElementById('previewDescInput').value = photo.descricao || ''; this.openModal('photoPreview');
+                this.selectedPhoto = photo; 
+                document.getElementById('previewImg').src = photo.url_publica;
+                document.getElementById('previewDescInput').value = photo.descricao || ''; 
+                
+                // Regista no histórico para o botão voltar fechar o modal
+                window.history.pushState({ 
+                    viewId: 'photo_preview', 
+                    data: { currentIndustry: this.currentIndustry, currentDateFolder: this.currentDateFolder } 
+                }, "");
+                
+                this.openModal('photoPreview');
             },
 
             savePhotoDesc: async function() {
                 const desc = document.getElementById('previewDescInput').value; this.showToast("A Guardar...", "loading");
                 try {
                     await this.supabase.from('fotos').update({ descricao: desc }).eq('id', this.selectedPhoto.id);
-                    // Atualizar localmente
                     this.selectedPhoto.descricao = desc;
                     this.showToast("Nota Guardada", "success");
-                } catch(e) { this.showToast("Erro", "error"); }
+                } catch(e) { this.showToast("Erro ao guardar", "error"); }
             },
 
             saveNewIndustry: async function() {
@@ -742,24 +795,45 @@
                 this.showToast("A Criar...", "loading");
                 try {
                     await this.supabase.from('industrias').insert({ nome: name, carga_semanal: 0 });
-                    document.getElementById('newIndName').value = ''; this.closeModal('addIndustry');
+                    document.getElementById('newIndName').value = ''; 
+                    window.history.back(); // Fecha o modal
                     this.showToast("Local Criado", "success"); await this.fetchData();
-                } catch(e) { this.showToast("Erro", "error"); }
+                } catch(e) { this.showToast("Erro ao criar", "error"); }
             },
 
             toggleDarkMode: function() {
                 this.darkMode = !this.darkMode; document.documentElement.classList.toggle('dark', this.darkMode);
                 document.getElementById('themeIcon').innerText = this.darkMode ? '☀️' : '🌙';
             },
-            openModal: function(id) { const m = document.getElementById(`modal-${id}`); if(m) { m.classList.remove('hidden'); m.classList.add('flex'); } },
-            closeModal: function(id) { const m = document.getElementById(`modal-${id}`); if(m) { m.classList.add('hidden'); m.classList.remove('flex'); } },
+
+            openModal: function(id) { 
+                const m = document.getElementById(`modal-${id}`); 
+                if(m) { 
+                    m.classList.remove('hidden'); 
+                    m.classList.add('flex'); 
+                    // Regista o modal no histórico caso não seja o photoPreview (que já faz pushState individual)
+                    if (id !== 'photoPreview' && id !== 'confirm') {
+                        window.history.pushState({ viewId: id, data: { currentIndustry: this.currentIndustry } }, "");
+                    }
+                } 
+            },
+
+            closeModal: function(id) { 
+                const m = document.getElementById(`modal-${id}`); 
+                if(m) { m.classList.add('hidden'); m.classList.remove('flex'); } 
+            },
+
             showToast: function(msg, type = 'success') {
-                const toast = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg;
+                const toast = document.getElementById('toast'); 
+                const toastMsg = document.getElementById('toastMsg');
+                toastMsg.innerText = msg;
                 document.getElementById('toastSpinner').classList.toggle('hidden', type !== 'loading');
                 toast.classList.remove('-translate-y-20', 'opacity-0');
                 if (type !== 'loading') setTimeout(() => toast.classList.add('-translate-y-20', 'opacity-0'), 2500);
             },
+
             openLateAlerts: function() { this.openModal('lateAlerts'); },
+
             shareViaWhatsapp: function() {
                 const msg = document.getElementById('shareMessage').value || this.defaultCaption;
                 window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
