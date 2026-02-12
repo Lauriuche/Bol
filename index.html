@@ -287,7 +287,7 @@
         </div>
     </div>
 
-    <!-- Navegação Inferior -->
+    <!-- Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 h-16 bottom-nav z-50 flex justify-around items-center px-4 pb-safe shadow-sm">
         <button onclick="app.navigateTo('home')" class="nav-item flex flex-col items-center gap-1 text-blue-600" data-tab="home">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/><path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/><path d="M14 8V4L3 9v3"/></svg>
@@ -318,10 +318,10 @@
     <div id="modal-addIndustry" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end p-0">
         <div class="bg-white dark:bg-slate-900 w-full rounded-t-[2.5rem] p-8 shadow-2xl">
             <h3 class="text-xl font-black mb-8 dark:text-white text-center">Novo Local Industrial</h3>
-            <input type="text" id="newIndName" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold outline-none text-center dark:text-white border-2 border-transparent focus:border-blue-500 transition-all mb-8">
+            <input type="text" id="newIndName" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold outline-none text-center dark:text-white border-2 border-transparent focus:border-blue-500 transition-all mb-8 shadow-inner">
             <div class="flex gap-4">
                 <button onclick="app.closeModal('addIndustry')" class="flex-1 py-5 text-slate-400 font-black text-xs uppercase tracking-widest">Sair</button>
-                <button onclick="app.saveNewIndustry()" class="flex-1 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl">Criar</button>
+                <button onclick="app.saveNewIndustry()" class="flex-1 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-500/20">Criar</button>
             </div>
         </div>
     </div>
@@ -329,7 +329,7 @@
     <div id="modal-settings" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end p-0">
         <div class="bg-white dark:bg-slate-900 w-full rounded-t-[2.5rem] p-8 shadow-2xl">
             <h3 class="text-xl font-black mb-8 dark:text-white text-center">Configurações</h3>
-            <textarea id="settingDefaultCaption" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl font-medium text-sm outline-none dark:text-white h-28 resize-none mb-8"></textarea>
+            <textarea id="settingDefaultCaption" class="w-full p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl font-medium text-sm outline-none dark:text-white h-28 resize-none mb-8 shadow-inner"></textarea>
             <div class="flex gap-4">
                 <button onclick="app.closeModal('settings')" class="flex-1 py-5 text-slate-400 font-black text-xs uppercase">Fechar</button>
                 <button onclick="app.saveSettings()" class="flex-1 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase shadow-xl">Guardar</button>
@@ -338,26 +338,26 @@
     </div>
 
     <div id="modal-photoPreview" class="fixed inset-0 bg-black/98 z-[110] hidden flex flex-col justify-center items-center p-0">
-        <button onclick="app.closeModal('photoPreview')" class="absolute top-12 left-6 text-white w-12 h-12 flex items-center justify-center bg-white/10 rounded-2xl backdrop-blur-md"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+        <button onclick="app.closeModal('photoPreview')" class="absolute top-12 left-6 text-white w-12 h-12 flex items-center justify-center bg-white/10 rounded-2xl backdrop-blur-md active:scale-90 transition shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
         <div class="w-full h-full flex items-center justify-center p-4">
-            <img id="previewImg" src="" class="max-h-[75vh] w-auto max-w-full object-contain rounded-2xl">
+            <img id="previewImg" src="" class="max-h-[70vh] w-auto max-w-full object-contain rounded-2xl shadow-2xl">
         </div>
         <div class="w-full p-6 pb-12 bg-black/40 backdrop-blur-2xl border-t border-white/10">
             <div class="max-w-md mx-auto">
                 <textarea id="previewDescInput" class="w-full bg-white/5 rounded-2xl p-4 text-white text-sm font-medium outline-none resize-none h-20 mb-4 border border-white/10" placeholder="Sem anotação..."></textarea>
                 <div class="flex gap-3">
                     <button onclick="app.savePhotoDesc()" class="flex-1 py-4 bg-blue-600 text-white font-black text-[10px] uppercase rounded-2xl shadow-lg">Guardar Nota</button>
-                    <button onclick="app.confirmDeleteSingle()" class="w-16 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center border border-red-500/30"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+                    <button onclick="app.confirmDeleteSingle()" class="w-16 h-14 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center border border-red-500/30 active:scale-95 transition"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="modal-lateAlerts" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end p-0">
-        <div class="bg-white dark:bg-slate-900 w-full rounded-t-[2.5rem] p-8 h-[70vh] flex flex-col">
+        <div class="bg-white dark:bg-slate-900 w-full rounded-t-[2.5rem] p-8 h-[70vh] flex flex-col shadow-2xl">
             <h3 class="text-xl font-black mb-6 text-red-600 text-center uppercase tracking-tight">Locais em Atraso</h3>
             <div id="lateIndustriesList" class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scroll"></div>
-            <button onclick="app.closeModal('lateAlerts')" class="mt-6 py-5 bg-slate-100 dark:bg-slate-800 rounded-2xl font-black text-[11px] dark:text-white uppercase tracking-widest">Fechar</button>
+            <button onclick="app.closeModal('lateAlerts')" class="mt-6 py-5 bg-slate-100 dark:bg-slate-800 rounded-2xl font-black text-[11px] dark:text-white uppercase tracking-widest active:bg-slate-200 transition-colors">Fechar</button>
         </div>
     </div>
 
@@ -381,16 +381,13 @@
             defaultCaption: "Olá! Seguem os registos fotográficos industriais:",
 
             init: async function() {
-                // Configuração inicial do histórico para suportar o botão voltar do telemóvel
                 window.history.replaceState({ viewId: 'home' }, "");
-
                 if (typeof window.supabase !== 'undefined' && window.supabase) {
                     this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 } else {
                     setTimeout(() => this.init(), 1000);
                     return;
                 }
-                
                 const savedCaption = localStorage.getItem('industrial_default_caption');
                 if (savedCaption) {
                     this.defaultCaption = savedCaption;
@@ -400,16 +397,12 @@
                     document.getElementById('settingDefaultCaption').value = this.defaultCaption;
                     document.getElementById('shareMessage').value = this.defaultCaption;
                 }
-
                 if (window.matchMedia('(prefers-color-scheme: dark)').matches) this.toggleDarkMode();
-                
-                // Listener para o botão voltar do sistema
                 window.onpopstate = (event) => {
                     if (event.state && event.state.viewId) {
                         this.renderInternalView(event.state.viewId, event.state.data, false);
                     }
                 };
-
                 await this.fetchData();
             },
 
@@ -425,19 +418,12 @@
                 try {
                     const { data: indData, error: indError } = await this.supabase.from('industrias').select('*').order('nome');
                     if (indError) throw indError;
-
                     const { data: photoData, error: photoError } = await this.supabase.from('fotos').select('*').order('created_at', { ascending: false });
                     if (photoError) throw photoError;
-
                     this.industries = indData || [];
                     this.allPhotos = photoData || [];
-                    
-                    this.updateStats(); 
-                    this.renderIndustries(); 
-                    this.checkAlerts();
-                } catch (e) { 
-                    this.showToast("Erro de Sincronização", "error"); 
-                }
+                    this.updateStats(); this.renderIndustries(); this.checkAlerts();
+                } catch (e) { this.showToast("Erro de Sincronização", "error"); }
             },
 
             updateStats: function() {
@@ -452,11 +438,7 @@
                 this.industries.filter(i => i.nome.toLowerCase().includes(term)).forEach(ind => {
                     const item = document.createElement('div');
                     item.className = 'bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center active:scale-[0.98] transition-all shadow-sm';
-                    item.onclick = () => { 
-                        this.currentIndustry = ind; 
-                        this.navigateTo('dates'); 
-                        this.renderCalendar(); 
-                    };
+                    item.onclick = () => { this.currentIndustry = ind; this.navigateTo('dates'); };
                     item.innerHTML = `
                         <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 border border-slate-50 dark:border-slate-700">
                             ${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover">` : `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 opacity-50"><path d="M3 21v-9l11-4v5l7-2v10H3Z"/></svg>`}
@@ -483,66 +465,45 @@
                     modalList.innerHTML = '';
                     lateOnes.forEach(ind => {
                         const row = document.createElement('div');
-                        row.className = 'p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/30 flex justify-between items-center cursor-pointer';
-                        row.onclick = () => { this.currentIndustry = ind; this.closeModal('lateAlerts'); this.navigateTo('dates'); this.renderCalendar(); };
+                        row.className = 'p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/30 flex justify-between items-center cursor-pointer active:scale-95 transition-transform';
+                        row.onclick = () => { this.currentIndustry = ind; this.closeModal('lateAlerts'); this.navigateTo('dates'); };
                         row.innerHTML = `<span class="font-black text-sm dark:text-red-400">${ind.nome}</span> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="m9 18 6-6-6-6"/></svg>`;
                         modalList.appendChild(row);
                     });
                 } else alertEl.classList.add('hidden');
             },
 
-            // Navegação com suporte ao histórico do navegador
-            navigateTo: function(viewId, data = null) {
-                this.renderInternalView(viewId, data, true);
-            },
+            navigateTo: function(viewId, data = null) { this.renderInternalView(viewId, data, true); },
 
             renderInternalView: function(viewId, data, shouldPushState) {
-                // Tratar dados de estado ao voltar
                 if (data) {
                     if (data.currentIndustry) this.currentIndustry = data.currentIndustry;
-                    if (data.currentDateFolder) {
-                        this.currentDateFolder = data.currentDateFolder;
-                        this.renderGallery(data.currentDateFolder);
-                    }
+                    if (data.currentDateFolder) this.currentDateFolder = data.currentDateFolder;
                 }
-
-                // Push state para histórico
                 if (shouldPushState) {
                     window.history.pushState({ 
                         viewId: viewId, 
-                        data: { 
-                            currentIndustry: this.currentIndustry, 
-                            currentDateFolder: this.currentDateFolder 
-                        } 
+                        data: { currentIndustry: this.currentIndustry, currentDateFolder: this.currentDateFolder } 
                     }, "");
                 }
-
                 document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
                 const target = document.getElementById(`view-${viewId}`);
                 if (target) target.classList.add('active');
-                
                 const titles = { home: 'Painel de Controlo', dates: 'Calendário de Visitas', gallery: 'Registos do Dia', all: 'Galeria Global', reports: 'Partilha de Dados' };
                 document.getElementById('headerSubtitle').innerText = titles[viewId] || 'Gestor';
                 document.getElementById('headerTitle').innerText = (viewId === 'dates' || viewId === 'gallery') ? this.currentIndustry?.nome : 'Gestor Industrial Pro';
-                
                 document.getElementById('backBtn').classList.toggle('hidden', viewId === 'home');
                 document.getElementById('selectModeBtn').classList.toggle('hidden', viewId !== 'gallery' && viewId !== 'all');
                 document.getElementById('settingsBtn').classList.toggle('hidden', viewId !== 'home');
-                
                 this.cancelSelection();
                 document.querySelectorAll('.nav-item').forEach(item => {
                     item.classList.toggle('text-blue-600', item.dataset.tab === viewId);
                     item.classList.toggle('text-slate-400', item.dataset.tab !== viewId);
                 });
-
                 if (viewId === 'all') this.renderGlobalGallery();
                 if (viewId === 'dates') this.renderCalendar();
-                
+                if (viewId === 'gallery') this.renderGallery(this.currentDateFolder);
                 this.view = viewId;
-            },
-
-            goBack: function() { 
-                window.history.back(); 
             },
 
             toggleSelectionMode: function() {
@@ -607,13 +568,12 @@
                         const response = await fetch(photo.url_publica);
                         const blob = await response.blob();
                         const photoIdStr = String(photo.id);
-                        const fileName = `registo_${photoIdStr.substring(0, 5)}.jpg`;
-                        filesArray.push(new File([blob], fileName, { type: 'image/jpeg' }));
+                        filesArray.push(new File([blob], `registo_${photoIdStr.substring(0, 5)}.jpg`, { type: 'image/jpeg' }));
                     }
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: filesArray })) {
                         await navigator.share({ files: filesArray, title: 'Registos de Monitorização', text: `${this.defaultCaption}` });
                         this.showToast("Partilha concluída", "success");
-                    } else { throw new Error("Sem suporte a ficheiros."); }
+                    } else { throw new Error("Sem suporte."); }
                 } catch (error) {
                     this.showToast("A abrir links...", "success");
                     let links = `${this.defaultCaption}\n\n`;
@@ -678,12 +638,10 @@
                 const y = this.calendarCursor.getFullYear(), m = this.calendarCursor.getMonth();
                 document.getElementById('calendarMonth').innerText = new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric' }).format(this.calendarCursor);
                 const firstDay = new Date(y, m, 1).getDay(), totalDays = new Date(y, m + 1, 0).getDate();
-                
                 const datesWithPhotos = new Set();
                 this.allPhotos
                     .filter(p => String(p.industria_id) === String(this.currentIndustry?.id))
                     .forEach(p => datesWithPhotos.add(this.formatToISO(p.created_at)));
-
                 for (let i = 0; i < firstDay; i++) gridDays.appendChild(document.createElement('div'));
                 for (let d = 1; d <= totalDays; d++) {
                     const dateISO = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -700,8 +658,6 @@
                 grid.appendChild(gridDays);
             },
 
-            changeMonth: function(delta) { this.calendarCursor.setMonth(this.calendarCursor.getMonth() + delta); this.renderCalendar(); },
-
             renderGallery: function(dateISO) {
                 const container = document.getElementById('galleryContainer'); container.innerHTML = '';
                 const photos = this.allPhotos.filter(p => 
@@ -714,7 +670,7 @@
                     div.innerHTML = `<img src="${photo.url_publica}" class="w-full h-full object-cover" loading="lazy">`;
                     div.onclick = () => this.handlePhotoClick(photo); container.appendChild(div);
                 });
-                if (photos.length === 0) container.innerHTML = '<div class="col-span-3 py-10 text-center text-slate-400 font-bold text-[10px] uppercase">Sem fotos registadas</div>';
+                if (photos.length === 0) container.innerHTML = '<div class="col-span-3 py-10 text-center text-slate-400 font-bold text-[10px] uppercase tracking-widest opacity-50">Sem fotos registadas</div>';
             },
 
             renderGlobalGallery: function() {
@@ -729,39 +685,41 @@
 
             handleUpload: async function(input) {
                 const file = input.files[0]; if (!file || !this.supabase || !this.currentIndustry) return;
-                this.showToast("A Carregar...", "loading");
+                this.showToast("A Carregar Registo...", "loading");
                 const now = new Date();
                 const targetDateISO = (this.view === 'gallery' && this.currentDateFolder) ? 
                                       this.currentDateFolder : 
                                       this.formatToISO(now);
-
                 const safeIndName = this.currentIndustry.nome.replace(/[^a-zA-Z0-9]/g, '_');
                 const fileName = `${safeIndName}/${targetDateISO}/FOTO_${now.getTime()}.jpg`;
-                
                 try {
-                    const { error } = await this.supabase.storage.from(BUCKET).upload(fileName, file); if (error) throw error;
-                    const { data } = this.supabase.storage.from(BUCKET).getPublicUrl(fileName);
-                    
+                    const { error: storageError } = await this.supabase.storage.from(BUCKET).upload(fileName, file); 
+                    if (storageError) throw storageError;
+                    const { data: urlData } = this.supabase.storage.from(BUCKET).getPublicUrl(fileName);
                     let createdAt = now.toISOString();
                     if (this.view === 'gallery' && this.currentDateFolder) {
                         const [y, m, d] = this.currentDateFolder.split('-');
-                        const folderDate = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds());
-                        createdAt = folderDate.toISOString();
+                        createdAt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0)).toISOString();
                     }
-
-                    await this.supabase.from('fotos').insert({ 
+                    const { data: newRecords, error: dbError } = await this.supabase.from('fotos').insert({ 
                         created_at: createdAt, 
                         nome_arquivo: fileName, 
-                        url_publica: data.publicUrl, 
+                        url_publica: urlData.publicUrl, 
                         industria_id: this.currentIndustry.id, 
                         descricao: "" 
-                    });
+                    }).select();
+                    if (dbError) throw dbError;
 
-                    this.showToast("Guardado", "success"); 
-                    await this.fetchData(); 
+                    // Adicionar manualmente o novo registo à lista local para garantir visibilidade imediata
+                    if (newRecords && newRecords[0]) {
+                        this.allPhotos.unshift(newRecords[0]);
+                        this.updateStats();
+                    }
+
+                    this.showToast("Registo Guardado", "success"); 
                     if (this.view === 'gallery') this.renderGallery(this.currentDateFolder);
                     else this.renderCalendar();
-                } catch (e) { this.showToast("Falha", "error"); }
+                } catch (e) { this.showToast("Falha no Envio", "error"); }
             },
 
             openPhotoPreview: function(photo) {
@@ -773,8 +731,10 @@
                 const desc = document.getElementById('previewDescInput').value; this.showToast("A Guardar...", "loading");
                 try {
                     await this.supabase.from('fotos').update({ descricao: desc }).eq('id', this.selectedPhoto.id);
-                    this.showToast("Nota Guardada", "success"); await this.fetchData();
-                } catch(e) { this.showToast("Erro ao guardar", "error"); }
+                    // Atualizar localmente
+                    this.selectedPhoto.descricao = desc;
+                    this.showToast("Nota Guardada", "success");
+                } catch(e) { this.showToast("Erro", "error"); }
             },
 
             saveNewIndustry: async function() {
@@ -784,7 +744,7 @@
                     await this.supabase.from('industrias').insert({ nome: name, carga_semanal: 0 });
                     document.getElementById('newIndName').value = ''; this.closeModal('addIndustry');
                     this.showToast("Local Criado", "success"); await this.fetchData();
-                } catch(e) { this.showToast("Erro ao criar", "error"); }
+                } catch(e) { this.showToast("Erro", "error"); }
             },
 
             toggleDarkMode: function() {
