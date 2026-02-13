@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#1E40AF">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4300/4300058.png">
 
     <title>Gestor Industrial Pro</title>
@@ -16,361 +16,361 @@
     <!-- Dependências -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --bg-body: #ffffff;
-            --text-main: #000000;
-            --border-color: #000000;
-            --card-bg: #ffffff;
-            --primary: #2563eb;
-            --safe-top: env(safe-area-inset-top, 24px);
-            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --bg-body: #F8FAFC;
+            --surface: #FFFFFF;
+            --surface-variant: #F1F5F9;
+            --text-main: #0F172A;
+            --primary: #1E40AF;
+            --primary-container: #DBEAFE;
+            --on-primary-container: #1E3A8A;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         .dark {
-            --bg-body: #121212;
-            --text-main: #ffffff;
-            --border-color: #ffffff;
-            --primary: #3b82f6;
+            --bg-body: #020617;
+            --surface: #0F172A;
+            --surface-variant: #1E293B;
+            --text-main: #F8FAFC;
+            --primary: #3B82F6;
+            --primary-container: #172554;
+            --on-primary-container: #DBEAFE;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            scrollbar-width: none;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
-            transition: background-color 0.3s ease, color 0.3s ease;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            overflow: hidden;
             width: 100vw;
             height: 100vh;
+            margin: 0;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        /* --- PADRÃO VISUAL UNIFICADO --- */
-
-        /* Borda padrão */
-        .sketch-border {
-            border: 2px solid var(--border-color);
-        }
-
-        /* Header */
         header {
-            padding-top: calc(var(--safe-top) + 10px);
-            padding-bottom: 10px;
-            text-align: center;
-            background: var(--bg-body);
+            padding-top: calc(var(--safe-top) + 12px);
+            padding-bottom: 12px;
+            background-color: var(--surface);
             z-index: 50;
             flex-shrink: 0;
-            border-bottom: 2px solid var(--border-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        /* Main */
         main {
             flex: 1;
             overflow-y: auto;
-            padding: 24px; /* Espaçamento mais generoso */
-            padding-bottom: 120px;
+            width: 100%;
+            padding: 16px;
+            padding-bottom: calc(100px + var(--safe-bottom));
             display: flex;
             flex-direction: column;
-            gap: 24px; /* Ritmo vertical consistente */
+            gap: 16px;
         }
 
-        /* Footer */
-        .bottom-bar {
-            height: calc(70px + var(--safe-bottom));
-            padding-bottom: var(--safe-bottom);
-            padding-left: 30px;
-            padding-right: 30px;
-            background: var(--bg-body);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-top: 2px solid var(--border-color);
-            z-index: 100;
-            flex-shrink: 0;
+        .android-card {
+            background-color: var(--surface);
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
-        /* ELEMENTOS UI PADRONIZADOS */
-        
-        /* Cartões de Estatísticas - Redondos e Centralizados */
-        .stats-card {
-            @apply sketch-border rounded-3xl bg-transparent flex flex-col items-center justify-center text-center;
-            aspect-ratio: 1.3/1;
-        }
-
-        /* Container Genérico */
-        .recents-container {
-            @apply sketch-border rounded-3xl p-5 w-full bg-transparent flex flex-col justify-center;
-        }
-
-        /* Barra de Pesquisa */
-        .search-bar {
-            @apply sketch-border rounded-full w-full py-4 px-6 flex items-center justify-center gap-3 bg-transparent;
-        }
-
-        /* Grelha de Indústrias */
-        .industry-grid {
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
 
-        .industry-card {
-            @apply sketch-border rounded-3xl bg-transparent flex flex-col items-center justify-center relative overflow-hidden transition-transform;
-            aspect-ratio: 1/1;
-        }
-        .industry-card:active { transform: scale(0.95); }
-        .industry-card img {
-            width: 100%; height: 100%; object-fit: cover; border-radius: 20px;
-        }
-
-        /* FAB (+) */
-        .fab-btn {
-            position: absolute;
-            bottom: calc(90px + var(--safe-bottom));
-            right: 24px;
-            width: 64px; height: 64px;
-            background-color: var(--primary);
-            color: white;
-            border-radius: 50%; /* Sempre Circular */
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-            z-index: 90;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-            border: 2px solid white;
-        }
-        .fab-btn:active { transform: translateY(4px); box-shadow: none; }
-
-        /* Scroller Horizontal */
-        .h-scroll {
-            display: flex; gap: 12px; overflow-x: auto; padding: 4px 0; scrollbar-width: none;
-            justify-content: flex-start; /* Alinhamento inicial */
+        .stat-card {
+            background-color: var(--surface);
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-        }
-        .h-scroll::-webkit-scrollbar { display: none; }
-        
-        .circle-thumb {
-            @apply sketch-border rounded-full flex-shrink-0 bg-gray-50 dark:bg-zinc-800 overflow-hidden flex items-center justify-center;
-            width: 58px; height: 58px;
+            justify-content: center;
+            border: 1px solid var(--surface-variant);
         }
 
-        /* Links Footer */
-        .nav-link {
-            font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-main); opacity: 0.4; padding: 10px 5px; text-align: center;
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: calc(75px + var(--safe-bottom));
+            padding-bottom: var(--safe-bottom);
+            background-color: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 100;
+            border-top: 1px solid var(--surface-variant);
         }
-        .nav-link.active { opacity: 1; color: var(--primary); }
 
-        /* Modais */
-        .modal-overlay { z-index: 200; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: flex-end; justify-content: center; }
-        .modal-content { @apply sketch-border bg-white dark:bg-zinc-900 rounded-t-[40px] w-full p-8 text-center; border-bottom: none; }
-        .sketch-input { @apply sketch-border rounded-2xl p-4 w-full bg-transparent outline-none font-bold text-center; }
-        
-        .view-section { display: none; width: 100%; height: 100%; }
-        .view-section.active { display: block; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-icon-container {
+            width: 58px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-item.active .nav-icon-container { background-color: var(--primary-container); color: var(--on-primary-container); }
+        .nav-label { font-size: 11px; font-weight: 700; opacity: 0.6; }
+        .nav-item.active .nav-label { opacity: 1; }
+
+        .img-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .img-card { aspect-ratio: 1/1; border-radius: 16px; overflow: hidden; background-color: var(--surface-variant); position: relative; }
+        .img-card img { width: 100%; height: 100%; object-fit: cover; }
+
+        .fab {
+            position: fixed; bottom: calc(90px + var(--safe-bottom)); right: 20px;
+            width: 56px; height: 56px; background-color: var(--primary); color: white;
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3); z-index: 90;
+        }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            display: none; align-items: flex-end; justify-content: center; z-index: 200;
+        }
+        .modal-sheet {
+            background-color: var(--surface); width: 100%; max-width: 600px;
+            border-radius: 32px 32px 0 0; padding: 24px; padding-bottom: calc(32px + var(--safe-bottom));
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .btn-primary {
+            background-color: var(--primary); color: white; padding: 18px;
+            border-radius: 20px; font-weight: 800; text-align: center; width: 100%;
+        }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: viewFade 0.3s ease; }
+        @keyframes viewFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .cal-day {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; font-size: 13px; font-weight: 700; cursor: pointer;
+        }
+        .cal-day.has-content { background-color: var(--primary); color: white; }
+
         #toast { z-index: 300; }
-        
-        /* Calendário */
-        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-weight: 700; font-size: 14px; }
-        .cal-day.has-photos { background: var(--primary); color: white; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body>
+<body class="no-scrollbar">
 
     <!-- CABEÇALHO -->
     <header>
-        <div class="w-full flex justify-center items-center relative px-4">
-            <!-- Botão Voltar -->
-            <button id="backBtn" onclick="window.history.back()" class="hidden absolute left-0 w-10 h-10 sketch-border rounded-full flex items-center justify-center bg-transparent z-50 hover:bg-gray-100 dark:hover:bg-zinc-800 transition">
-                <i class="fas fa-chevron-left text-sm"></i>
+        <div class="max-w-xl mx-auto flex items-center px-6">
+            <button id="backBtn" onclick="window.history.back()" class="hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 mr-2">
+                <i class="fas fa-chevron-left"></i>
             </button>
-            
-            <div class="flex flex-col items-center">
-                <h1 id="headerTitle" class="text-xl font-black uppercase tracking-tight leading-none">Gestor promoter</h1>
-                <p id="headerSubtitle" class="text-[10px] font-bold opacity-60 mt-1">Merchandising - Mateus</p>
+            <div class="flex-1">
+                <h1 id="headerTitle" class="text-xl font-extrabold tracking-tight">Gestor promoter</h1>
+                <p id="headerSubtitle" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Painel Operacional</p>
             </div>
-            
-            <!-- Botão Selecionar -->
-             <button id="selectModeBtn" onclick="app.toggleSelectionMode()" class="hidden absolute right-0 text-[10px] font-black uppercase bg-transparent border-b-2 border-current pb-0.5">Selecionar</button>
+            <div class="flex gap-2">
+                <button onclick="app.openModal('settings')" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800">
+                    <i class="fas fa-cog text-sm"></i>
+                </button>
+                <button onclick="app.toggleDarkMode()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800">
+                    <i class="fas fa-moon text-sm" id="themeIcon"></i>
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- ÁREA PRINCIPAL -->
-    <main>
+    <!-- MAIN -->
+    <main class="max-w-xl mx-auto">
         
-        <!-- VIEW: HOME -->
+        <!-- HOME -->
         <section id="view-home" class="view-section active">
-            
-            <!-- Stats -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="stats-card">
-                    <span id="stat-industries" class="text-5xl font-black tracking-tighter">00</span>
-                    <span class="text-[10px] font-bold uppercase mt-1 opacity-60 tracking-widest">Locais</span>
+            <div class="stats-grid mb-4">
+                <div class="stat-card">
+                    <span id="stat-industries" class="text-3xl font-black text-blue-600">0</span>
+                    <span class="text-[9px] font-bold opacity-40 uppercase">Unidades</span>
                 </div>
-                <div class="stats-card">
-                    <span id="stat-photos" class="text-5xl font-black tracking-tighter">00</span>
-                    <span class="text-[10px] font-bold uppercase mt-1 opacity-60 tracking-widest">Fotos</span>
+                <div class="stat-card">
+                    <span id="stat-photos" class="text-3xl font-black text-blue-600">0</span>
+                    <span class="text-[9px] font-bold opacity-40 uppercase">Registos</span>
                 </div>
             </div>
 
-            <!-- Fotos Recentes -->
-            <div class="recents-container">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-black">Fotos recentes</h3>
-                    <button onclick="app.navigateTo('all')" class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Ver +</button>
-                </div>
-                <div id="recentActivityList" class="h-scroll">
-                    <!-- Circles injected via JS -->
-                </div>
+            <div class="bg-gray-100 dark:bg-zinc-800 rounded-full px-5 py-3 flex items-center gap-3 mb-6">
+                <i class="fas fa-search opacity-30 text-sm"></i>
+                <input type="text" id="searchInput" oninput="app.renderIndustries()" placeholder="Procurar unidade..." class="bg-transparent outline-none w-full text-sm font-medium">
             </div>
 
-            <!-- Pesquisa -->
-            <div class="search-bar">
-                <i class="fas fa-search text-gray-400"></i>
-                <input type="text" id="searchInput" oninput="app.filterIndustries()" placeholder="Pesquisar..." class="bg-transparent w-full outline-none text-sm font-bold placeholder-gray-400 text-center">
-            </div>
-
-            <!-- Grelha de Locais (3 Colunas) -->
-            <div id="industriesList" class="industry-grid">
-                <!-- Squares injected via JS -->
-            </div>
+            <div id="industriesList" class="img-grid"></div>
         </section>
 
-        <!-- VIEW: DATES (Calendário) -->
+        <!-- CALENDÁRIO -->
         <section id="view-dates" class="view-section">
-            <button class="w-full py-5 bg-blue-600 text-white font-black text-sm uppercase rounded-full shadow-md mb-6 sketch-border border-black flex items-center justify-center gap-2" id="industryNameBanner" onclick="app.editCurrentIndustry()">
-                Nome da Indústria
-            </button>
+            <div class="android-card bg-blue-600 text-white mb-6 py-6 flex flex-col items-center">
+                <h2 id="currentIndName" class="text-xl font-black">Unidade</h2>
+                <button onclick="app.editCurrentIndustry()" class="mt-2 text-[9px] font-black uppercase tracking-widest bg-white/20 px-4 py-1.5 rounded-full">Configurações</button>
+            </div>
 
-            <div class="recents-container mb-6 bg-gray-50 dark:bg-zinc-800 border-none">
-                <div class="flex justify-between items-center mb-4 px-4">
-                    <button onclick="app.changeMonth(-1)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition"><i class="fas fa-chevron-left"></i></button>
-                    <h2 id="calendarMonth" class="text-xl font-black capitalize">Mês</h2>
-                    <button onclick="app.changeMonth(1)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition"><i class="fas fa-chevron-right"></i></button>
+            <div class="android-card mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="app.changeMonth(-1)" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-800"><i class="fas fa-chevron-left text-xs"></i></button>
+                    <h3 id="calendarMonth" class="text-sm font-black uppercase">Janeiro</h3>
+                    <button onclick="app.changeMonth(1)" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-800"><i class="fas fa-chevron-right text-sm"></i></button>
                 </div>
-                <div id="calendarGrid" class="pb-2"></div>
+                <div id="calendarGrid" class="cal-grid"></div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mt-auto">
-                <label class="stats-card bg-blue-600 text-white border-blue-900 cursor-pointer active:scale-95 transition">
-                    <i class="fas fa-camera text-3xl mb-2"></i>
-                    <span class="text-[10px] font-black uppercase tracking-widest">CÂMARA</span>
-                    <input type="file" capture="environment" accept="image/*" class="hidden" onchange="app.handleUpload(this)">
+            <div class="grid grid-cols-2 gap-4">
+                <label class="android-card flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-blue-200 py-8">
+                    <i class="fas fa-camera text-2xl text-blue-500"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Câmera</span>
+                    <input type="file" capture="environment" accept="image/jpeg" class="hidden" onchange="app.handleUpload(this)">
                 </label>
-                <label class="stats-card bg-zinc-800 text-white border-black cursor-pointer active:scale-95 transition">
-                    <i class="fas fa-images text-3xl mb-2"></i>
-                    <span class="text-[10px] font-black uppercase tracking-widest">GALERIA</span>
-                    <input type="file" accept="image/*" class="hidden" onchange="app.handleUpload(this)">
+                <label class="android-card flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-gray-200 py-8">
+                    <i class="fas fa-images text-2xl text-gray-400"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Galeria</span>
+                    <input type="file" accept="image/jpeg" class="hidden" onchange="app.handleUpload(this)">
                 </label>
             </div>
-            
-            <p onclick="app.editCurrentIndustry()" class="text-center text-[10px] font-bold text-blue-600 uppercase mt-8 cursor-pointer opacity-80 border-b border-blue-600 inline-block mx-auto w-fit pb-1">CONFIGURAR</p>
         </section>
 
-        <!-- VIEW: GALLERY -->
+        <!-- GALERIA -->
         <section id="view-gallery" class="view-section">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black">Galeria</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 id="galleryDateTitle" class="text-lg font-black uppercase">Registos</h2>
+                <button onclick="app.toggleSelectionMode()" id="selectBtn" class="text-[10px] font-black uppercase bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-4 py-2 rounded-full">Selecionar</button>
             </div>
-            <div id="galleryContainer" class="industry-grid"></div>
+            <div id="galleryContainer" class="img-grid"></div>
         </section>
 
-        <!-- VIEW: ALL FILES -->
+        <!-- ARQUIVO -->
         <section id="view-all" class="view-section">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black">Arquivo</h2>
-            </div>
-            <div id="allPhotosContainer"></div>
+            <h2 class="text-lg font-black uppercase mb-4 tracking-tighter">Histórico Geral</h2>
+            <div id="allPhotosContainer" class="img-grid"></div>
         </section>
 
-        <!-- VIEW: REPORTS -->
+        <!-- ENVIO -->
         <section id="view-reports" class="view-section text-center">
-            <h2 class="text-2xl font-black mb-8 mt-4">Partilhar</h2>
-            <div class="recents-container mb-6 text-left h-48 flex flex-col">
-                <label class="text-[10px] font-bold uppercase opacity-50 block mb-2 text-center w-full">Mensagem</label>
-                <textarea id="shareMessage" class="w-full h-full bg-transparent outline-none font-bold resize-none text-sm p-2 text-center leading-relaxed" placeholder="Escreva a mensagem..."></textarea>
+            <div class="android-card text-left mb-6">
+                <h2 class="text-xl font-black mb-4">Resumo do Envio</h2>
+                <label class="text-[10px] font-black opacity-40 uppercase block mb-2 tracking-widest">Legenda</label>
+                <textarea id="shareMessage" class="w-full h-40 bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-2xl outline-none text-sm font-medium resize-none"></textarea>
             </div>
-            <button onclick="app.shareViaWhatsapp()" class="w-full py-5 bg-blue-600 text-white rounded-full font-black uppercase text-sm shadow-lg active:scale-95 transition border-2 border-black tracking-widest">Enviar WhatsApp</button>
+            <button onclick="app.shareFiles()" class="btn-primary flex items-center justify-center gap-3">
+                <i class="fas fa-paper-plane"></i> ENVIAR FICHEIROS JPG
+            </button>
         </section>
-
     </main>
 
     <!-- FAB -->
-    <button onclick="app.saveNewIndustry()" class="fab-btn" id="fabAdd">
+    <button onclick="app.saveNewIndustry()" class="fab" id="fabAdd">
         <i class="fas fa-plus"></i>
     </button>
 
     <!-- BARRA DE SELEÇÃO -->
-    <div id="selectionBar" class="fixed bottom-24 left-4 right-4 bg-black text-white p-4 rounded-full flex items-center justify-between shadow-2xl transition-all duration-300 translate-y-[200%] z-[95] sketch-border border-white dark:border-black">
-        <span id="selectionCount" class="text-xs font-bold ml-2">0</span>
-        <div class="flex gap-3">
-            <button onclick="app.confirmDeleteSelected()" class="text-red-500 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition"><i class="fas fa-trash"></i></button>
-            <button onclick="app.shareSelectedPhotos()" class="bg-blue-600 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase">Enviar</button>
+    <div id="selectionBar" class="fixed bottom-24 left-6 right-6 bg-zinc-900 text-white p-5 rounded-[28px] flex items-center justify-between shadow-2xl transition-all duration-500 translate-y-[250%] z-[120]">
+        <span id="selectionCount" class="text-xs font-black uppercase ml-2">0 selecionadas</span>
+        <div class="flex gap-2">
+            <button onclick="app.confirmDeleteSelected()" class="w-12 h-12 flex items-center justify-center text-red-400 bg-red-400/10 rounded-2xl"><i class="fas fa-trash-can"></i></button>
+            <button onclick="app.navigateTo('reports')" class="bg-blue-600 px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest">Gerar</button>
         </div>
     </div>
 
-    <!-- RODAPÉ -->
-    <nav class="bottom-bar">
-        <div class="flex gap-8">
-            <div onclick="app.navigateTo('home')" class="nav-link active" data-tab="home">Local</div>
-            <div onclick="app.navigateTo('all')" class="nav-link" data-tab="all">Arquivos</div>
-            <div onclick="app.navigateTo('reports')" class="nav-link" data-tab="reports">Partilhar</div>
+    <!-- NAV INFERIOR -->
+    <nav class="bottom-nav">
+        <div onclick="app.navigateTo('home')" class="nav-item active" data-tab="home">
+            <div class="nav-icon-container"><i class="fas fa-house-user"></i></div>
+            <span class="nav-label">Locais</span>
         </div>
-        <div class="flex gap-5 text-xl opacity-80">
-            <button onclick="app.openModal('settings')"><i class="fas fa-cog"></i></button>
-            <button onclick="app.toggleDarkMode()"><i class="fas fa-adjust" id="themeIcon"></i></button>
+        <div onclick="app.navigateTo('all')" class="nav-item" data-tab="all">
+            <div class="nav-icon-container"><i class="fas fa-box-archive"></i></div>
+            <span class="nav-label">Arquivo</span>
+        </div>
+        <div onclick="app.navigateTo('reports')" class="nav-item" data-tab="reports">
+            <div class="nav-icon-container"><i class="fas fa-file-invoice"></i></div>
+            <span class="nav-label">Partilhar</span>
         </div>
     </nav>
 
     <!-- MODAIS -->
     
-    <!-- Add/Edit Industry -->
-    <div id="modal-addIndustry" class="modal-overlay fixed inset-0 hidden flex-col justify-end p-0">
-        <div class="modal-content max-h-[85vh] overflow-y-auto">
-            <div class="w-16 h-1.5 bg-gray-300 rounded-full mx-auto mb-8"></div>
-            <h3 id="industryFormTitle" class="text-2xl font-black mb-8 text-center uppercase tracking-tight">Unidade</h3>
-            <div class="space-y-6 mb-8 w-full">
-                <input type="text" id="newIndName" class="sketch-input" placeholder="Nome da Empresa">
-                <input type="text" id="newIndIcon" class="sketch-input" placeholder="Ícone (Emoji) 🏭">
-                
-                <div class="relative w-full aspect-video sketch-border rounded-3xl overflow-hidden flex flex-col items-center justify-center bg-gray-50 dark:bg-zinc-800">
-                    <img id="coverPreview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
-                    <div id="coverPlaceholder" class="flex flex-col items-center gap-2 opacity-40">
-                        <i class="fas fa-camera text-3xl"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest">Capa</span>
-                    </div>
-                    <input type="file" id="coverInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="app.handleCoverPreview(this)">
-                </div>
+    <div id="modal-settings" class="modal-overlay">
+        <div class="modal-sheet">
+            <h3 class="text-xl font-black mb-6 text-center">CONFIGURAÇÕES</h3>
+            <label class="text-[10px] font-black opacity-40 uppercase block mb-2 tracking-widest">Texto Padrão de Envio</label>
+            <textarea id="settingDefaultMessage" class="w-full h-32 bg-gray-100 dark:bg-zinc-800 p-4 rounded-2xl outline-none text-sm font-semibold mb-6" placeholder="Segue relatório da unidade {unidade}..."></textarea>
+            <div class="flex gap-3">
+                <button onclick="app.closeModal('settings')" class="flex-1 font-bold opacity-40">Fechar</button>
+                <button onclick="app.saveSettingsToDB()" class="flex-[2] btn-primary">SALVAR NUVEM</button>
             </div>
-            <div class="flex gap-4 w-full">
-                <button onclick="window.history.back()" class="flex-1 py-4 font-black text-xs uppercase opacity-60">Sair</button>
-                <button onclick="app.saveIndustry()" class="flex-[2] py-4 bg-black text-white dark:bg-white dark:text-black rounded-2xl font-black text-xs uppercase shadow-lg">Guardar</button>
-            </div>
-            <button id="deleteIndustryBtn" onclick="app.confirmDeleteIndustry()" class="hidden w-full mt-8 py-3 text-red-500 text-[10px] font-black uppercase border-t-2 border-current">ELIMINAR</button>
         </div>
     </div>
 
-    <!-- Confirm Modal -->
-    <div id="modal-confirm" class="modal-overlay fixed inset-0 hidden items-center justify-center p-6"><div class="sketch-border bg-white dark:bg-zinc-900 w-full max-w-xs rounded-[30px] p-8 text-center"><h3 class="text-xl font-black mb-2 uppercase">Confirmar?</h3><div class="flex gap-3 mt-8"><button onclick="window.history.back()" class="flex-1 py-4 bg-gray-100 dark:bg-zinc-800 text-xs font-black uppercase rounded-2xl sketch-border">Não</button><button id="confirmActionBtn" class="flex-1 py-4 bg-black text-white dark:bg-white dark:text-black text-xs font-black uppercase rounded-2xl border-2 border-black dark:border-white">Sim</button></div></div></div>
+    <div id="modal-addIndustry" class="modal-overlay">
+        <div class="modal-sheet">
+            <h3 id="industryFormTitle" class="text-xl font-black mb-6 text-center">UNIDADE</h3>
+            <input type="text" id="newIndName" class="w-full p-5 bg-gray-100 dark:bg-zinc-800 rounded-2xl outline-none mb-6 font-bold" placeholder="Nome do Local">
+            
+            <div class="relative w-full aspect-video bg-gray-100 dark:bg-zinc-800 rounded-3xl overflow-hidden flex flex-col items-center justify-center mb-6 border-2 border-dashed border-gray-200 dark:border-zinc-700">
+                <img id="coverPreview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
+                <div id="coverPlaceholder" class="flex flex-col items-center opacity-30">
+                    <i class="fas fa-camera text-3xl mb-2"></i>
+                    <span class="text-[10px] font-black uppercase">Foto de Capa</span>
+                </div>
+                <input type="file" accept="image/jpeg" class="absolute inset-0 opacity-0 cursor-pointer" onchange="app.handleCoverPreview(this)">
+            </div>
 
-    <!-- Photo Preview -->
-    <div id="modal-photoPreview" class="modal-overlay fixed inset-0 hidden flex-col justify-center items-center p-0 bg-black"><button onclick="window.history.back()" class="absolute top-10 left-6 text-white w-12 h-12 flex items-center justify-center bg-white/20 rounded-full backdrop-blur-md z-50"><i class="fas fa-arrow-left"></i></button><div class="flex-1 w-full flex items-center justify-center p-2"><img id="previewImg" src="" class="max-h-full max-w-full object-contain rounded-lg"></div><div class="w-full p-8 bg-white dark:bg-zinc-900 rounded-t-[40px]"><textarea id="previewDescInput" class="sketch-input h-20 resize-none mb-6" placeholder="Adicionar nota..."></textarea><div class="flex gap-4"><button onclick="app.savePhotoDesc()" class="flex-1 py-4 bg-black text-white dark:bg-white dark:text-black rounded-2xl font-black text-xs uppercase">Salvar</button><button onclick="app.confirmDeleteSingle()" class="w-20 sketch-border rounded-2xl flex items-center justify-center text-red-500"><i class="fas fa-trash"></i></button></div></div></div>
+            <div class="flex gap-3">
+                <button onclick="app.closeModal('addIndustry')" class="flex-1 font-bold opacity-40">Sair</button>
+                <button onclick="app.saveIndustry()" class="flex-[2] btn-primary">GUARDAR</button>
+            </div>
+            <button id="deleteIndustryBtn" onclick="app.confirmDeleteIndustry()" class="hidden w-full mt-6 py-4 text-red-500 font-black uppercase text-[10px] border-t">Eliminar Unidade</button>
+        </div>
+    </div>
 
-    <!-- Settings -->
-    <div id="modal-settings" class="modal-overlay fixed inset-0 hidden flex-col justify-end p-0"><div class="modal-content"><h3 class="text-xl font-black mb-8 text-center uppercase tracking-tight">Configurações</h3><div class="mb-8 w-full"><label class="text-[10px] font-black uppercase mb-3 block text-center opacity-60 tracking-widest">Legenda Padrão</label><textarea id="settingDefaultCaption" class="sketch-input h-32 resize-none"></textarea></div><div class="flex gap-4 w-full"><button onclick="window.history.back()" class="flex-1 py-4 font-black text-xs uppercase opacity-60">Fechar</button><button onclick="app.saveSettings()" class="flex-1 py-4 bg-black text-white dark:bg-white dark:text-black rounded-2xl font-black text-xs uppercase">Salvar</button></div></div></div>
+    <div id="modal-photoPreview" class="modal-overlay flex-col !items-center !justify-center p-0">
+        <button onclick="app.closeModal('photoPreview')" class="absolute top-10 right-6 text-white text-3xl z-[220] drop-shadow-lg"><i class="fas fa-xmark"></i></button>
+        <div class="w-full flex-1 flex items-center justify-center p-4">
+            <img id="previewImg" src="" class="max-h-full max-w-full object-contain rounded-2xl shadow-2xl">
+        </div>
+        <div class="modal-sheet z-[210]">
+            <textarea id="previewDescInput" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-2xl outline-none mb-4 font-semibold h-24" placeholder="Adicionar notas..."></textarea>
+            <div class="flex gap-3">
+                <button onclick="app.savePhotoDesc()" class="flex-1 btn-primary">SALVAR NOTA</button>
+                <button onclick="app.confirmDeleteSingle()" class="w-16 flex items-center justify-center bg-red-100 text-red-500 rounded-2xl"><i class="fas fa-trash-can"></i></button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Toast -->
-    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[300] transition-all duration-300 transform -translate-y-24 opacity-0 pointer-events-none"><div class="bg-black text-white px-8 py-4 rounded-full shadow-xl flex items-center gap-4 text-xs font-black border-2 border-white uppercase tracking-widest"><span id="toastMsg"></span></div></div>
+    <div id="modal-confirm" class="modal-overlay !items-center !justify-center p-6">
+        <div class="bg-white dark:bg-zinc-900 w-full max-w-xs rounded-[40px] p-8 text-center shadow-2xl">
+            <h3 class="text-xl font-black mb-3">ELIMINAR?</h3>
+            <p class="text-xs opacity-50 mb-8">Esta ação é permanente na base de dados.</p>
+            <div class="flex gap-3">
+                <button onclick="app.closeModal('confirm')" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">NÃO</button>
+                <button id="confirmActionBtn" class="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold">SIM</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 z-[300] transition-all duration-400 transform translate-y-32 opacity-0 pointer-events-none">
+        <div class="bg-zinc-900 text-white px-8 py-3 rounded-2xl shadow-2xl text-[10px] font-black flex items-center gap-3 uppercase tracking-widest">
+            <span id="toastMsg">Sucesso</span>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
@@ -378,213 +378,392 @@
         const BUCKET = 'galeria';
 
         const app = {
-            supabase: null, view: 'home', darkMode: false, industries: [], allPhotos: [],
-            currentIndustry: null, currentDateFolder: null, calendarCursor: new Date(),
-            selectedPhoto: null, isSelectionMode: false, selectedPhotos: new Set(),
-            defaultCaption: "Registos:", coverFile: null,
+            supabase: null,
+            industries: [],
+            allPhotos: [],
+            currentIndustry: null,
+            currentDateFolder: null,
+            calendarCursor: new Date(),
+            isSelectionMode: false,
+            selectedPhotos: new Set(),
+            defaultMessagePattern: "Relatório: {unidade}\nData: {data}",
+            coverFile: null,
 
             init: async function() {
-                window.history.replaceState({ viewId: 'home' }, "");
-                if (typeof window.supabase !== 'undefined') app.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                else { setTimeout(() => app.init(), 1000); return; }
-                const savedCaption = localStorage.getItem('industrial_default_caption');
-                if (savedCaption) app.defaultCaption = savedCaption;
-                document.getElementById('settingDefaultCaption').value = app.defaultCaption;
-                if (window.matchMedia('(prefers-color-scheme: dark)').matches) app.toggleDarkMode();
-                window.onpopstate = (e) => { app.closeAllModals(); if (e.state?.viewId && !['photo_preview', 'settings', 'addIndustry', 'lateAlerts', 'confirm'].includes(e.state.viewId)) app.renderInternalView(e.state.viewId, e.state.data, false); };
-                await app.fetchData();
+                this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                window.onpopstate = () => this.closeAllModals();
+                await this.loadSettingsFromDB();
+                await this.fetchData();
             },
 
-            closeAllModals: function() { ['photoPreview', 'settings', 'addIndustry', 'lateAlerts', 'confirm'].forEach(m => { const el = document.getElementById(`modal-${m}`); if(el) { el.classList.remove('flex'); el.classList.add('hidden'); } }); },
-            formatToISO: (d) => { const x = new Date(d); if(isNaN(x)) return ""; return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; },
-            showToast: function(msg) { const t=document.getElementById('toast'); document.getElementById('toastMsg').innerText=msg; t.classList.remove('-translate-y-24','opacity-0'); setTimeout(()=>t.classList.add('-translate-y-24','opacity-0'), 2500); },
-            
-            fetchData: async function() {
-                if(!app.supabase) return;
+            loadSettingsFromDB: async function() {
                 try {
-                    const [ind, pho] = await Promise.all([app.supabase.from('industrias').select('*').order('nome'), app.supabase.from('fotos').select('*').order('created_at', {ascending: false})]);
-                    app.industries = ind.data || []; app.allPhotos = pho.data || [];
-                    app.updateStats(); app.renderIndustries(); app.renderRecentActivity();
-                } catch(e) { app.showToast("Erro de rede"); }
+                    const { data } = await this.supabase.from('configuracoes').select('valor').eq('chave', 'mensagem_padrao').single();
+                    if (data && data.valor) {
+                        this.defaultMessagePattern = data.valor;
+                        document.getElementById('settingDefaultMessage').value = data.valor;
+                    }
+                } catch(e) { console.log("Usando padrão local."); }
             },
-            
-            updateStats: function() { document.getElementById('stat-industries').innerText = app.industries.length; document.getElementById('stat-photos').innerText = app.allPhotos.length; },
-            
+
+            saveSettingsToDB: async function() {
+                const val = document.getElementById('settingDefaultMessage').value;
+                try {
+                    const { error } = await this.supabase.from('configuracoes').upsert({ chave: 'mensagem_padrao', valor: val });
+                    if (error) throw error;
+                    this.defaultMessagePattern = val;
+                    this.showToast("Guardado na Nuvem");
+                    this.closeModal('settings');
+                } catch(e) { this.showToast("Erro ao guardar"); }
+            },
+
+            fetchData: async function() {
+                try {
+                    const [ind, pho] = await Promise.all([
+                        this.supabase.from('industrias').select('*').order('nome'),
+                        this.supabase.from('fotos').select('*').order('created_at', {ascending: false})
+                    ]);
+                    this.industries = ind.data || [];
+                    this.allPhotos = pho.data || [];
+                    this.updateStats();
+                    this.renderIndustries();
+                } catch(e) { this.showToast("Erro de Ligação"); }
+            },
+
+            updateStats: function() {
+                document.getElementById('stat-industries').innerText = this.industries.length;
+                document.getElementById('stat-photos').innerText = this.allPhotos.length;
+            },
+
             renderIndustries: function() {
                 const list = document.getElementById('industriesList');
                 const term = document.getElementById('searchInput').value.toLowerCase();
                 list.innerHTML = '';
-                app.industries.filter(i => i.nome.toLowerCase().includes(term)).forEach(ind => {
+                this.industries.filter(i => i.nome.toLowerCase().includes(term)).forEach(ind => {
                     const d = document.createElement('div');
-                    d.className = 'industry-card cursor-pointer';
-                    d.onclick = () => { app.currentIndustry = ind; app.navigateTo('dates'); };
+                    d.className = 'img-card shadow-sm cursor-pointer active:scale-95 transition';
                     d.innerHTML = `
-                        ${ind.cover_url ? `<img src="${ind.cover_url}">` : `<span class="text-3xl">${ind.icone || '🏭'}</span>`}
-                        <button onclick="event.stopPropagation(); app.editIndustry('${ind.id}')" class="absolute top-1 right-1 w-7 h-7 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-black sketch-border border-black"><i class="fas fa-pencil text-[10px]"></i></button>
+                        <div class="w-full h-full flex items-center justify-center bg-blue-50 text-blue-200" onclick="app.selectIndustry('${ind.id}')">
+                             ${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover">` : `<i class="fas fa-building text-3xl"></i>`}
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 pointer-events-none">
+                             <span class="text-[9px] font-black text-white uppercase truncate">${ind.nome}</span>
+                        </div>
+                        <button onclick="app.editIndustryCard('${ind.id}')" class="absolute top-2 right-2 w-8 h-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white text-[10px]">
+                            <i class="fas fa-pencil"></i>
+                        </button>
                     `;
                     list.appendChild(d);
                 });
             },
 
-            renderRecentActivity: function() {
-                const list = document.getElementById('recentActivityList'); list.innerHTML = '';
-                app.allPhotos.slice(0, 10).forEach(photo => {
-                    const d = document.createElement('div'); d.className = 'circle-thumb cursor-pointer';
-                    d.innerHTML = `<img src="${photo.url_publica}" class="w-full h-full object-cover">`;
-                    d.onclick = () => app.openPhotoPreview(photo);
-                    list.appendChild(d);
-                });
-            },
-
-            navigateTo: function(v, d=null) { app.renderInternalView(v, d, true); },
-            renderInternalView: function(v, d, s) {
-                if(d) { if(d.currentIndustry) app.currentIndustry=d.currentIndustry; if(d.currentDateFolder) app.currentDateFolder=d.currentDateFolder; }
-                if(s) window.history.pushState({ viewId: v, data: { currentIndustry: app.currentIndustry, currentDateFolder: app.currentDateFolder } }, "");
-                document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-                document.getElementById(`view-${v}`).classList.add('active');
-                
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                const navItem = document.querySelector(`.nav-link[data-tab="${v}"]`);
-                if(navItem) navItem.classList.add('active');
-
-                document.getElementById('backBtn').classList.toggle('hidden', v === 'home');
-                const title = document.getElementById('headerTitle');
-                if (v === 'home') { title.innerText = 'Gestor promoter'; document.getElementById('headerSubtitle').innerText = 'Merchandising - Mateus'; }
-                else if (v === 'dates') { 
-                    title.innerText = 'Unidade'; 
-                    document.getElementById('headerSubtitle').innerText = 'Painel';
-                    document.getElementById('industryNameBanner').innerText = app.currentIndustry.nome;
+            selectIndustry: function(id) {
+                const ind = this.industries.find(i => String(i.id) === String(id));
+                if(ind) {
+                    this.currentIndustry = ind;
+                    this.navigateTo('dates');
                 }
-                else { title.innerText = 'Gestor Pro'; document.getElementById('headerSubtitle').innerText = 'Painel'; }
+            },
 
-                const fab = document.getElementById('fabAdd');
-                const selBar = document.getElementById('selectionBar');
-                const selBtn = document.getElementById('selectModeBtn');
+            navigateTo: function(view) {
+                document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(`view-${view}`).classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelector(`.nav-item[data-tab="${view}"]`)?.classList.add('active');
+                document.getElementById('backBtn').classList.toggle('hidden', view === 'home');
+                document.getElementById('fabAdd').classList.toggle('hidden', view !== 'home');
                 
-                if(v === 'home') { fab.classList.remove('hidden'); selBar.classList.add('translate-y-[200%]'); selBtn.classList.add('hidden'); }
-                else if (v === 'gallery' || v === 'all') { fab.classList.add('hidden'); selBtn.classList.remove('hidden'); }
-                else { fab.classList.add('hidden'); selBar.classList.add('translate-y-[200%]'); selBtn.classList.add('hidden'); }
-
-                if(v === 'dates') app.renderCalendar();
-                if(v === 'gallery') app.renderGallery(app.currentDateFolder);
-                if(v === 'all') app.renderGlobalGallery();
-                app.view = v;
+                if (view === 'dates') this.renderCalendar();
+                if (view === 'gallery') this.renderGallery();
+                if (view === 'all') this.renderGlobalGallery();
+                if (view === 'reports') this.prepareReport();
+                this.currentView = view;
             },
 
-            toggleSelectionMode: function() { app.isSelectionMode = !app.isSelectionMode; const bar = document.getElementById('selectionBar'); const btn = document.getElementById('selectModeBtn'); if (app.isSelectionMode) { bar.classList.remove('translate-y-[200%]'); btn.innerText="Cancelar"; } else { app.selectedPhotos.clear(); bar.classList.add('translate-y-[200%]'); btn.innerText="Selecionar"; } app.updateSelectionCount(); if (app.view === 'gallery') app.renderGallery(app.currentDateFolder); if (app.view === 'all') app.renderGlobalGallery(); },
-            updateSelectionCount: function() { document.getElementById('selectionCount').innerText = `${app.selectedPhotos.size} selecionadas`; },
-            handlePhotoClick: function(p) { if (app.isSelectionMode) { if (app.selectedPhotos.has(p.id)) app.selectedPhotos.delete(p.id); else app.selectedPhotos.add(p.id); app.updateSelectionCount(); if (app.view === 'gallery') app.renderGallery(app.currentDateFolder); if (app.view === 'all') app.renderGlobalGallery(); } else app.openPhotoPreview(p); },
-            selectAllInGallery: function() { const set = (app.view === 'gallery' ? app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry?.id) && app.formatToISO(p.created_at) === app.currentDateFolder) : app.allPhotos.slice(0, 50)); if (app.selectedPhotos.size === set.length) app.selectedPhotos.clear(); else set.forEach(p => app.selectedPhotos.add(p.id)); app.updateSelectionCount(); if (app.view === 'gallery') app.renderGallery(app.currentDateFolder); else if (app.view === 'all') app.renderGlobalGallery(); },
-            
-            saveNewIndustry: function() { app.currentIndustry = null; document.getElementById('industryFormTitle').innerText="Nova Unidade"; document.getElementById('newIndName').value=""; document.getElementById('deleteIndustryBtn').classList.add('hidden'); app.openModal('addIndustry'); },
-            editIndustry: function(id) { const ind = app.industries.find(i=>String(i.id)===String(id)); app.currentIndustry = ind; document.getElementById('industryFormTitle').innerText="Editar Unidade"; document.getElementById('newIndName').value=ind.nome; document.getElementById('deleteIndustryBtn').classList.remove('hidden'); app.openModal('addIndustry'); },
-            editCurrentIndustry: function() { app.editIndustry(app.currentIndustry.id); },
-            saveIndustry: async function() { const name = document.getElementById('newIndName').value; if(!name) return; const payload = { nome: name, icone: '🏭' }; 
-                if(app.coverFile) { 
-                    const fileName = `capas/${Date.now()}_cover.jpg`;
-                    await app.supabase.storage.from(BUCKET).upload(fileName, app.coverFile);
-                    const { data } = app.supabase.storage.from(BUCKET).getPublicUrl(fileName);
-                    payload.cover_url = data.publicUrl;
-                }
-                if(app.currentIndustry) await app.supabase.from('industrias').update(payload).eq('id', app.currentIndustry.id); else await app.supabase.from('industrias').insert(payload); window.history.back(); await app.fetchData(); 
-            },
-            confirmDeleteIndustry: function() { app.openModal('confirm'); document.getElementById('confirmActionBtn').onclick = async () => { await app.supabase.from('industrias').delete().eq('id', app.currentIndustry.id); window.history.go(-2); await app.fetchData(); }; },
-            
             renderCalendar: function() {
                 const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
-                const y = app.calendarCursor.getFullYear(), m = app.calendarCursor.getMonth();
-                document.getElementById('calendarMonth').innerText = new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric' }).format(app.calendarCursor);
-                const first = new Date(y, m, 1).getDay(), total = new Date(y, m + 1, 0).getDate();
-                ['D','S','T','Q','Q','S','S'].forEach(d => grid.innerHTML += `<div class="text-center text-xs font-bold opacity-50 py-2">${d}</div>`);
+                const y = this.calendarCursor.getFullYear(), m = this.calendarCursor.getMonth();
+                document.getElementById('calendarMonth').innerText = new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric' }).format(this.calendarCursor);
+                document.getElementById('currentIndName').innerText = this.currentIndustry.nome;
+
+                const first = new Date(y, m, 1).getDay();
+                const total = new Date(y, m + 1, 0).getDate();
+                const activeDates = new Set();
+                this.allPhotos.filter(p => String(p.industria_id) === String(this.currentIndustry.id)).forEach(p => activeDates.add(p.created_at.split('T')[0]));
+
                 for(let i=0; i<first; i++) grid.innerHTML += `<div></div>`;
-                const dates = new Set(); app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry?.id)).forEach(p => dates.add(app.formatToISO(p.created_at)));
                 for(let d=1; d<=total; d++) {
                     const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                    const has = dates.has(iso);
-                    const btn = document.createElement('button');
-                    btn.className = `aspect-square flex items-center justify-center rounded-xl text-sm font-bold ${has ? 'bg-blue-600 text-white' : 'sketch-border'}`;
+                    const active = activeDates.has(iso);
+                    const btn = document.createElement('div');
+                    btn.className = `cal-day ${active ? 'has-content' : 'opacity-20'}`;
                     btn.innerText = d;
-                    if(has) btn.onclick = () => { app.currentDateFolder = iso; app.navigateTo('gallery'); };
+                    btn.onclick = () => { this.currentDateFolder = iso; this.navigateTo('gallery'); };
                     grid.appendChild(btn);
                 }
-                grid.className = "grid grid-cols-7 gap-2";
             },
-            changeMonth: function(d) { app.calendarCursor.setMonth(app.calendarCursor.getMonth() + d); app.renderCalendar(); },
-            
-            renderGallery: function(iso) {
+
+            renderGallery: function() {
                 const c = document.getElementById('galleryContainer'); c.innerHTML = '';
-                const photos = app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry?.id) && app.formatToISO(p.created_at) === iso);
+                const photos = this.allPhotos.filter(p => String(p.industria_id) === String(this.currentIndustry.id) && p.created_at.startsWith(this.currentDateFolder));
                 photos.forEach(p => {
                     const d = document.createElement('div');
-                    d.className = `photo-card ${app.selectedPhotos.has(p.id) ? 'selected' : ''}`;
-                    d.innerHTML = `<img src="${p.url_publica}" class="w-full h-full object-cover">`;
-                    d.onclick = () => app.handlePhotoClick(p);
+                    d.className = `img-card shadow-sm cursor-pointer ${this.selectedPhotos.has(p.id) ? 'ring-4 ring-blue-500 scale-90' : ''}`;
+                    d.innerHTML = `<img src="${p.url_publica}" loading="lazy">`;
+                    d.onclick = () => {
+                        if (this.isSelectionMode) {
+                            if (this.selectedPhotos.has(p.id)) this.selectedPhotos.delete(p.id);
+                            else this.selectedPhotos.add(p.id);
+                            this.updateSelectionCount();
+                            this.renderGallery();
+                        } else this.openPhotoPreview(p);
+                    };
                     c.appendChild(d);
                 });
             },
-            
+
             renderGlobalGallery: function() {
-                 const c = document.getElementById('allPhotosContainer'); c.innerHTML = '';
-                 app.allPhotos.slice(0,50).forEach(p => {
+                const c = document.getElementById('allPhotosContainer'); c.innerHTML = '';
+                this.allPhotos.forEach(p => {
                     const d = document.createElement('div');
-                    d.className = `photo-card ${app.selectedPhotos.has(p.id) ? 'selected' : ''}`;
-                    d.innerHTML = `<img src="${p.url_publica}" class="w-full h-full object-cover">`;
-                    d.onclick = () => app.handlePhotoClick(p);
+                    d.className = 'img-card shadow-sm cursor-pointer';
+                    d.innerHTML = `<img src="${p.url_publica}" loading="lazy">`;
+                    d.onclick = () => this.openPhotoPreview(p);
                     c.appendChild(d);
-                 });
-                 c.className = "industry-grid"; // Reusing 3-column grid
+                });
             },
 
             handleUpload: async function(input) {
-                const file = input.files[0]; if (!file) return;
-                app.showToast("Enviando...");
+                const file = input.files[0]; if (!file || !this.currentIndustry) return;
+                this.showToast("A enviar JPG...");
                 const now = new Date();
-                const targetDateISO = (app.view === 'gallery' && app.currentDateFolder) ? app.currentDateFolder : app.formatToISO(now);
-                const safeName = app.currentIndustry.nome.replace(/[^a-zA-Z0-9]/g, '_');
-                const fileName = `${safeName}/${targetDateISO}/FOTO_${now.getTime()}.jpg`;
+                const targetDate = this.currentDateFolder || now.toISOString().split('T')[0];
+                const fileName = `${this.currentIndustry.id}/${Date.now()}.jpg`;
+                
                 try {
-                    await app.supabase.storage.from(BUCKET).upload(fileName, file);
-                    const { data: urlData } = app.supabase.storage.from(BUCKET).getPublicUrl(fileName);
-                    let createdAt = now.toISOString();
-                    if (app.view === 'gallery' && app.currentDateFolder) {
-                        const [y, m, d] = app.currentDateFolder.split('-');
-                        createdAt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0)).toISOString();
-                    }
-                    await app.supabase.from('fotos').insert({ created_at: createdAt, nome_arquivo: fileName, url_publica: urlData.publicUrl, industria_id: app.currentIndustry.id, descricao: "" });
-                    app.showToast("Guardado!"); await app.fetchData();
-                    if(app.view === 'gallery') app.renderGallery(app.currentDateFolder); else app.renderCalendar();
-                    app.renderRecentActivity();
-                } catch(e) { app.showToast("Erro"); }
+                    await this.supabase.storage.from(BUCKET).upload(fileName, file, { contentType: 'image/jpeg' });
+                    const { data: urlData } = this.supabase.storage.from(BUCKET).getPublicUrl(fileName);
+                    await this.supabase.from('fotos').insert({
+                        created_at: new Date(targetDate + "T12:00:00Z").toISOString(),
+                        nome_arquivo: fileName, url_publica: urlData.publicUrl,
+                        industria_id: this.currentIndustry.id, descricao: ""
+                    });
+                    this.showToast("Guardado!");
+                    await this.fetchData();
+                    this.navigateTo('gallery');
+                } catch(e) { this.showToast("Falha no envio"); }
+                input.value = "";
             },
 
-            handleCoverPreview: function(input) { const file = input.files[0]; if (!file) return; app.coverFile = file; const reader = new FileReader(); reader.onload = (e) => { const img = document.getElementById('coverPreview'); img.src = e.target.result; img.classList.remove('hidden'); document.getElementById('coverPlaceholder').classList.add('hidden'); }; reader.readAsDataURL(file); },
-            openPhotoPreview: function(p) { 
-                app.selectedPhoto = p; 
-                document.getElementById('previewImg').src = p.url_publica; 
-                app.openModal('photoPreview'); 
+            openPhotoPreview: function(p) {
+                this.selectedPhoto = p;
+                document.getElementById('previewImg').src = p.url_publica;
+                document.getElementById('previewDescInput').value = p.descricao || "";
+                this.openModal('photoPreview');
             },
-            
+
+            savePhotoDesc: async function() {
+                const desc = document.getElementById('previewDescInput').value;
+                await this.supabase.from('fotos').update({ descricao: desc }).eq('id', this.selectedPhoto.id);
+                this.showToast("Nota Salva");
+                this.closeModal('photoPreview');
+                await this.fetchData();
+            },
+
+            shareFiles: async function() {
+                const selIds = Array.from(this.selectedPhotos);
+                if (selIds.length === 0) {
+                    this.showToast("Selecione fotos na galeria!");
+                    return;
+                }
+
+                this.showToast("A preparar...");
+                const photosToShare = this.allPhotos.filter(p => selIds.includes(p.id));
+                const text = document.getElementById('shareMessage').value;
+
+                try {
+                    const files = [];
+                    for (const p of photosToShare) {
+                        const res = await fetch(p.url_publica);
+                        const blob = await res.blob();
+                        const fileName = p.nome_arquivo.split('/').pop() || `foto_${Date.now()}.jpg`;
+                        files.push(new File([blob], fileName, { type: 'image/jpeg' }));
+                    }
+
+                    if (navigator.canShare && navigator.canShare({ files })) {
+                        await navigator.share({
+                            files: files,
+                            title: 'Relatório Merchandising',
+                            text: text
+                        });
+                    } else {
+                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                    }
+                } catch (e) { this.showToast("Erro na Partilha"); }
+            },
+
+            toggleSelectionMode: function() {
+                this.isSelectionMode = !this.isSelectionMode;
+                document.getElementById('selectBtn').innerText = this.isSelectionMode ? 'Cancelar' : 'Selecionar';
+                document.getElementById('selectionBar').style.transform = this.isSelectionMode ? 'translateY(0)' : 'translateY(250%)';
+                if (!this.isSelectionMode) this.selectedPhotos.clear();
+                this.renderGallery();
+            },
+
+            updateSelectionCount: function() {
+                document.getElementById('selectionCount').innerText = `${this.selectedPhotos.size} selecionadas`;
+            },
+
+            confirmDeleteSelected: function() {
+                this.openModal('confirm');
+                document.getElementById('confirmActionBtn').onclick = async () => {
+                    const ids = Array.from(this.selectedPhotos);
+                    const photos = this.allPhotos.filter(p => ids.includes(p.id));
+                    await this.supabase.storage.from(BUCKET).remove(photos.map(p => p.nome_arquivo));
+                    await this.supabase.from('fotos').delete().in('id', ids);
+                    this.toggleSelectionMode();
+                    this.closeModal('confirm');
+                    this.showToast("Removido");
+                    await this.fetchData();
+                    this.renderGallery();
+                };
+            },
+
+            confirmDeleteSingle: function() {
+                this.openModal('confirm');
+                document.getElementById('confirmActionBtn').onclick = async () => {
+                    await this.supabase.storage.from(BUCKET).remove([this.selectedPhoto.nome_arquivo]);
+                    await this.supabase.from('fotos').delete().eq('id', this.selectedPhoto.id);
+                    this.closeAllModals();
+                    this.showToast("Removido");
+                    await this.fetchData();
+                    if(this.currentView === 'gallery') this.renderGallery(); else this.renderGlobalGallery();
+                };
+            },
+
+            confirmDeleteIndustry: function() {
+                this.openModal('confirm');
+                document.getElementById('confirmActionBtn').onclick = async () => {
+                    try {
+                        const photos = this.allPhotos.filter(p => String(p.industria_id) === String(this.currentIndustry.id));
+                        if(photos.length > 0) {
+                            await this.supabase.storage.from(BUCKET).remove(photos.map(p => p.nome_arquivo));
+                        }
+                        await this.supabase.from('industrias').delete().eq('id', this.currentIndustry.id);
+                        this.closeAllModals();
+                        this.showToast("Unidade Eliminada");
+                        this.navigateTo('home');
+                        await this.fetchData();
+                    } catch(e) { this.showToast("Erro ao eliminar"); }
+                };
+            },
+
+            toggleDarkMode: function() {
+                const isDark = document.documentElement.classList.toggle('dark');
+                document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            },
+
             openModal: function(id) { 
                 const m = document.getElementById(`modal-${id}`);
-                m.classList.remove('hidden'); m.classList.add('flex'); 
-                window.history.pushState({ viewId: id }, ""); 
+                if(m) m.style.display = 'flex'; 
             },
-            
-            toggleDarkMode: function() { document.documentElement.classList.toggle('dark'); },
-            shareViaWhatsapp: function() { window.open(`https://wa.me/?text=${encodeURIComponent(document.getElementById('shareMessage').value)}`, '_blank'); },
-            // Helpers
-            checkAlerts: function() {},
-            openLateAlerts: function() { app.openModal('lateAlerts'); },
-            confirmDeleteSelected: function() { app.openModal('confirm'); },
-            shareSelectedPhotos: function() { app.shareViaWhatsapp(); },
-            saveSettings: function() { app.defaultCaption = document.getElementById('settingDefaultCaption').value; localStorage.setItem('industrial_default_caption', app.defaultCaption); app.showToast("Salvo!"); window.history.back(); },
-            savePhotoDesc: function() { window.history.back(); app.showToast("Salvo"); },
-            confirmDeleteSingle: function() { window.history.back(); }
+            closeModal: function(id) { 
+                const m = document.getElementById(`modal-${id}`);
+                if(m) m.style.display = 'none'; 
+            },
+            closeAllModals: function() { ['addIndustry', 'photoPreview', 'confirm', 'settings'].forEach(m => this.closeModal(m)); },
+            showToast: function(msg) {
+                const t = document.getElementById('toast');
+                document.getElementById('toastMsg').innerText = msg;
+                t.classList.remove('translate-y-32', 'opacity-0');
+                setTimeout(() => t.classList.add('translate-y-32', 'opacity-0'), 3000);
+            },
+            changeMonth: function(d) { this.calendarCursor.setMonth(this.calendarCursor.getMonth() + d); this.renderCalendar(); },
+            prepareReport: function() {
+                let msg = this.defaultMessagePattern;
+                const dataFormatada = this.currentDateFolder ? this.currentDateFolder.split('-').reverse().join('/') : "Geral";
+                const unidadeNome = this.currentIndustry ? this.currentIndustry.nome : "Diversas";
+                msg = msg.replace(/{unidade}/g, unidadeNome).replace(/{data}/g, dataFormatada);
+                document.getElementById('shareMessage').value = msg;
+            },
+            saveNewIndustry: function() { 
+                this.currentIndustry = null; 
+                this.coverFile = null;
+                document.getElementById('industryFormTitle').innerText = "Nova Unidade"; 
+                document.getElementById('newIndName').value = ""; 
+                document.getElementById('coverPreview').classList.add('hidden');
+                document.getElementById('coverPlaceholder').classList.remove('hidden');
+                document.getElementById('deleteIndustryBtn').classList.add('hidden');
+                this.openModal('addIndustry'); 
+            },
+            editIndustryCard: function(id) {
+                const ind = this.industries.find(i => String(i.id) === String(id));
+                if(ind) {
+                    this.currentIndustry = ind;
+                    this.editCurrentIndustry();
+                }
+            },
+            editCurrentIndustry: function() { 
+                const preview = document.getElementById('coverPreview');
+                const placeholder = document.getElementById('coverPlaceholder');
+                
+                document.getElementById('industryFormTitle').innerText = "Editar Unidade"; 
+                document.getElementById('newIndName').value = this.currentIndustry.nome; 
+                document.getElementById('deleteIndustryBtn').classList.remove('hidden');
+
+                if (this.currentIndustry.cover_url) {
+                    preview.src = this.currentIndustry.cover_url;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                } else {
+                    preview.classList.add('hidden');
+                    placeholder.classList.remove('hidden');
+                }
+
+                this.openModal('addIndustry'); 
+            },
+            handleCoverPreview: function(input) {
+                const file = input.files[0]; if(!file) return;
+                this.coverFile = file;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.getElementById('coverPreview');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    document.getElementById('coverPlaceholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            },
+            saveIndustry: async function() {
+                const name = document.getElementById('newIndName').value; if(!name) return;
+                const payload = { nome: name };
+                
+                try {
+                    this.showToast("A guardar...");
+                    
+                    if (this.coverFile) {
+                        const fName = `covers/${Date.now()}.jpg`;
+                        await this.supabase.storage.from(BUCKET).upload(fName, this.coverFile, { contentType: 'image/jpeg' });
+                        payload.cover_url = this.supabase.storage.from(BUCKET).getPublicUrl(fName).data.publicUrl;
+                    }
+
+                    if (this.currentIndustry) {
+                        await this.supabase.from('industrias').update(payload).eq('id', this.currentIndustry.id);
+                        this.showToast("Unidade Atualizada");
+                    } else {
+                        await this.supabase.from('industrias').insert(payload);
+                        this.showToast("Unidade Criada");
+                    }
+                    
+                    this.coverFile = null;
+                    this.closeModal('addIndustry'); 
+                    await this.fetchData();
+                } catch(e) { this.showToast("Erro ao guardar"); }
+            }
         };
 
         window.onload = () => app.init();
     </script>
 </body>
 </html>
-
 
