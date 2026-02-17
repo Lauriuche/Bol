@@ -21,7 +21,7 @@
 
     <style>
         :root {
-            /* Tema Dia - Contrastes Suaves */
+            /* Tema Dia */
             --bg-body: #F8FAFC;
             --surface: #FFFFFF;
             --surface-variant: #F1F5F9;
@@ -34,13 +34,13 @@
         }
 
         .dark {
-            /* Tema Noite - Alto Contraste */
+            /* Tema Noite - Contraste Elevado */
             --bg-body: #020617;
             --surface: #0F172A;
             --surface-variant: #1E293B;
             --text-main: #F8FAFC;
             --primary: #3B82F6;
-            --primary-container: #1D4ED8; /* Azul mais saturado para botões no dark */
+            --primary-container: #1D4ED8; 
             --on-primary-container: #FFFFFF;
         }
 
@@ -69,8 +69,7 @@
             background-color: var(--surface);
             z-index: 50;
             flex-shrink: 0;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: background-color 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         main {
@@ -88,21 +87,7 @@
             background-color: var(--surface);
             border-radius: 24px;
             padding: 16px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: background-color 0.3s ease;
-        }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .stat-card {
-            background-color: var(--surface);
-            border-radius: 24px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--surface-variant);
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .bottom-nav {
@@ -116,82 +101,61 @@
             justify-content: space-around;
             z-index: 100;
             border-top: 1px solid var(--surface-variant);
-            transition: background-color 0.3s ease;
         }
 
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
         .nav-icon-container {
             width: 58px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
-        .nav-item.active .nav-icon-container { 
-            background-color: var(--primary-container); 
-            color: var(--on-primary-container); 
-        }
+        .nav-item.active .nav-icon-container { background-color: var(--primary-container); color: var(--on-primary-container); }
         .nav-label { font-size: 11px; font-weight: 700; opacity: 0.6; }
         .nav-item.active .nav-label { opacity: 1; }
 
-        /* Otimização de Grelha: Impede saltos de layout */
         .img-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .img-card { 
-            aspect-ratio: 1/1; 
-            border-radius: 16px; 
-            overflow: hidden; 
-            background-color: var(--surface-variant); 
-            position: relative; 
-            content-visibility: auto; /* Browser otimiza renderização */
+            aspect-ratio: 1/1; border-radius: 16px; overflow: hidden; 
+            background-color: var(--surface-variant); position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .img-card img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Botão FAB com alto contraste */
         .fab {
             position: fixed; bottom: calc(90px + var(--safe-bottom)); right: 20px;
-            width: 56px; height: 56px; 
-            background-color: var(--primary); 
-            color: #FFFFFF; /* Sempre branco para contraste */
+            width: 56px; height: 56px; background-color: var(--primary); color: white;
             border-radius: 18px; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 14px rgba(0,0,0,0.3); z-index: 90;
-            transition: transform 0.2s ease, background-color 0.3s ease;
+            font-size: 20px; transition: transform 0.2s;
         }
         .fab:active { transform: scale(0.9); }
 
         .modal-overlay {
-            position: fixed; inset: 0; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+            position: fixed; inset: 0; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
             display: none; align-items: flex-end; justify-content: center; z-index: 200;
         }
         .modal-sheet {
             background-color: var(--surface); width: 100%; max-width: 600px;
             border-radius: 32px 32px 0 0; padding: 24px; padding-bottom: calc(32px + var(--safe-bottom));
             animation: slideUp 0.3s ease-out;
-            transition: background-color 0.3s ease;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        /* Botão Principal Dinâmico */
         .btn-primary {
-            background-color: var(--primary); 
-            color: #FFFFFF; 
-            padding: 18px;
-            border-radius: 20px; 
-            font-weight: 800; 
-            text-align: center; 
-            width: 100%;
-            transition: all 0.2s ease;
-            border: none;
-            cursor: pointer;
+            background-color: var(--primary); color: white; padding: 18px;
+            border-radius: 20px; font-weight: 800; text-align: center; width: 100%;
+            border: none; cursor: pointer;
         }
-        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-primary:active { opacity: 0.8; }
 
         .view-section { display: none; }
         .view-section.active { display: block; animation: viewFade 0.3s ease; }
         @keyframes viewFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .cal-day {
             aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
             border-radius: 50%; font-size: 13px; font-weight: 700; cursor: pointer;
         }
-        .cal-day.has-content { background-color: var(--primary); color: #FFFFFF; }
+        .cal-day.has-content { background-color: var(--primary); color: white; }
 
         #toast { z-index: 300; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -199,7 +163,10 @@
 </head>
 <body class="no-scrollbar">
 
-    <!-- HEADER -->
+    <!-- INPUT OCULTO PARA CÂMERA (Contextual FAB) -->
+    <input type="file" id="fabCameraInput" capture="environment" accept="image/jpeg" class="hidden" onchange="app.handleUpload(this)">
+
+    <!-- CABEÇALHO -->
     <header>
         <div class="max-w-xl mx-auto flex items-center px-6">
             <button id="backBtn" onclick="app.handleBack()" class="hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 mr-2 transition-colors">
@@ -210,27 +177,27 @@
                 <p id="headerSubtitle" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Painel Operacional</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="app.openModal('settings')" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800">
+                <button onclick="app.openModal('settings')" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 transition-colors">
                     <i class="fas fa-cog text-sm"></i>
                 </button>
-                <button onclick="app.toggleDarkMode()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800">
+                <button onclick="app.toggleDarkMode()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 transition-colors">
                     <i class="fas fa-moon text-sm" id="themeIcon"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- MAIN AREA -->
+    <!-- ÁREA DE CONTEÚDO -->
     <main class="max-w-xl mx-auto">
         
-        <!-- HOME VIEW -->
+        <!-- INÍCIO -->
         <section id="view-home" class="view-section active">
-            <div class="stats-grid mb-4">
-                <div class="stat-card">
+            <div class="stats-grid grid grid-cols-2 gap-3 mb-4">
+                <div class="stat-card android-card flex flex-col items-center justify-center">
                     <span id="stat-industries" class="text-3xl font-black text-blue-600">0</span>
                     <span class="text-[9px] font-bold opacity-40 uppercase">Unidades</span>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card android-card flex flex-col items-center justify-center">
                     <span id="stat-photos" class="text-3xl font-black text-blue-600">0</span>
                     <span class="text-[9px] font-bold opacity-40 uppercase">Registos</span>
                 </div>
@@ -244,11 +211,11 @@
             <div id="industriesList" class="img-grid"></div>
         </section>
 
-        <!-- CALENDAR VIEW -->
+        <!-- CALENDÁRIO -->
         <section id="view-dates" class="view-section">
             <div class="android-card bg-blue-600 text-white mb-6 py-6 flex flex-col items-center">
                 <h2 id="currentIndName" class="text-xl font-black">Unidade</h2>
-                <button onclick="app.editCurrentIndustry()" class="mt-2 text-[9px] font-black uppercase tracking-widest bg-white/20 px-4 py-1.5 rounded-full">Configurações</button>
+                <button onclick="app.editCurrentIndustry()" class="mt-2 text-[9px] font-black uppercase tracking-widest bg-white/20 px-4 py-1.5 rounded-full">Configurar</button>
             </div>
 
             <div class="android-card mb-6">
@@ -257,7 +224,7 @@
                     <h3 id="calendarMonth" class="text-sm font-black uppercase">Janeiro</h3>
                     <button onclick="app.changeMonth(1)" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-800"><i class="fas fa-chevron-right text-xs"></i></button>
                 </div>
-                <div id="calendarGrid" class="cal-grid"></div>
+                <div id="calendarGrid" class="cal-grid grid grid-cols-7 gap-1"></div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -274,61 +241,61 @@
             </div>
         </section>
 
-        <!-- GALLERY VIEW -->
+        <!-- REGISTO DE FOTOS (Ref. Esboço) -->
         <section id="view-gallery" class="view-section">
             <div class="flex items-center justify-between mb-4">
-                <h2 id="galleryDateTitle" class="text-lg font-black uppercase">Registos</h2>
-                <button onclick="app.toggleSelectionMode()" id="selectBtn" class="text-[10px] font-black uppercase bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-4 py-2 rounded-full">Selecionar</button>
+                <h2 class="text-lg font-black uppercase tracking-tight">Registo de fotos</h2>
+                <button onclick="app.toggleSelectionMode()" id="selectBtn" class="text-[10px] font-black uppercase bg-blue-50 dark:bg-blue-900/30 text-blue-600 px-4 py-2 rounded-full border border-blue-200 dark:border-blue-800">Selecionar</button>
             </div>
             <div id="galleryContainer" class="img-grid"></div>
         </section>
 
-        <!-- ARCHIVE VIEW -->
+        <!-- ARQUIVO -->
         <section id="view-all" class="view-section">
             <h2 class="text-lg font-black uppercase mb-4 tracking-tighter">Arquivo Global</h2>
             <div id="allPhotosContainer" class="img-grid"></div>
         </section>
 
-        <!-- SEND VIEW -->
+        <!-- RELATÓRIO -->
         <section id="view-reports" class="view-section text-center">
             <div class="android-card text-left mb-6">
                 <h2 class="text-xl font-black mb-4">Resumo do Envio</h2>
                 <label class="text-[10px] font-black opacity-40 uppercase block mb-2 tracking-widest">Legenda</label>
                 <textarea id="shareMessage" class="w-full h-40 bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-2xl outline-none text-sm font-medium resize-none transition-colors"></textarea>
             </div>
-            <button onclick="app.shareFiles()" class="btn-primary flex items-center justify-center gap-3">
+            <button onclick="app.shareFiles()" class="btn-primary flex items-center justify-center gap-3 shadow-xl">
                 <i class="fas fa-paper-plane"></i> ENVIAR FICHEIROS JPG
             </button>
         </section>
     </main>
 
-    <!-- FAB -->
-    <button onclick="app.saveNewIndustry()" class="fab" id="fabAdd">
+    <!-- FAB INTELIGENTE -->
+    <button onclick="app.handleFabAction()" class="fab" id="fabAdd">
         <i class="fas fa-plus"></i>
     </button>
 
-    <!-- SELECTION BAR -->
-    <div id="selectionBar" class="fixed bottom-24 left-6 right-6 bg-zinc-900 text-white p-5 rounded-[28px] flex items-center justify-between shadow-2xl transition-all duration-500 translate-y-[250%] z-[120]">
+    <!-- BARRA DE SELEÇÃO -->
+    <div id="selectionBar" class="fixed bottom-24 left-6 right-6 bg-zinc-900 text-white p-5 rounded-[28px] flex items-center justify-between shadow-2xl transition-all duration-500 translate-y-[250%] z-[120] border border-white/10">
         <span id="selectionCount" class="text-xs font-black uppercase ml-2">0 selecionadas</span>
         <div class="flex gap-2">
             <button onclick="app.confirmDeleteSelected()" class="w-12 h-12 flex items-center justify-center text-red-400 bg-red-400/10 rounded-2xl"><i class="fas fa-trash-can"></i></button>
-            <button onclick="app.navigateTo('reports')" class="bg-blue-600 px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest">Gerar</button>
+            <button onclick="app.navigateTo('reports')" class="bg-blue-600 px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg">Gerar</button>
         </div>
     </div>
 
-    <!-- BOTTOM NAVIGATION -->
+    <!-- NAVEGAÇÃO INFERIOR -->
     <nav class="bottom-nav">
         <div onclick="app.navigateTo('home')" class="nav-item active" data-tab="home">
             <div class="nav-icon-container"><i class="fas fa-house-user"></i></div>
-            <span class="nav-label">Unidades</span>
+            <span class="nav-label">Unidade</span>
         </div>
         <div onclick="app.navigateTo('all')" class="nav-item" data-tab="all">
             <div class="nav-icon-container"><i class="fas fa-box-archive"></i></div>
             <span class="nav-label">Arquivo</span>
         </div>
         <div onclick="app.navigateTo('reports')" class="nav-item" data-tab="reports">
-            <div class="nav-icon-container"><i class="fas fa-paper-plane"></i></div>
-            <span class="nav-label">Relatórios</span>
+            <div class="nav-icon-container"><i class="fas fa-file-invoice"></i></div>
+            <span class="nav-label">Relatório</span>
         </div>
     </nav>
 
@@ -338,10 +305,10 @@
         <div class="modal-sheet">
             <h3 class="text-xl font-black mb-6 text-center uppercase tracking-tight">Configurações</h3>
             <label class="text-[10px] font-black opacity-40 uppercase block mb-2 tracking-widest">Texto Padrão de Envio</label>
-            <textarea id="settingDefaultMessage" class="w-full h-32 bg-gray-100 dark:bg-zinc-800 p-4 rounded-2xl outline-none text-sm font-semibold mb-6 transition-colors" placeholder="Segue relatório da unidade {unidade}..."></textarea>
+            <textarea id="settingDefaultMessage" class="w-full h-32 bg-gray-100 dark:bg-zinc-800 p-4 rounded-2xl outline-none text-sm font-semibold mb-6 transition-colors" placeholder="Dica: Use {unidade} e {data}"></textarea>
             <div class="flex gap-3">
                 <button onclick="app.handleBack()" class="flex-1 font-bold opacity-40 uppercase text-xs">Fechar</button>
-                <button onclick="app.saveSettingsToDB()" class="flex-[2] btn-primary uppercase text-xs">SALVAR NUVEM</button>
+                <button onclick="app.saveSettingsToDB()" class="flex-[2] btn-primary uppercase text-xs shadow-xl">SALVAR NUVEM</button>
             </div>
         </div>
     </div>
@@ -352,7 +319,7 @@
             <input type="text" id="newIndName" class="w-full p-5 bg-gray-100 dark:bg-zinc-800 rounded-2xl outline-none mb-6 font-bold" placeholder="Nome do Local">
             
             <div class="relative w-full aspect-video bg-gray-100 dark:bg-zinc-800 rounded-3xl overflow-hidden flex flex-col items-center justify-center mb-6 border-2 border-dashed border-gray-200 dark:border-zinc-700">
-                <img id="coverPreview" src="" class="absolute inset-0 w-full h-full object-cover hidden" loading="lazy">
+                <img id="coverPreview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
                 <div id="coverPlaceholder" class="flex flex-col items-center opacity-30">
                     <i class="fas fa-camera text-3xl mb-2"></i>
                     <span class="text-[10px] font-black uppercase">Foto de Capa</span>
@@ -364,17 +331,17 @@
                 <button onclick="app.handleBack()" class="flex-1 font-bold opacity-40 uppercase text-xs">Sair</button>
                 <button onclick="app.saveIndustry()" class="flex-[2] btn-primary uppercase text-xs">Guardar</button>
             </div>
-            <button id="deleteIndustryBtn" onclick="app.confirmDeleteIndustry()" class="hidden w-full mt-6 py-4 text-red-500 font-black uppercase text-[10px] border-t border-gray-100 dark:border-zinc-800">Eliminar Unidade</button>
+            <button id="deleteIndustryBtn" onclick="app.confirmDeleteIndustry()" class="hidden w-full mt-6 py-4 text-red-500 font-black uppercase text-[10px] border-t border-gray-100 dark:border-zinc-700">Eliminar Unidade</button>
         </div>
     </div>
 
     <div id="modal-photoPreview" class="modal-overlay flex-col !items-center !justify-center p-0">
-        <button onclick="app.handleBack()" class="absolute top-10 right-6 text-white text-3xl z-[250] drop-shadow-lg"><i class="fas fa-xmark"></i></button>
+        <button onclick="app.handleBack()" class="absolute top-10 right-6 text-white text-3xl z-[220] drop-shadow-lg"><i class="fas fa-xmark"></i></button>
         <div class="w-full flex-1 flex items-center justify-center p-4">
             <img id="previewImg" src="" class="max-h-full max-w-full object-contain rounded-2xl shadow-2xl">
         </div>
-        <div class="modal-sheet z-[240]">
-            <textarea id="previewDescInput" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-2xl outline-none mb-4 font-semibold h-24 transition-colors" placeholder="Adicionar notas..."></textarea>
+        <div class="modal-sheet z-[210]">
+            <textarea id="previewDescInput" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-2xl outline-none mb-4 font-semibold h-24 transition-colors" placeholder="Notas sobre esta foto..."></textarea>
             <div class="flex gap-3">
                 <button onclick="app.savePhotoDesc()" class="flex-1 btn-primary uppercase text-xs">Guardar Nota</button>
                 <button onclick="app.confirmDeleteSingle()" class="w-16 flex items-center justify-center bg-red-100 text-red-500 rounded-2xl"><i class="fas fa-trash-can"></i></button>
@@ -384,8 +351,8 @@
 
     <div id="modal-confirm" class="modal-overlay !items-center !justify-center p-6">
         <div class="bg-white dark:bg-zinc-900 w-full max-w-xs rounded-[40px] p-8 text-center shadow-2xl">
-            <h3 class="text-xl font-black mb-3 uppercase tracking-tighter">Confirmar?</h3>
-            <p class="text-xs opacity-50 mb-8">Esta ação é permanente na base de dados.</p>
+            <h3 class="text-xl font-black mb-3">Confirmar?</h3>
+            <p class="text-xs opacity-50 mb-8">Esta ação removerá os dados permanentemente.</p>
             <div class="flex gap-3">
                 <button onclick="app.handleBack()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold uppercase text-[10px]">Não</button>
                 <button id="confirmActionBtn" class="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold uppercase text-[10px]">Sim</button>
@@ -393,8 +360,9 @@
         </div>
     </div>
 
+    <!-- TOAST -->
     <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 z-[300] transition-all duration-400 transform translate-y-32 opacity-0 pointer-events-none">
-        <div class="bg-zinc-900 text-white px-8 py-3 rounded-2xl shadow-2xl text-[10px] font-black flex items-center gap-3 uppercase tracking-widest">
+        <div class="bg-zinc-900 text-white px-8 py-3 rounded-2xl shadow-2xl text-[10px] font-black flex items-center gap-3 uppercase tracking-widest border border-white/10">
             <span id="toastMsg">Operação Concluída</span>
         </div>
     </div>
@@ -414,27 +382,35 @@
             isSelectionMode: false,
             selectedPhotos: new Set(),
             defaultMessagePattern: "Relatório: {unidade}\nData: {data}",
-            coverFile: null,
             modalStack: [],
 
             init: async function() {
                 this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 
-                // Gerenciamento de Histórico para Botão Voltar do Celular
+                // Botão Voltar Nativo
                 window.history.replaceState({ view: 'home' }, '');
                 window.onpopstate = (event) => {
-                    if (this.modalStack.length > 0) {
-                        const lastModal = this.modalStack.pop();
+                    if (app.modalStack.length > 0) {
+                        const lastModal = app.modalStack.pop();
                         document.getElementById(`modal-${lastModal}`).style.display = 'none';
-                        // Re-push state para manter o usuário na mesma view se ele apenas fechou um modal
-                        window.history.pushState({ view: this.currentView || 'home' }, '');
+                        window.history.pushState({ view: app.currentView || 'home' }, '');
                     } else if (event.state && event.state.view) {
-                        this.navigateTo(event.state.view, false);
+                        app.navigateTo(event.state.view, false);
                     }
                 };
 
-                await this.loadSettingsFromDB();
-                await this.fetchData();
+                await app.loadSettingsFromDB();
+                await app.fetchData();
+            },
+
+            handleFabAction: function() {
+                if (app.currentView === 'gallery') {
+                    // No Registo de Fotos, abre a Câmera
+                    document.getElementById('fabCameraInput').click();
+                } else {
+                    // Caso contrário, adiciona nova Indústria
+                    app.saveNewIndustry();
+                }
             },
 
             loadSettingsFromDB: async function() {
@@ -458,7 +434,7 @@
                     app.defaultMessagePattern = val;
                     app.showToast("Guardado na Nuvem");
                     app.handleBack();
-                } catch(e) { app.showToast("Erro ao guardar"); }
+                } catch(e) { app.showToast("ERRO AO GUARDAR"); }
             },
 
             fetchData: async function() {
@@ -471,7 +447,7 @@
                     app.allPhotos = pho.data || [];
                     app.updateStats();
                     app.renderIndustries();
-                } catch(e) { app.showToast("Sincronização Falhou"); }
+                } catch(e) { app.showToast("Erro de Ligação"); }
             },
 
             updateStats: function() {
@@ -488,7 +464,7 @@
                     d.className = 'img-card shadow-sm cursor-pointer active:scale-95 transition';
                     d.onclick = () => { app.currentIndustry = ind; app.navigateTo('dates'); };
                     d.innerHTML = `
-                        <div class="w-full h-full flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-200 transition-colors">
+                        <div class="w-full h-full flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-200">
                              ${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover" loading="lazy">` : `<i class="fas fa-building text-3xl"></i>`}
                         </div>
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 pointer-events-none">
@@ -504,15 +480,14 @@
 
             navigateTo: function(view, push = true) {
                 if (push) window.history.pushState({ view: view }, '');
-                
                 document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
                 document.getElementById(`view-${view}`).classList.add('active');
-                
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
                 document.querySelector(`.nav-item[data-tab="${view}"]`)?.classList.add('active');
-                
                 document.getElementById('backBtn').classList.toggle('hidden', view === 'home');
-                document.getElementById('fabAdd').classList.toggle('hidden', view !== 'home');
+                
+                // FAB visível apenas no Home e na Galeria
+                document.getElementById('fabAdd').classList.toggle('hidden', view !== 'home' && view !== 'gallery');
                 
                 if (view === 'dates') app.renderCalendar();
                 if (view === 'gallery') app.renderGallery();
@@ -521,28 +496,23 @@
                 app.currentView = view;
             },
 
-            handleBack: function() {
-                // Simula o comportamento do botão voltar do hardware
-                window.history.back();
-            },
+            handleBack: function() { window.history.back(); },
 
             renderCalendar: function() {
                 const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
                 const y = app.calendarCursor.getFullYear(), m = app.calendarCursor.getMonth();
                 document.getElementById('calendarMonth').innerText = new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric' }).format(app.calendarCursor);
                 document.getElementById('currentIndName').innerText = app.currentIndustry.nome;
-
                 const first = new Date(y, m, 1).getDay();
                 const total = new Date(y, m + 1, 0).getDate();
                 const activeDates = new Set();
                 app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry.id)).forEach(p => activeDates.add(p.created_at.split('T')[0]));
-
                 for(let i=0; i<first; i++) grid.innerHTML += `<div></div>`;
                 for(let d=1; d<=total; d++) {
                     const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                     const active = activeDates.has(iso);
                     const btn = document.createElement('div');
-                    btn.className = `cal-day ${active ? 'has-content shadow-sm' : 'opacity-20'}`;
+                    btn.className = `cal-day ${active ? 'has-content shadow-md' : 'opacity-20'}`;
                     btn.innerText = d;
                     btn.onclick = () => { app.currentDateFolder = iso; app.navigateTo('gallery'); };
                     grid.appendChild(btn);
@@ -570,7 +540,7 @@
 
             renderGlobalGallery: function() {
                 const c = document.getElementById('allPhotosContainer'); c.innerHTML = '';
-                app.allPhotos.forEach(p => {
+                app.allPhotos.slice(0, 60).forEach(p => {
                     const d = document.createElement('div');
                     d.className = 'img-card shadow-sm cursor-pointer';
                     d.innerHTML = `<img src="${p.url_publica}" loading="lazy">`;
@@ -581,11 +551,10 @@
 
             handleUpload: async function(input) {
                 const file = input.files[0]; if (!file || !app.currentIndustry) return;
-                app.showToast("A processar JPG...");
+                app.showToast("Enviando JPG...");
                 const now = new Date();
                 const targetDate = app.currentDateFolder || now.toISOString().split('T')[0];
                 const fileName = `${app.currentIndustry.id}/${Date.now()}.jpg`;
-                
                 try {
                     await app.supabase.storage.from(BUCKET).upload(fileName, file, { contentType: 'image/jpeg' });
                     const { data: urlData } = app.supabase.storage.from(BUCKET).getPublicUrl(fileName);
@@ -597,14 +566,13 @@
                     app.showToast("Guardado!");
                     await app.fetchData();
                     app.navigateTo('gallery');
-                } catch(e) { app.showToast("Upload Falhou"); }
+                } catch(e) { app.showToast("Falha no envio"); }
                 input.value = "";
             },
 
             openPhotoPreview: function(p) {
                 app.selectedPhoto = p;
-                const img = document.getElementById('previewImg');
-                img.src = p.url_publica;
+                document.getElementById('previewImg').src = p.url_publica;
                 document.getElementById('previewDescInput').value = p.descricao || "";
                 app.openModal('photoPreview');
             },
@@ -621,35 +589,23 @@
 
             shareFiles: async function() {
                 const selIds = Array.from(app.selectedPhotos);
-                if (selIds.length === 0) {
-                    app.showToast("Selecione fotos primeiro!");
-                    return;
-                }
-
-                app.showToast("A converter ficheiros...");
+                if (selIds.length === 0) { app.showToast("Selecione fotos!"); return; }
+                app.showToast("A processar...");
                 const photosToShare = app.allPhotos.filter(p => selIds.includes(p.id));
                 const text = document.getElementById('shareMessage').value;
-
                 try {
                     const files = [];
                     for (const p of photosToShare) {
                         const res = await fetch(p.url_publica);
                         const blob = await res.blob();
-                        const fileName = `registo_${Date.now()}.jpg`;
-                        files.push(new File([blob], fileName, { type: 'image/jpeg' }));
+                        files.push(new File([blob], `registo_${Date.now()}.jpg`, { type: 'image/jpeg' }));
                     }
-
                     if (navigator.canShare && navigator.canShare({ files })) {
-                        await navigator.share({
-                            files: files,
-                            title: 'Relatório',
-                            text: text
-                        });
-                        app.showToast("Partilha iniciada");
+                        await navigator.share({ files, title: 'Relatório', text });
                     } else {
                         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                     }
-                } catch (e) { app.showToast("Falha na partilha nativa"); }
+                } catch (e) { app.showToast("Erro na Partilha"); }
             },
 
             toggleSelectionMode: function() {
@@ -684,7 +640,7 @@
                 document.getElementById('confirmActionBtn').onclick = async () => {
                     await app.supabase.storage.from(BUCKET).remove([app.selectedPhoto.nome_arquivo]);
                     await app.supabase.from('fotos').delete().eq('id', app.selectedPhoto.id);
-                    app.modalStack = []; // Fecha tudo
+                    app.modalStack = [];
                     document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
                     app.showToast("Eliminado");
                     await app.fetchData();
@@ -697,12 +653,9 @@
                 document.getElementById('confirmActionBtn').onclick = async () => {
                     try {
                         const photos = app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry.id));
-                        if(photos.length > 0) {
-                            await app.supabase.storage.from(BUCKET).remove(photos.map(p => p.nome_arquivo));
-                        }
+                        if(photos.length > 0) await app.supabase.storage.from(BUCKET).remove(photos.map(p => p.nome_arquivo));
                         await app.supabase.from('industrias').delete().eq('id', app.currentIndustry.id);
-                        app.modalStack = [];
-                        document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+                        app.closeAllModals();
                         app.showToast("Unidade Eliminada");
                         app.navigateTo('home');
                         await app.fetchData();
@@ -718,18 +671,10 @@
 
             openModal: function(id) { 
                 const m = document.getElementById(`modal-${id}`);
-                if(m) {
-                    m.style.display = 'flex';
-                    app.modalStack.push(id);
-                    // Push state para que o botão voltar feche o modal
-                    window.history.pushState({ modal: id }, '');
-                }
+                if(m) { m.style.display = 'flex'; app.modalStack.push(id); window.history.pushState({ modal: id }, ''); }
             },
 
-            closeAllModals: function() {
-                app.modalStack = [];
-                document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-            },
+            closeAllModals: function() { app.modalStack = []; document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); },
 
             showToast: function(msg) {
                 const t = document.getElementById('toast');
@@ -738,10 +683,7 @@
                 setTimeout(() => t.classList.add('translate-y-32', 'opacity-0'), 3000);
             },
 
-            changeMonth: function(d) { 
-                app.calendarCursor.setMonth(app.calendarCursor.getMonth() + d); 
-                app.renderCalendar(); 
-            },
+            changeMonth: function(d) { app.calendarCursor.setMonth(app.calendarCursor.getMonth() + d); app.renderCalendar(); },
 
             prepareReport: function() {
                 let msg = app.defaultMessagePattern;
@@ -752,8 +694,7 @@
             },
 
             saveNewIndustry: function() { 
-                app.currentIndustry = null; 
-                app.coverFile = null;
+                app.currentIndustry = null; app.coverFile = null;
                 document.getElementById('industryFormTitle').innerText = "Nova Unidade"; 
                 document.getElementById('newIndName').value = ""; 
                 document.getElementById('coverPreview').classList.add('hidden');
@@ -764,10 +705,7 @@
 
             editIndustryCard: function(id) {
                 const ind = app.industries.find(i => String(i.id) === String(id));
-                if(ind) {
-                    app.currentIndustry = ind;
-                    app.editCurrentIndustry();
-                }
+                if(ind) { app.currentIndustry = ind; app.editCurrentIndustry(); }
             },
 
             editCurrentIndustry: function() { 
@@ -776,14 +714,10 @@
                 document.getElementById('industryFormTitle').innerText = "Editar Unidade"; 
                 document.getElementById('newIndName').value = app.currentIndustry.nome; 
                 document.getElementById('deleteIndustryBtn').classList.remove('hidden');
-
                 if (app.currentIndustry.cover_url) {
-                    preview.src = app.currentIndustry.cover_url;
-                    preview.classList.remove('hidden');
-                    placeholder.classList.add('hidden');
+                    preview.src = app.currentIndustry.cover_url; preview.classList.remove('hidden'); placeholder.classList.add('hidden');
                 } else {
-                    preview.classList.add('hidden');
-                    placeholder.classList.remove('hidden');
+                    preview.classList.add('hidden'); placeholder.classList.remove('hidden');
                 }
                 app.openModal('addIndustry'); 
             },
@@ -794,9 +728,7 @@
                 const reader = new FileReader();
                 reader.onload = e => {
                     const img = document.getElementById('coverPreview');
-                    img.src = e.target.result;
-                    img.classList.remove('hidden');
-                    document.getElementById('coverPlaceholder').classList.add('hidden');
+                    img.src = e.target.result; img.classList.remove('hidden'); document.getElementById('coverPlaceholder').classList.add('hidden');
                 };
                 reader.readAsDataURL(file);
             },
@@ -811,17 +743,9 @@
                         await app.supabase.storage.from(BUCKET).upload(fName, app.coverFile, { contentType: 'image/jpeg' });
                         payload.cover_url = app.supabase.storage.from(BUCKET).getPublicUrl(fName).data.publicUrl;
                     }
-
-                    if (app.currentIndustry) {
-                        await app.supabase.from('industrias').update(payload).eq('id', app.currentIndustry.id);
-                        app.showToast("Unidade Atualizada");
-                    } else {
-                        await app.supabase.from('industrias').insert(payload);
-                        app.showToast("Unidade Criada");
-                    }
-                    app.coverFile = null;
-                    app.handleBack();
-                    await app.fetchData();
+                    if (app.currentIndustry) await app.supabase.from('industrias').update(payload).eq('id', app.currentIndustry.id);
+                    else await app.supabase.from('industrias').insert(payload);
+                    app.coverFile = null; app.handleBack(); await app.fetchData();
                 } catch(e) { app.showToast("Erro ao guardar"); }
             }
         };
