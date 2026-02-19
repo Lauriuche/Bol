@@ -313,7 +313,7 @@
                     <button onclick="app.changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-700 dark:text-white"><i class="fas fa-chevron-right text-xs"></i></button>
                 </div>
                 
-                <!-- DIAS DA SEMANA (ADICIONADO) -->
+                <!-- DIAS DA SEMANA -->
                 <div class="grid grid-cols-7 gap-2 mb-2 text-center">
                     <span class="text-[10px] font-black opacity-30 text-zinc-900 dark:text-white">D</span>
                     <span class="text-[10px] font-black opacity-30 text-zinc-900 dark:text-white">S</span>
@@ -438,7 +438,7 @@
             <div class="android-card bg-gray-50 dark:bg-zinc-800/50 mb-6 flex flex-col gap-3">
                 <div class="flex justify-between items-center border-b border-gray-200 dark:border-zinc-700 pb-3">
                     <span class="text-xs font-bold uppercase opacity-60">Versão</span>
-                    <span class="text-xs font-bold">2.9.5 (Fix Complete)</span>
+                    <span class="text-xs font-bold">3.0.0 (Calendar Fixed)</span>
                 </div>
                 <div class="text-[10px] opacity-40 text-center pt-2">
                     Sistema multi-categoria (Free/Merch).
@@ -986,7 +986,70 @@
 
             changeMonth: function(d) { app.calendarCursor.setMonth(app.calendarCursor.getMonth() + d); app.renderCalendar(); },
 
-            // REINSERIDO AQUI
+            // REINSERIDO AQUI: renderCalendar
+            renderCalendar: function() {
+                const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
+                const y = app.calendarCursor.getFullYear(), m = app.calendarCursor.getMonth();
+                
+                // Mês em Português
+                const monthName = new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric' }).format(app.calendarCursor);
+                document.getElementById('calendarMonth').innerText = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                
+                document.getElementById('currentIndName').innerText = app.currentIndustry.nome;
+                
+                const cat = app.currentIndustry.categoria || 'Freelancer';
+                document.getElementById('currentIndBadge').innerText = cat;
+                document.getElementById('currentIndBadge').className = `mt-2 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-white ${cat === 'merchandising' ? 'bg-purple-500' : 'bg-blue-800'}`;
+
+                const first = new Date(y, m, 1).getDay();
+                const total = new Date(y, m + 1, 0).getDate();
+                const activeDates = new Set();
+                
+                // Filtra fotos da loja atual para marcar dias
+                app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry.id)).forEach(p => activeDates.add(p.created_at.split('T')[0]));
+                
+                // Células vazias antes do dia 1
+                for(let i=0; i<first; i++) grid.innerHTML += `<div></div>`;
+                
+                // Dias do mês
+                for(let d=1; d<=total; d++) {
+                    const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const active = activeDates.has(iso);
+                    
+                    const btn = document.createElement('div');
+                    btn.className = `cal-day ${active ? 'has-content shadow-sm bg-blue-600 text-white' : 'opacity-40 hover:bg-gray-100 dark:hover:bg-zinc-800'}`;
+                    btn.innerText = d;
+                    btn.onclick = () => { app.currentDateFolder = iso; app.navigateTo('gallery'); };
+                    grid.appendChild(btn);
+                }
+            },
+
+            // REINSERIDO AQUI: renderGallery
+            renderGallery: function() {
+                const c = document.getElementById('galleryContainer'); c.innerHTML = '';
+                const photos = app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry.id) && p.created_at.startsWith(app.currentDateFolder));
+                
+                if(photos.length === 0) {
+                    c.innerHTML = `<div class="col-span-3 text-center opacity-40 py-10"><p class="text-xs font-bold uppercase">Sem fotos neste dia</p></div>`;
+                    return;
+                }
+
+                photos.forEach(p => {
+                    const d = document.createElement('div');
+                    d.className = `img-card shadow-sm cursor-pointer transition-transform ${app.selectedPhotos.has(p.id) ? 'ring-4 ring-blue-500 scale-90' : 'active:scale-95'}`;
+                    d.innerHTML = `<img src="${p.url_publica}" loading="lazy">`;
+                    d.onclick = () => {
+                        if (app.isSelectionMode) {
+                            if (app.selectedPhotos.has(p.id)) app.selectedPhotos.delete(p.id);
+                            else app.selectedPhotos.add(p.id);
+                            app.updateSelectionCount();
+                            app.renderGallery();
+                        } else app.openPhotoPreview(p);
+                    };
+                    c.appendChild(d);
+                });
+            },
+
             navigateTo: function(view, push = true) {
                 if (push) window.history.pushState({ view: view }, '');
                 document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
