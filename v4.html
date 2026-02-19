@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
@@ -34,8 +33,8 @@
             --bg-body: #F8FAFC;
             --surface: #FFFFFF;
             --surface-variant: #E2E8F0;
-            --text-main: #0F172A;
-            --text-secondary: #475569;
+            --text-main: #000000;
+            --text-secondary: #00000;
             --primary: #1E40AF;
             --primary-container: #DBEAFE;
             --on-primary-container: #1E3A8A;
@@ -240,15 +239,16 @@
         <section id="view-home" class="view-section active">
             
             <!-- ABAS DE NAVEGAÇÃO ENTRE CATEGORIAS -->
+            <!-- ALTERADO: Merchandising primeiro e Ativo -->
             <div class="tab-container">
-                <div class="tab-btn active" onclick="app.setCategoryFilter('freelancer')" data-cat="freelancer">Freelancer</div>
-                <div class="tab-btn" onclick="app.setCategoryFilter('merchandising')" data-cat="merchandising">Merchandising</div>
+                <div class="tab-btn active" onclick="app.setCategoryFilter('merchandising')" data-cat="merchandising">Merchandising</div>
+                <div class="tab-btn" onclick="app.setCategoryFilter('freelancer')" data-cat="freelancer">Freelancer</div>
             </div>
 
             <div class="stats-grid grid grid-cols-2 gap-3 mb-4">
                 <div class="stat-card android-card flex flex-col items-center justify-center py-6">
                     <span id="stat-industries" class="text-3xl font-black text-blue-600 dark:text-blue-400">0</span>
-                    <span class="text-[9px] font-bold uppercase tracking-widest opacity-60">Lojas</span>
+                    <span class="text-[9px] font-bold uppercase tracking-widest opacity-60">Industrias</span>
                 </div>
                 <div class="stat-card android-card flex flex-col items-center justify-center py-6">
                     <span id="stat-photos" class="text-3xl font-black text-blue-600 dark:text-blue-400">0</span>
@@ -258,7 +258,7 @@
 
             <div class="bg-gray-100 dark:bg-zinc-900 border border-transparent dark:border-zinc-700 rounded-xl px-4 py-3 flex items-center gap-3 mb-6 transition-colors">
                 <i class="fas fa-search opacity-40 text-sm"></i>
-                <input type="text" id="searchInput" oninput="app.renderIndustries()" placeholder="Procurar loja..." class="bg-transparent outline-none w-full text-sm font-semibold text-zinc-900 dark:text-white placeholder-zinc-400">
+                <input type="text" id="searchInput" oninput="app.renderIndustries()" placeholder="Procurar industria..." class="bg-transparent outline-none w-full text-sm font-semibold text-zinc-900 dark:text-white placeholder-zinc-400">
             </div>
 
             <div id="industriesList" class="img-grid"></div>
@@ -340,7 +340,7 @@
     <nav class="bottom-nav">
         <div onclick="app.navigateTo('home')" class="nav-item active" data-tab="home">
             <div class="nav-icon-container"><i class="fas fa-store"></i></div>
-            <span class="nav-label">Lojas</span>
+            <span class="nav-label">Industrias</span>
         </div>
         <div onclick="app.navigateTo('all')" class="nav-item" data-tab="all">
             <div class="nav-icon-container"><i class="fas fa-box-archive"></i></div>
@@ -380,8 +380,8 @@
             
             <label class="text-[10px] font-black uppercase opacity-60 ml-1 mb-1 block">Categoria da Loja</label>
             <select id="newIndCategory" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl outline-none mb-6 font-bold border border-transparent focus:border-blue-500 transition-colors appearance-none">
-                <option value="freelancer">Freelancer</option>
                 <option value="merchandising">Merchandising</option>
+                <option value="freelancer">Freelancer</option>
             </select>
 
             <div class="relative w-full aspect-video bg-gray-100 dark:bg-zinc-800 rounded-xl overflow-hidden flex flex-col items-center justify-center mb-6 border-2 border-dashed border-gray-200 dark:border-zinc-700">
@@ -451,7 +451,8 @@
             industries: [],
             allPhotos: [],
             currentIndustry: null,
-            currentCategoryFilter: 'freelancer', // Categoria inicial: freelancer
+            // ALTERADO: Merchandising como padrão
+            currentCategoryFilter: 'merchandising', 
             currentDateFolder: null,
             calendarCursor: new Date(),
             isSelectionMode: false,
@@ -778,10 +779,10 @@
 
                 if (categoria === 'merchandising') {
                     // Modelo Merchandising (Com Supervisora Roberta)
-                    msg = `> 🏭 *${nomeLoja}*\n\n> 🛒 *Loja* - 438 Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🗓️ *Data* - ${dataFormatada}`;
+                    msg = `> 🛒 *${nomeLoja}*\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🗓️ *Data* - ${dataFormatada}`;
                 } else {
                     // Modelo Freelancer (Padrão)
-                    msg = `> 🏭 *${nomeLoja}*\n\n> 🛒 *Loja* - 438 Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 🗓️ *Data* - ${dataFormatada}`;
+                    msg = `> 🛒 *${nomeLoja}*\n> 👨‍💼 *Promotor* - Vagner\n> 🗓️ *Data* - ${dataFormatada}`;
                 }
 
                 document.getElementById('previewMessageText').innerText = msg;
@@ -792,7 +793,8 @@
                 document.getElementById('industryFormTitle').innerText = "Nova Loja"; 
                 document.getElementById('newIndName').value = ""; 
                 // Define valor padrão como freelancer
-                document.getElementById('newIndCategory').value = "freelancer";
+                // ALTERADO: Merchandising como padrão
+                document.getElementById('newIndCategory').value = "merchandising"; 
                 document.getElementById('coverPreview').classList.add('hidden');
                 document.getElementById('coverPlaceholder').classList.remove('hidden');
                 document.getElementById('deleteIndustryBtn').classList.add('hidden');
@@ -864,5 +866,3 @@
     </script>
 </body>
 </html>
-
-
