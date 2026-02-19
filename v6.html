@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA / APK Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1E40AF">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4300/4300058.png">
+
+    <title>Gestor Industrial Pro</title>
+
+    <!-- Dependências Externas -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Scanner de Código de Barras -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- INICIO DO CONTEÚDO style.css --- */
+        :root {
+            /* Tema Dia - Alto Contraste */
+            --bg-body: #F8FAFC;
+            --surface: #FFFFFF;
+            --surface-variant: #E2E8F0;
+            --text-main: #0F172A;
+            --text-secondary: #475569;
+            --primary: #1E40AF;
+            --primary-container: #DBEAFE;
+            --on-primary-container: #1E3A8A;
+            --border-color: #E2E8F0;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        .dark {
+            /* Tema Noite - Contraste Elevado Otimizado */
+            --bg-body: #000000;
+            --surface: #121212;
+            --surface-variant: #27272A;
+            --text-main: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --primary: #3B82F6;
+            --primary-container: #1D4ED8; 
+            --on-primary-container: #FFFFFF;
+            --border-color: #3F3F46;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            scrollbar-width: none;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-color 0.2s linear, color 0.2s linear;
+        }
+
+        header {
+            padding-top: calc(var(--safe-top) + 12px);
+            padding-bottom: 12px;
+            background-color: var(--surface);
+            z-index: 50;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+            width: 100%;
+            padding: 16px;
+            padding-bottom: calc(100px + var(--safe-bottom));
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .android-card {
+            background-color: var(--surface);
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: calc(75px + var(--safe-bottom));
+            padding-bottom: var(--safe-bottom);
+            background-color: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 100;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+        .nav-icon-container {
+            width: 50px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 16px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .nav-item.active .nav-icon-container { background-color: var(--primary-container); color: var(--on-primary-container); }
+        .nav-label { font-size: 11px; font-weight: 700; opacity: 0.6; color: var(--text-secondary); }
+        .nav-item.active .nav-label { opacity: 1; color: var(--text-main); }
+
+        /* Estilo das Abas (Ficheiro) */
+        .tab-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 4px;
+            background-color: var(--surface-variant);
+            border-radius: 16px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .tab-btn.active {
+            background-color: var(--surface);
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-color: var(--border-color);
+        }
+
+        .img-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .img-card { 
+            aspect-ratio: 1/1; border-radius: 12px; overflow: hidden; 
+            background-color: var(--surface-variant); position: relative;
+        }
+        .img-card img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Estilos Lista Validade (Lojas) */
+        .val-list-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            background-color: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .val-list-item:active { transform: scale(0.98); background-color: var(--surface-variant); }
+        .val-thumb {
+            width: 48px; height: 48px; border-radius: 12px; overflow: hidden; flex-shrink: 0;
+            background-color: var(--surface-variant); display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary);
+        }
+        .val-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Estilo Item de Validade (Individual) */
+        .validade-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: var(--surface); border: 1px solid var(--border-color);
+            padding: 16px; border-radius: 16px; margin-bottom: 8px;
+        }
+        .validade-badge {
+            font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
+        }
+        .status-danger { background-color: #FEE2E2; color: #DC2626; }
+        .dark .status-danger { background-color: #450a0a; color: #fca5a5; }
+        .status-warning { background-color: #FEF3C7; color: #D97706; }
+        .dark .status-warning { background-color: #451a03; color: #fdba74; }
+        .status-good { background-color: #DCFCE7; color: #16A34A; }
+        .dark .status-good { background-color: #052e16; color: #86efac; }
+
+        .fab {
+            position: fixed; bottom: calc(90px + var(--safe-bottom)); right: 20px;
+            width: 56px; height: 56px; background-color: var(--primary); color: white;
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 90;
+            font-size: 20px; transition: transform 0.1s;
+        }
+        .fab:active { transform: scale(0.95); }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            display: none; align-items: flex-end; justify-content: center; z-index: 200;
+        }
+        .modal-sheet {
+            background-color: var(--surface); width: 100%; max-width: 600px;
+            border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: calc(32px + var(--safe-bottom));
+            border-top: 1px solid var(--border-color);
+            animation: simpleFadeIn 0.2s ease-out;
+        }
+        @keyframes simpleFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-primary {
+            background-color: var(--primary); color: white; padding: 16px;
+            border-radius: 16px; font-weight: 700; text-align: center; width: 100%;
+            border: none; cursor: pointer;
+        }
+        .btn-primary:active { opacity: 0.9; }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: simpleOpacity 0.2s ease; }
+        @keyframes simpleOpacity { from { opacity: 0; } to { opacity: 1; } }
+
+        .cal-day {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; font-size: 13px; font-weight: 700; cursor: pointer;
+            color: var(--text-main);
+        }
+        .cal-day.has-content { background-color: var(--primary); color: white; }
+
+        #toast { z-index: 300; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        /* --- FIM DO CONTEÚDO style.css --- */
+    </style>
+</head>
+<body class="no-scrollbar">
+
+    <!-- INPUT OCULTO PARA CÂMERA -->
+    <input type="file" id="fabCameraInput" capture="environment" accept="image/jpeg" class="hidden" onchange="app.handleUpload(this)">
+
+    <!-- CABEÇALHO -->
+    <header>
+        <div class="max-w-xl mx-auto flex items-center px-6">
+            <!-- Botão Voltar: Contraste ajustado -->
+            <button id="backBtn" onclick="app.handleBack()" class="hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-700 dark:text-white mr-2 transition-colors border border-transparent dark:border-zinc-600">
+                <i class="fas fa-chevron-left text-sm"></i>
+            </button>
+            <div class="flex-1">
+                <h1 id="headerTitle" class="text-xl font-extrabold tracking-tight">Gestor Pro</h1>
+                <p id="headerSubtitle" class="text-[10px] font-bold opacity-60 uppercase tracking-widest text-blue-600 dark:text-blue-400">Painel Operacional</p>
+            </div>
+            <div class="flex gap-2">
+                <!-- Botões de Cabeçalho -->
+                <button onclick="app.openModal('settings')" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-700 dark:text-white transition-colors border border-transparent dark:border-zinc-600">
+                    <i class="fas fa-info text-sm"></i>
+                </button>
+                <button onclick="app.toggleDarkMode()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-700 dark:text-white transition-colors border border-transparent dark:border-zinc-600">
+                    <i class="fas fa-moon text-sm" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ÁREA DE CONTEÚDO -->
+    <main class="max-w-xl mx-auto">
+        
+        <!-- INÍCIO -->
+        <section id="view-home" class="view-section active">
+            <!-- ABAS DE NAVEGAÇÃO ENTRE CATEGORIAS -->
+            <div class="tab-container">
+                <div class="tab-btn active" onclick="app.setCategoryFilter('merchandising')" data-cat="merchandising">Merchandising</div>
+                <div class="tab-btn" onclick="app.setCategoryFilter('freelancer')" data-cat="freelancer">Freelancer</div>
+            </div>
+
+            <div class="stats-grid grid grid-cols-2 gap-3 mb-4">
+                <div class="stat-card android-card flex flex-col items-center justify-center py-6">
+                    <span id="stat-industries" class="text-3xl font-black text-blue-600 dark:text-blue-400">0</span>
+                    <span class="text-[9px] font-bold uppercase tracking-widest opacity-60">Lojas</span>
+                </div>
+                <div class="stat-card android-card flex flex-col items-center justify-center py-6">
+                    <span id="stat-photos" class="text-3xl font-black text-blue-600 dark:text-blue-400">0</span>
+                    <span class="text-[9px] font-bold uppercase tracking-widest opacity-60">Fotos</span>
+                </div>
+            </div>
+
+            <!-- BARRA DE PESQUISA -->
+            <div class="bg-gray-100 dark:bg-zinc-800 border border-transparent dark:border-zinc-700 rounded-xl px-4 py-3 flex items-center gap-3 mb-6 transition-colors">
+                <i class="fas fa-search opacity-40 dark:opacity-100 text-sm text-black dark:text-white"></i>
+                <input type="text" id="searchInput" oninput="app.renderIndustries()" placeholder="Procurar loja..." class="bg-transparent outline-none w-full text-sm font-semibold text-zinc-900 dark:text-white placeholder-zinc-400">
+            </div>
+
+            <div id="industriesList" class="img-grid"></div>
+        </section>
+
+        <!-- CALENDÁRIO -->
+        <section id="view-dates" class="view-section">
+            <div class="android-card bg-blue-600 dark:bg-blue-700 text-white mb-6 py-6 flex flex-col items-center border-none">
+                <h2 id="currentIndName" class="text-xl font-black text-center px-4">Loja</h2>
+                <div id="currentIndBadge" class="mt-2 px-3 py-1 bg-black/20 rounded-full text-[9px] font-bold uppercase tracking-widest">Categoria</div>
+                <button onclick="app.editCurrentIndustry()" class="mt-3 text-[9px] font-black uppercase tracking-widest bg-white/20 px-4 py-1.5 rounded-full hover:bg-white/30 transition-colors">Configurar</button>
+            </div>
+
+            <div class="android-card mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <!-- Botões Calendário -->
+                    <button onclick="app.changeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-700 dark:text-white"><i class="fas fa-chevron-left text-xs"></i></button>
+                    <h3 id="calendarMonth" class="text-sm font-black uppercase tracking-wide">Mês</h3>
+                    <button onclick="app.changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-700 dark:text-white"><i class="fas fa-chevron-right text-xs"></i></button>
+                </div>
+                
+                <!-- DIAS DA SEMANA (ADICIONADO) -->
+                <div class="grid grid-cols-7 gap-2 mb-2 text-center">
+                    <span class="text-[10px] font-black opacity-30 text-zinc-900 dark:text-white">D</span>
+                    <span class="text-[10px] font-black opacity-30 text-zinc-900 dark:text-white">S</span>
+                    <span class="text-[10px] font-black opacity-30 text-zinc-900 dark:text-white">T</span>
+                    <span class="text-[10px] font-black opacity-30 text-zinc-900 dark:text-white">Q</span>
+                    <span class="text-[10px] font-black opacity-30 text-zinc-900 dark:text-white">Q</span>
+                    <span class="text-[10px] font-black opacity-30 text-zinc-900 dark:text-white">S</span>
+                    <span class="text-[10px] font-black opacity-30 text-zinc-900 dark:text-white">S</span>
+                </div>
+
+                <div id="calendarGrid" class="cal-grid grid grid-cols-7 gap-2"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <label class="android-card flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-blue-200 dark:border-blue-900 py-6 active:scale-95 transition-transform">
+                    <i class="fas fa-camera text-2xl text-blue-500"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Câmera</span>
+                    <input type="file" capture="environment" accept="image/jpeg" class="hidden" onchange="app.handleUpload(this)">
+                </label>
+                <label class="android-card flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-gray-200 dark:border-zinc-700 py-6 active:scale-95 transition-transform">
+                    <i class="fas fa-images text-2xl text-gray-400"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Galeria</span>
+                    <input type="file" accept="image/jpeg" class="hidden" onchange="app.handleUpload(this)">
+                </label>
+            </div>
+        </section>
+
+        <!-- GALERIA DATA -->
+        <section id="view-gallery" class="view-section">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-black uppercase tracking-tight">Fotos do Dia</h2>
+                <button onclick="app.toggleSelectionMode()" id="selectBtn" class="text-[10px] font-black uppercase bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-lg border border-blue-100 dark:border-blue-800">Selecionar</button>
+            </div>
+            <div id="galleryContainer" class="img-grid"></div>
+        </section>
+
+        <!-- ABA VALIDADES: LISTAGEM DE LOJAS -->
+        <section id="view-validades" class="view-section">
+            <h2 class="text-lg font-black uppercase mb-4 tracking-tight">Controle de Validades</h2>
+            <div class="bg-gray-100 dark:bg-zinc-800 border border-transparent dark:border-zinc-700 rounded-xl px-4 py-3 flex items-center gap-3 mb-6 transition-colors">
+                <i class="fas fa-search opacity-40 dark:opacity-100 text-sm text-black dark:text-white"></i>
+                <input type="text" id="searchValidade" oninput="app.renderValidades()" placeholder="Filtrar loja..." class="bg-transparent outline-none w-full text-sm font-semibold text-zinc-900 dark:text-white placeholder-zinc-400">
+            </div>
+            <div id="validadesListContainer" class="flex flex-col gap-2"></div>
+        </section>
+
+        <!-- VIEW DETALHE: VALIDADE POR LOJA -->
+        <section id="view-validade-items" class="view-section">
+            <div class="android-card bg-purple-600 dark:bg-purple-700 text-white mb-6 py-6 flex flex-col items-center border-none">
+                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-2">
+                    <i class="fas fa-calendar-check text-xl"></i>
+                </div>
+                <h2 id="valCurrentIndName" class="text-xl font-black text-center px-4">Loja</h2>
+                <span class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">Gestão de Vencimentos</span>
+            </div>
+
+            <button onclick="app.openValidadeModal()" class="btn-primary flex items-center justify-center gap-2 mb-2 shadow-lg hover:shadow-xl transition-shadow bg-purple-600 dark:bg-purple-700">
+                <i class="fas fa-plus"></i> NOVO ITEM
+            </button>
+
+            <!-- NOVO BOTÃO DE RELATÓRIO -->
+            <button onclick="app.shareValidadeReport()" class="btn-primary flex items-center justify-center gap-2 mb-6 shadow-lg hover:shadow-xl transition-shadow bg-green-600 dark:bg-green-700">
+                <i class="fab fa-whatsapp text-lg"></i> PARTILHAR RELATÓRIO
+            </button>
+            
+            <div id="validadeItemsList" class="flex flex-col gap-2">
+                <div class="text-center opacity-40 py-10">
+                    <i class="fas fa-box-open text-4xl mb-2"></i>
+                    <p class="text-xs font-bold uppercase">Nenhum item registado</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RELATÓRIO -->
+        <section id="view-reports" class="view-section text-center">
+            <div class="android-card text-left mb-6">
+                <h2 class="text-xl font-black mb-4">Pré-visualização</h2>
+                <div class="bg-gray-100 dark:bg-zinc-900 p-4 rounded-xl text-sm font-mono border border-gray-200 dark:border-zinc-700 whitespace-pre-wrap leading-relaxed text-gray-600 dark:text-gray-300" id="previewMessageText"></div>
+            </div>
+            <button onclick="app.shareFiles()" class="btn-primary flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow">
+                <i class="fas fa-paper-plane"></i> ENVIAR AGORA
+            </button>
+        </section>
+    </main>
+
+    <!-- FAB INTELIGENTE -->
+    <button onclick="app.handleFabAction()" class="fab" id="fabAdd">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- BARRA DE SELEÇÃO FLUTUANTE -->
+    <div id="selectionBar" class="fixed bottom-24 left-6 right-6 bg-zinc-900 dark:bg-zinc-800 text-white p-4 rounded-2xl flex items-center justify-between shadow-2xl transition-transform duration-300 translate-y-[250%] z-[120] border border-white/10">
+        <span id="selectionCount" class="text-xs font-black uppercase ml-2">0 selecionadas</span>
+        <div class="flex gap-2">
+            <button onclick="app.confirmDeleteSelected()" class="w-10 h-10 flex items-center justify-center text-red-400 bg-red-400/10 rounded-xl"><i class="fas fa-trash-can text-sm"></i></button>
+            <button onclick="app.navigateTo('reports')" class="bg-blue-600 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md">Gerar</button>
+        </div>
+    </div>
+
+    <!-- NAVEGAÇÃO INFERIOR -->
+    <nav class="bottom-nav">
+        <div onclick="app.navigateTo('home')" class="nav-item active" data-tab="home">
+            <div class="nav-icon-container"><i class="fas fa-store"></i></div>
+            <span class="nav-label">Lojas</span>
+        </div>
+        <div onclick="app.navigateTo('validades')" class="nav-item" data-tab="validades">
+            <div class="nav-icon-container"><i class="fas fa-calendar-check"></i></div>
+            <span class="nav-label">Validades</span>
+        </div>
+        <div onclick="app.navigateTo('reports')" class="nav-item" data-tab="reports">
+            <div class="nav-icon-container"><i class="fas fa-file-invoice"></i></div>
+            <span class="nav-label">Enviar</span>
+        </div>
+    </nav>
+
+    <!-- MODAIS -->
+    
+    <!-- Modal Configurações -->
+    <div id="modal-settings" class="modal-overlay">
+        <div class="modal-sheet">
+            <h3 class="text-xl font-black mb-6 text-center uppercase tracking-tight">Informações</h3>
+            <div class="android-card bg-gray-50 dark:bg-zinc-800/50 mb-6 flex flex-col gap-3">
+                <div class="flex justify-between items-center border-b border-gray-200 dark:border-zinc-700 pb-3">
+                    <span class="text-xs font-bold uppercase opacity-60">Versão</span>
+                    <span class="text-xs font-bold">2.9.5 (Fix Complete)</span>
+                </div>
+                <div class="text-[10px] opacity-40 text-center pt-2">
+                    Sistema multi-categoria (Free/Merch).
+                </div>
+            </div>
+            <button onclick="app.handleBack()" class="btn-primary bg-gray-200 dark:bg-zinc-800 text-black dark:text-white uppercase text-xs">Voltar</button>
+        </div>
+    </div>
+
+    <!-- Modal Novo/Editar Item Validade -->
+    <div id="modal-validadeItem" class="modal-overlay">
+        <div class="modal-sheet">
+            <h3 id="validadeFormTitle" class="text-xl font-black mb-6 text-center uppercase">Item de Validade</h3>
+            
+            <!-- ÁREA DO SCANNER -->
+            <div id="scanner-container" class="hidden w-full aspect-video bg-black rounded-xl overflow-hidden mb-4 relative border-2 border-purple-500">
+                <div id="reader" class="w-full h-full"></div>
+                <button onclick="app.stopBarcodeScan()" class="absolute top-2 right-2 bg-black/50 p-2 rounded-full text-white w-8 h-8 flex items-center justify-center z-10"><i class="fas fa-times"></i></button>
+                <div class="absolute bottom-2 left-0 right-0 text-center text-white text-[10px] font-bold bg-black/50 p-1">Aponte para o código</div>
+            </div>
+
+            <label class="text-[10px] font-black uppercase opacity-60 ml-1 mb-1 block">Nome do Produto</label>
+            <input type="text" id="valItemName" onblur="app.autoFillProductData(this.value)" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl outline-none mb-4 font-bold border border-transparent focus:border-purple-500 transition-colors" placeholder="Ex: Leite Integral">
+            
+            <div class="flex gap-2 mb-4">
+                <div class="flex-1">
+                    <label class="text-[10px] font-black uppercase opacity-60 ml-1 mb-1 block">SKU</label>
+                    <input type="text" id="valItemSku" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl outline-none font-bold border border-transparent focus:border-purple-500 transition-colors" placeholder="Cód. Interno">
+                </div>
+                <div class="flex-[1.5]">
+                    <label class="text-[10px] font-black uppercase opacity-60 ml-1 mb-1 block">Cód. Barras</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="valItemBarcode" onchange="app.autoFillByBarcode(this.value)" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl outline-none font-bold border border-transparent focus:border-purple-500 transition-colors" placeholder="EAN-13">
+                        <button onclick="app.startBarcodeScan()" class="w-14 bg-gray-200 dark:bg-zinc-700 rounded-xl text-purple-600 dark:text-purple-400 flex items-center justify-center active:scale-95 transition-transform">
+                            <i class="fas fa-barcode text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mb-6">
+                <div class="flex-1">
+                    <label class="text-[10px] font-black uppercase opacity-60 ml-1 mb-1 block">Quantidade</label>
+                    <input type="number" id="valItemQtd" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl outline-none font-bold border border-transparent focus:border-purple-500 transition-colors" placeholder="Qtd">
+                </div>
+                <div class="flex-[2]">
+                    <label class="text-[10px] font-black uppercase opacity-60 ml-1 mb-1 block">Validade</label>
+                    <input type="date" id="valItemDate" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl outline-none font-bold border border-transparent focus:border-purple-500 transition-colors">
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="app.handleBack()" class="flex-1 font-bold opacity-40 uppercase text-xs bg-gray-200 dark:bg-zinc-800 rounded-xl">Cancelar</button>
+                <button onclick="app.saveValidadeItem()" class="flex-[2] btn-primary uppercase text-xs bg-purple-600 dark:bg-purple-700">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-addIndustry" class="modal-overlay">
+        <div class="modal-sheet">
+            <h3 id="industryFormTitle" class="text-xl font-black mb-6 text-center uppercase">Loja</h3>
+            
+            <label class="text-[10px] font-black uppercase opacity-60 ml-1 mb-1 block">Nome da Loja</label>
+            <input type="text" id="newIndName" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl outline-none mb-4 font-bold border border-transparent focus:border-blue-500 transition-colors" placeholder="Ex: Loja 438 - Camiño">
+            
+            <label class="text-[10px] font-black uppercase opacity-60 ml-1 mb-1 block">Categoria da Loja</label>
+            <select id="newIndCategory" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl outline-none mb-6 font-bold border border-transparent focus:border-blue-500 transition-colors appearance-none">
+                <option value="merchandising">Merchandising</option>
+                <option value="freelancer">Freelancer</option>
+            </select>
+
+            <div class="relative w-full aspect-video bg-gray-100 dark:bg-zinc-800 rounded-xl overflow-hidden flex flex-col items-center justify-center mb-6 border-2 border-dashed border-gray-200 dark:border-zinc-700">
+                <img id="coverPreview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
+                <div id="coverPlaceholder" class="flex flex-col items-center opacity-30">
+                    <i class="fas fa-camera text-3xl mb-2"></i>
+                    <span class="text-[10px] font-black uppercase">Foto de Capa</span>
+                </div>
+                <input type="file" accept="image/jpeg" class="absolute inset-0 opacity-0 cursor-pointer" onchange="app.handleCoverPreview(this)">
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="app.handleBack()" class="flex-1 font-bold opacity-40 uppercase text-xs bg-gray-200 dark:bg-zinc-800 rounded-xl">Sair</button>
+                <button onclick="app.saveIndustry()" class="flex-[2] btn-primary uppercase text-xs">Guardar</button>
+            </div>
+            <button id="deleteIndustryBtn" onclick="app.confirmDeleteIndustry()" class="hidden w-full mt-6 py-4 text-red-500 font-black uppercase text-[10px] border-t border-gray-100 dark:border-zinc-700">Eliminar Loja</button>
+        </div>
+    </div>
+
+    <div id="modal-photoPreview" class="modal-overlay flex-col !items-center !justify-center p-0 backdrop-blur-md">
+        <button onclick="app.handleBack()" class="absolute top-6 right-6 text-white text-3xl z-[220] drop-shadow-md w-12 h-12 flex items-center justify-center bg-black/20 rounded-full backdrop-blur-sm"><i class="fas fa-xmark"></i></button>
+        <div class="w-full flex-1 flex items-center justify-center p-4" onclick="app.handleBack()">
+            <img id="previewImg" src="" class="max-h-[80vh] max-w-full object-contain rounded-xl shadow-2xl" onclick="event.stopPropagation()">
+        </div>
+        <div class="modal-sheet z-[210] !rounded-t-[30px]">
+            <textarea id="previewDescInput" class="w-full p-4 bg-gray-100 dark:bg-zinc-800 rounded-xl outline-none mb-4 font-semibold h-24 transition-colors border border-transparent focus:border-blue-500" placeholder="Notas sobre esta foto..."></textarea>
+            <div class="flex gap-3">
+                <button onclick="app.savePhotoDesc()" class="flex-1 btn-primary uppercase text-xs">Guardar Nota</button>
+                <button onclick="app.confirmDeleteSingle()" class="w-16 flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-500 rounded-xl border border-red-200 dark:border-red-900"><i class="fas fa-trash-can"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-confirm" class="modal-overlay !items-center !justify-center p-6">
+        <div class="bg-white dark:bg-zinc-900 w-full max-w-xs rounded-3xl p-6 text-center shadow-2xl border border-gray-100 dark:border-zinc-800">
+            <h3 class="text-xl font-black mb-3">Tem certeza?</h3>
+            <p class="text-xs opacity-60 mb-6 leading-relaxed">Esta ação não pode ser desfeita.</p>
+            <div class="flex gap-3">
+                <button onclick="app.handleBack()" class="flex-1 py-3 bg-gray-100 dark:bg-zinc-800 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
+                <button id="confirmActionBtn" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold uppercase text-[10px]">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 z-[300] transition-all duration-400 transform translate-y-32 opacity-0 pointer-events-none">
+        <div class="bg-zinc-900 dark:bg-white text-white dark:text-black px-6 py-3 rounded-full shadow-2xl text-[10px] font-black flex items-center gap-3 uppercase tracking-widest border border-white/10">
+            <span id="toastMsg">Operação Concluída</span>
+        </div>
+    </div>
+
+    <!-- 
+        *** INSTRUÇÕES PARA SEPARAÇÃO (JS) ***
+        Para usar um arquivo separado:
+        1. Crie um arquivo 'script.js'.
+        2. Mova todo o conteúdo de dentro da tag <script> abaixo para o 'script.js'.
+        3. Adicione esta linha no final do body, antes de fechar: <script src="script.js"></script>
+    -->
+    <script>
+        /* --- INICIO DO CONTEÚDO script.js --- */
+        const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
+        const BUCKET = 'galeria';
+
+        const app = {
+            supabase: null,
+            industries: [],
+            allPhotos: [],
+            validades: [], // Armazena validades da loja atual
+            currentIndustry: null,
+            currentValidadeItem: null, // Item sendo editado
+            currentCategoryFilter: 'merchandising', 
+            currentDateFolder: null,
+            calendarCursor: new Date(),
+            isSelectionMode: false,
+            selectedPhotos: new Set(),
+            modalStack: [],
+            html5QrCode: null, // Instância do scanner
+
+            init: async function() {
+                this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                
+                window.history.replaceState({ view: 'home' }, '');
+                window.onpopstate = (event) => {
+                    if (app.modalStack.length > 0) {
+                        const lastModal = app.modalStack.pop();
+                        document.getElementById(`modal-${lastModal}`).style.display = 'none';
+                        // Se fechou modal de validade, para scanner
+                        if(lastModal === 'validadeItem') app.stopBarcodeScan();
+                        window.history.pushState({ view: app.currentView || 'home' }, '');
+                    } else if (event.state && event.state.view) {
+                        app.navigateTo(event.state.view, false);
+                    }
+                };
+
+                await app.fetchData();
+            },
+
+            handleFabAction: function() {
+                if (app.currentView === 'gallery') {
+                    document.getElementById('fabCameraInput').click();
+                } else if(app.currentView === 'validade-items') {
+                    app.openValidadeModal();
+                } else {
+                    app.saveNewIndustry();
+                }
+            },
+
+            setCategoryFilter: function(cat) {
+                app.currentCategoryFilter = cat;
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.cat === cat);
+                });
+                app.renderIndustries();
+            },
+
+            fetchData: async function() {
+                try {
+                    const [ind, pho] = await Promise.all([
+                        app.supabase.from('industrias').select('*').order('nome'),
+                        app.supabase.from('fotos').select('*').order('created_at', {ascending: false}).limit(5000)
+                    ]);
+                    app.industries = ind.data || [];
+                    app.allPhotos = pho.data || [];
+                    app.updateStats();
+                    app.renderIndustries();
+                } catch(e) { app.showToast("Erro de Ligação"); }
+            },
+
+            // --- NOVA FUNÇÃO: Buscar Validades da Loja Atual ---
+            fetchValidades: async function() {
+                if(!app.currentIndustry) return;
+                try {
+                    const { data, error } = await app.supabase
+                        .from('validades')
+                        .select('*')
+                        .eq('industria_id', app.currentIndustry.id)
+                        .order('data_validade', { ascending: true });
+                    
+                    if(error) throw error;
+                    app.validades = data || [];
+                    app.renderValidadeItems();
+                } catch(e) { console.error(e); app.showToast("Erro carregar validades"); }
+            },
+
+            updateStats: function() {
+                document.getElementById('stat-industries').innerText = app.industries.length;
+                document.getElementById('stat-photos').innerText = app.allPhotos.length;
+            },
+
+            renderIndustries: function() {
+                const list = document.getElementById('industriesList');
+                if(!list) return;
+                const term = document.getElementById('searchInput').value.toLowerCase();
+                const currentFilter = app.currentCategoryFilter;
+
+                list.innerHTML = '';
+                
+                const filtered = app.industries.filter(i => {
+                    const indCat = (i.categoria || 'freelancer').toLowerCase();
+                    return i.nome.toLowerCase().includes(term) && indCat === currentFilter;
+                });
+
+                if (filtered.length === 0) {
+                    list.innerHTML = `<div class="col-span-3 text-center opacity-40 py-10 text-xs font-bold uppercase">Nenhuma loja nesta categoria</div>`;
+                    return;
+                }
+
+                filtered.forEach(ind => {
+                    const d = document.createElement('div');
+                    d.className = 'img-card shadow-sm cursor-pointer active:opacity-80 transition-opacity';
+                    d.onclick = () => { app.currentIndustry = ind; app.navigateTo('dates'); };
+                    d.innerHTML = `
+                        <div class="w-full h-full flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-200">
+                             ${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover" loading="lazy">` : `<i class="fas fa-store text-3xl"></i>`}
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-3 pointer-events-none">
+                             <span class="text-[10px] font-black text-white uppercase truncate tracking-wide">${ind.nome}</span>
+                        </div>
+                        <button onclick="event.stopPropagation(); app.editIndustryCard('${ind.id}')" class="absolute top-2 right-2 w-7 h-7 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white text-[10px]">
+                            <i class="fas fa-pencil"></i>
+                        </button>
+                    `;
+                    list.appendChild(d);
+                });
+            },
+
+            renderValidades: function() {
+                const container = document.getElementById('validadesListContainer');
+                const term = document.getElementById('searchValidade').value.toLowerCase();
+                container.innerHTML = '';
+
+                const filtered = app.industries.filter(i => i.nome.toLowerCase().includes(term));
+
+                if(filtered.length === 0) {
+                    container.innerHTML = `<div class="text-center opacity-40 py-10 text-xs font-bold uppercase">Nenhuma loja encontrada</div>`;
+                    return;
+                }
+
+                filtered.forEach(ind => {
+                    const div = document.createElement('div');
+                    div.className = 'val-list-item shadow-sm';
+                    div.onclick = () => app.openValidadeDetalhe(ind);
+                    
+                    div.innerHTML = `
+                        <div class="val-thumb">
+                            ${ind.cover_url ? `<img src="${ind.cover_url}">` : `<i class="fas fa-store"></i>`}
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold leading-tight">${ind.nome}</h4>
+                            <span class="text-[10px] uppercase font-bold opacity-50">${ind.categoria || 'Geral'}</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-xs opacity-30"></i>
+                    `;
+                    container.appendChild(div);
+                });
+            },
+
+            // --- NOVA FUNÇÃO: Renderizar itens de validade na lista ---
+            renderValidadeItems: function() {
+                const list = document.getElementById('validadeItemsList');
+                if(!list) return;
+                list.innerHTML = '';
+
+                if(app.validades.length === 0) {
+                    list.innerHTML = `<div class="text-center opacity-40 py-10"><i class="fas fa-box-open text-4xl mb-2"></i><p class="text-xs font-bold uppercase">Nenhum item registado</p></div>`;
+                    return;
+                }
+
+                const today = new Date();
+                today.setHours(0,0,0,0);
+
+                app.validades.forEach(item => {
+                    const valDate = new Date(item.data_validade);
+                    const diffTime = valDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    
+                    let statusClass = 'status-good';
+                    let statusText = 'Válido';
+
+                    if (diffDays < 0) {
+                        statusClass = 'status-danger'; statusText = 'Vencido';
+                    } else if (diffDays <= 30) {
+                        statusClass = 'status-warning'; statusText = 'Vence em breve';
+                    }
+
+                    const dateStr = valDate.toLocaleDateString('pt-PT');
+
+                    const div = document.createElement('div');
+                    div.className = 'validade-row';
+                    
+                    // Renderiza SKU, Código e Quantidade
+                    let metaInfo = "";
+                    if(item.quantidade) metaInfo += `<span class="mr-2 text-purple-500 font-bold"><i class="fas fa-cubes text-[9px]"></i> Qtd: ${item.quantidade}</span>`;
+                    if(item.sku) metaInfo += `<span class="mr-2"><i class="fas fa-tag text-[9px]"></i> ${item.sku}</span>`;
+                    if(item.codigo_barras) metaInfo += `<span><i class="fas fa-barcode text-[9px]"></i> ${item.codigo_barras}</span>`;
+                    
+                    const metaHtml = metaInfo ? `<div class="text-[10px] opacity-60 mt-1 flex items-center flex-wrap">${metaInfo}</div>` : '';
+
+                    div.innerHTML = `
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="text-sm font-bold text-gray-900 dark:text-white">${item.produto}</h4>
+                                <span class="validade-badge ${statusClass}">${statusText}</span>
+                            </div>
+                            <span class="text-xs font-bold opacity-60 flex items-center gap-1">
+                                <i class="far fa-calendar"></i> ${dateStr}
+                            </span>
+                            ${metaHtml}
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="app.openValidadeModal('${item.id}')" class="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-zinc-700 rounded-lg text-blue-600 dark:text-blue-400">
+                                <i class="fas fa-pencil text-xs"></i>
+                            </button>
+                            <button onclick="app.confirmDeleteValidade('${item.id}')" class="w-8 h-8 flex items-center justify-center bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600">
+                                <i class="fas fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            },
+
+            openValidadeDetalhe: function(ind) {
+                app.currentIndustry = ind;
+                document.getElementById('valCurrentIndName').innerText = ind.nome;
+                app.navigateTo('validade-items');
+                app.fetchValidades(); // Carrega do Banco de Dados
+            },
+
+            // --- NOVA FUNÇÃO: SCANNER DE CÓDIGO DE BARRAS ---
+            startBarcodeScan: function() {
+                const scannerContainer = document.getElementById('scanner-container');
+                scannerContainer.classList.remove('hidden');
+                
+                // Inicializa scanner se ainda não existir
+                if(!app.html5QrCode) {
+                    app.html5QrCode = new Html5Qrcode("reader");
+                }
+                
+                // Configuração da câmera
+                const config = { fps: 10, qrbox: { width: 250, height: 150 }, aspectRatio: 1.77 };
+                
+                app.html5QrCode.start({ facingMode: "environment" }, config, (decodedText, decodedResult) => {
+                    console.log(`Code matched = ${decodedText}`, decodedResult);
+                    
+                    document.getElementById('valItemBarcode').value = decodedText;
+                    
+                    // Dispara o autopreenchimento pelo código escaneado
+                    app.autoFillByBarcode(decodedText);
+
+                    app.stopBarcodeScan();
+                    app.showToast("Código Lido!");
+                    
+                }, (errorMessage) => {
+                    // Ignora erros de frame
+                }).catch(err => {
+                    console.error("Erro ao iniciar câmera", err);
+                    app.showToast("Erro ao abrir câmera. Permita o acesso.");
+                    scannerContainer.classList.add('hidden');
+                });
+            },
+
+            stopBarcodeScan: function() {
+                if(app.html5QrCode && app.html5QrCode.isScanning) {
+                    app.html5QrCode.stop().then(() => {
+                        document.getElementById('scanner-container').classList.add('hidden');
+                    }).catch(err => {
+                        console.log("Erro ao parar scanner", err);
+                        document.getElementById('scanner-container').classList.add('hidden');
+                    });
+                } else {
+                     document.getElementById('scanner-container').classList.add('hidden');
+                }
+            },
+
+            // --- NOVA FUNÇÃO: RELATÓRIO DE VALIDADES PARA WHATSAPP ---
+            shareValidadeReport: function() {
+                if (!app.validades || app.validades.length === 0) {
+                    app.showToast("Lista vazia!");
+                    return;
+                }
+
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const diaStr = String(today.getDate()).padStart(2, '0');
+                const mesStr = String(today.getMonth() + 1).padStart(2, '0');
+                const anoStr = today.getFullYear();
+
+                const nomeLoja = app.currentIndustry.nome;
+                const categoria = app.currentIndustry.categoria || 'freelancer';
+                
+                let report = `🚨 *RELATÓRIO DE VALIDADES* 🚨\n\n`;
+                report += `🛒 *${nomeLoja}*\n`;
+                report += `👨‍💼 *Promotor* - Vagner\n`;
+                
+                if (categoria === 'merchandising') {
+                    report += `👩‍💼 *Supervisora* - Roberta\n`;
+                }
+                
+                report += `🗓️ *Data* - ${diaStr}/${mesStr}/${anoStr}\n`;
+                report += `--------------------------------\n`;
+
+                app.validades.forEach(item => {
+                    const valDate = new Date(item.data_validade);
+                    const diffTime = valDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let statusIcon = '✅';
+
+                    if (diffDays < 0) {
+                        statusIcon = '🔴'; 
+                    } else if (diffDays <= 30) {
+                        statusIcon = '🟡'; 
+                    }
+
+                    const dateStr = valDate.toLocaleDateString('pt-PT');
+                    
+                    report += `${statusIcon} *${item.produto}*\n`;
+                    report += `   📅 Vencimento: ${dateStr}\n`;
+                    if(item.quantidade) report += `   📦 Qtd: ${item.quantidade}\n`;
+                    if(item.sku) report += `   🏷️ SKU: ${item.sku}\n`;
+                    if(item.codigo_barras) report += `   barcode: ${item.codigo_barras}\n`;
+                    report += `--------------------------------\n`;
+                });
+
+                const encodedText = encodeURIComponent(report);
+                window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+            },
+
+            // --- NOVA FUNÇÃO: AUTO-FILL POR CÓDIGO DE BARRAS ---
+            autoFillByBarcode: async function(barcode) {
+                if (!barcode || barcode.length < 3) return;
+
+                const nameField = document.getElementById('valItemName');
+                const skuField = document.getElementById('valItemSku');
+
+                // Só preenche se o campo de nome estiver vazio para não sobrescrever trabalho manual
+                // OU se o usuário acabou de escanear (contexto de uso)
+                
+                try {
+                    const { data } = await app.supabase
+                        .from('validades')
+                        .select('produto, sku')
+                        .eq('codigo_barras', barcode)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (data) {
+                        // Preenche se encontrou
+                        if (data.produto) nameField.value = data.produto;
+                        if (data.sku) skuField.value = data.sku;
+                        app.showToast("Produto encontrado!");
+                    }
+                } catch (e) {
+                    console.log("Auto-fill barcode error", e);
+                }
+            },
+
+            // --- NOVA FUNÇÃO: AUTO-FILL POR NOME DO PRODUTO (REVERSO) ---
+            autoFillProductData: async function(productName) {
+                if (!productName || productName.length < 3) return; 
+
+                const skuField = document.getElementById('valItemSku');
+                const barcodeField = document.getElementById('valItemBarcode');
+
+                if (skuField.value && barcodeField.value) return; 
+
+                try {
+                    const { data } = await app.supabase
+                        .from('validades')
+                        .select('sku, codigo_barras')
+                        .ilike('produto', productName) 
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (data) {
+                        let filled = false;
+                        if (!skuField.value && data.sku) {
+                            skuField.value = data.sku;
+                            filled = true;
+                        }
+                        if (!barcodeField.value && data.codigo_barras) {
+                            barcodeField.value = data.codigo_barras;
+                            filled = true;
+                        }
+                        if(filled) app.showToast("Dados encontrados!");
+                    }
+                } catch (e) {
+                    console.log("Auto-fill name error", e);
+                }
+            },
+
+            // --- RESTORED UTILITY FUNCTIONS ---
+            toggleDarkMode: function() {
+                const isDark = document.documentElement.classList.toggle('dark');
+                document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                document.querySelector('meta[name="theme-color"]').setAttribute('content', isDark ? '#000000' : '#1E40AF');
+            },
+
+            openModal: function(id) { 
+                const m = document.getElementById(`modal-${id}`);
+                if(m) { m.style.display = 'flex'; app.modalStack.push(id); window.history.pushState({ modal: id }, ''); }
+            },
+
+            closeAllModals: function() { app.modalStack = []; document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); },
+
+            showToast: function(msg) {
+                const t = document.getElementById('toast');
+                document.getElementById('toastMsg').innerText = msg;
+                t.classList.remove('translate-y-32', 'opacity-0');
+                setTimeout(() => t.classList.add('translate-y-32', 'opacity-0'), 3000);
+            },
+
+            changeMonth: function(d) { app.calendarCursor.setMonth(app.calendarCursor.getMonth() + d); app.renderCalendar(); },
+
+            // REINSERIDO AQUI
+            navigateTo: function(view, push = true) {
+                if (push) window.history.pushState({ view: view }, '');
+                document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(`view-${view}`).classList.add('active');
+                
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                const navTab = view === 'validade-items' ? 'validades' : view; 
+                document.querySelector(`.nav-item[data-tab="${navTab}"]`)?.classList.add('active');
+                
+                const showBack = view !== 'home' && view !== 'validades' && view !== 'reports';
+                document.getElementById('backBtn').classList.toggle('hidden', !showBack);
+                
+                // FAB aparece na home, galeria e lista de itens de validade
+                document.getElementById('fabAdd').classList.toggle('hidden', 
+                    view !== 'home' && view !== 'gallery' && view !== 'validade-items'
+                );
+                
+                if (view === 'dates') app.renderCalendar();
+                if (view === 'gallery') app.renderGallery();
+                if (view === 'validades') app.renderValidades(); 
+                if (view === 'reports') app.prepareReport();
+                app.currentView = view;
+            },
+
+            // REINSERIDO AQUI
+            handleBack: function() { window.history.back(); },
+
+            // --- NOVA FUNÇÃO: Abrir Modal de Edição/Criação ---
+            openValidadeModal: function(itemId = null) {
+                // Reseta scanner por segurança
+                app.stopBarcodeScan();
+
+                if(itemId) {
+                    const item = app.validades.find(v => String(v.id) === String(itemId));
+                    app.currentValidadeItem = item;
+                    document.getElementById('validadeFormTitle').innerText = "Editar Item";
+                    document.getElementById('valItemName').value = item.produto;
+                    document.getElementById('valItemDate').value = item.data_validade;
+                    // Preenche SKU e Barcode se existirem
+                    document.getElementById('valItemSku').value = item.sku || "";
+                    document.getElementById('valItemBarcode').value = item.codigo_barras || "";
+                    document.getElementById('valItemQtd').value = item.quantidade || ""; // Carrega quantidade
+                } else {
+                    app.currentValidadeItem = null;
+                    document.getElementById('validadeFormTitle').innerText = "Novo Item";
+                    document.getElementById('valItemName').value = "";
+                    document.getElementById('valItemDate').value = "";
+                    document.getElementById('valItemSku').value = "";
+                    document.getElementById('valItemBarcode').value = "";
+                    document.getElementById('valItemQtd').value = ""; // Limpa quantidade
+                }
+                app.openModal('validadeItem');
+            },
+
+            // --- NOVA FUNÇÃO: Salvar no Supabase (Upsert) ---
+            saveValidadeItem: async function() {
+                const produto = document.getElementById('valItemName').value;
+                const dataValidade = document.getElementById('valItemDate').value;
+                const sku = document.getElementById('valItemSku').value;
+                const barcode = document.getElementById('valItemBarcode').value;
+                const quantidade = document.getElementById('valItemQtd').value; // Pega quantidade
+                
+                if(!produto || !dataValidade) {
+                    app.showToast("Preencha todos os campos obrigatórios"); return;
+                }
+
+                const payload = {
+                    industria_id: app.currentIndustry.id,
+                    produto: produto,
+                    data_validade: dataValidade,
+                    sku: sku,
+                    codigo_barras: barcode,
+                    quantidade: quantidade ? parseInt(quantidade) : null // Salva como número
+                };
+
+                if(app.currentValidadeItem) {
+                    payload.id = app.currentValidadeItem.id; // Para update
+                }
+
+                try {
+                    app.showToast("Salvando...");
+                    const { error } = await app.supabase.from('validades').upsert(payload);
+                    if(error) throw error;
+                    
+                    app.showToast(app.currentValidadeItem ? "Item Atualizado" : "Item Criado");
+                    app.handleBack(); // Fecha modal
+                    app.fetchValidades(); // Recarrega lista
+                } catch(e) { 
+                    console.error(e);
+                    app.showToast("Erro ao salvar no banco"); 
+                }
+            },
+
+            // --- NOVA FUNÇÃO: Deletar do Supabase ---
+            confirmDeleteValidade: function(itemId) {
+                app.openModal('confirm');
+                document.getElementById('confirmActionBtn').onclick = async () => {
+                    try {
+                        app.showToast("Excluindo...");
+                        const { error } = await app.supabase.from('validades').delete().eq('id', itemId);
+                        if(error) throw error;
+                        
+                        app.closeAllModals(); // Fecha modal confirm
+                        app.showToast("Item Removido");
+                        app.fetchValidades();
+                    } catch(e) {
+                        app.showToast("Erro ao excluir");
+                    }
+                };
+            },
+
+            prepareReport: function() {
+                // ... (Report logic moved to shareValidadeReport mostly, but kept for legacy report tab)
+                // Reuse logic if needed or keep existing
+                const hoje = new Date();
+                const dia = String(hoje.getDate()).padStart(2, '0');
+                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                const ano = hoje.getFullYear();
+                const dataFormatada = `${dia}/${mes}/${ano}`;
+                
+                const nomeLoja = app.currentIndustry ? app.currentIndustry.nome : "Loja";
+                const categoria = app.currentIndustry && app.currentIndustry.categoria ? app.currentIndustry.categoria : 'freelancer';
+
+                let msg = "";
+
+                if (categoria === 'merchandising') {
+                    msg = `> 🛒 *${nomeLoja}*\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🗓️ *Data* - ${dataFormatada}`;
+                } else {
+                    msg = `> 🛒 *${nomeLoja}*\n> 👨‍💼 *Promotor* - Vagner\n> 🗓️ *Data* - ${dataFormatada}`;
+                }
+
+                document.getElementById('previewMessageText').innerText = msg;
+            },
+
+            saveNewIndustry: function() { 
+                app.currentIndustry = null; app.coverFile = null;
+                document.getElementById('industryFormTitle').innerText = "Nova Loja"; 
+                document.getElementById('newIndName').value = ""; 
+                document.getElementById('newIndCategory').value = "merchandising"; 
+                document.getElementById('coverPreview').classList.add('hidden');
+                document.getElementById('coverPlaceholder').classList.remove('hidden');
+                document.getElementById('deleteIndustryBtn').classList.add('hidden');
+                app.openModal('addIndustry'); 
+            },
+
+            editIndustryCard: function(id) {
+                const ind = app.industries.find(i => String(i.id) === String(id));
+                if(ind) { app.currentIndustry = ind; app.editCurrentIndustry(); }
+            },
+
+            editCurrentIndustry: function() { 
+                const preview = document.getElementById('coverPreview');
+                const placeholder = document.getElementById('coverPlaceholder');
+                document.getElementById('industryFormTitle').innerText = "Editar Loja"; 
+                document.getElementById('newIndName').value = app.currentIndustry.nome; 
+                document.getElementById('newIndCategory').value = app.currentIndustry.categoria || "freelancer";
+
+                document.getElementById('deleteIndustryBtn').classList.remove('hidden');
+                if (app.currentIndustry.cover_url) {
+                    preview.src = app.currentIndustry.cover_url; preview.classList.remove('hidden'); placeholder.classList.add('hidden');
+                } else {
+                    preview.classList.add('hidden'); placeholder.classList.remove('hidden');
+                }
+                app.openModal('addIndustry'); 
+            },
+
+            handleCoverPreview: function(input) {
+                const file = input.files[0]; if(!file) return;
+                app.coverFile = file;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.getElementById('coverPreview');
+                    img.src = e.target.result; img.classList.remove('hidden'); document.getElementById('coverPlaceholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            },
+
+            openPhotoPreview: function(p) {
+                app.selectedPhoto = p;
+                document.getElementById('previewImg').src = p.url_publica;
+                document.getElementById('previewDescInput').value = p.descricao || "";
+                app.openModal('photoPreview');
+            },
+
+            savePhotoDesc: async function() {
+                const desc = document.getElementById('previewDescInput').value;
+                try {
+                    await app.supabase.from('fotos').update({ descricao: desc }).eq('id', app.selectedPhoto.id);
+                    app.showToast("Nota Salva");
+                    app.handleBack();
+                    await app.fetchData();
+                } catch(e) { app.showToast("Erro ao guardar"); }
+            },
+
+            shareFiles: async function() {
+                const selIds = Array.from(app.selectedPhotos);
+                if (selIds.length === 0) { app.showToast("Selecione fotos!"); return; }
+                app.showToast("A processar...");
+                const photosToShare = app.allPhotos.filter(p => selIds.includes(p.id));
+                const text = document.getElementById('previewMessageText').innerText;
+                try {
+                    const files = [];
+                    for (const p of photosToShare) {
+                        const res = await fetch(p.url_publica);
+                        const blob = await res.blob();
+                        files.push(new File([blob], `registo_${Date.now()}.jpg`, { type: 'image/jpeg' }));
+                    }
+                    if (navigator.canShare && navigator.canShare({ files })) {
+                        await navigator.share({ files, title: 'Relatório', text });
+                    } else {
+                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                    }
+                } catch (e) { app.showToast("Erro na Partilha"); }
+            },
+
+            toggleSelectionMode: function() {
+                app.isSelectionMode = !app.isSelectionMode;
+                document.getElementById('selectBtn').innerText = app.isSelectionMode ? 'Cancelar' : 'Selecionar';
+                document.getElementById('selectionBar').style.transform = app.isSelectionMode ? 'translateY(0)' : 'translateY(250%)';
+                if (!app.isSelectionMode) app.selectedPhotos.clear();
+                app.renderGallery();
+            },
+
+            updateSelectionCount: function() {
+                document.getElementById('selectionCount').innerText = `${app.selectedPhotos.size} selecionadas`;
+            },
+
+            confirmDeleteSelected: function() {
+                app.openModal('confirm');
+                document.getElementById('confirmActionBtn').onclick = async () => {
+                    const ids = Array.from(app.selectedPhotos);
+                    const photos = app.allPhotos.filter(p => ids.includes(p.id));
+                    await app.supabase.storage.from(BUCKET).remove(photos.map(p => p.nome_arquivo));
+                    await app.supabase.from('fotos').delete().in('id', ids);
+                    app.toggleSelectionMode();
+                    app.handleBack();
+                    app.showToast("Removido");
+                    await app.fetchData();
+                    app.renderGallery();
+                };
+            },
+
+            confirmDeleteSingle: function() {
+                app.openModal('confirm');
+                document.getElementById('confirmActionBtn').onclick = async () => {
+                    await app.supabase.storage.from(BUCKET).remove([app.selectedPhoto.nome_arquivo]);
+                    await app.supabase.from('fotos').delete().eq('id', app.selectedPhoto.id);
+                    app.modalStack = [];
+                    document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+                    app.showToast("Eliminado");
+                    await app.fetchData();
+                    if(app.currentView === 'gallery') app.renderGallery(); else app.renderGlobalGallery();
+                };
+            },
+
+            confirmDeleteIndustry: function() {
+                app.openModal('confirm');
+                document.getElementById('confirmActionBtn').onclick = async () => {
+                    try {
+                        const photos = app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry.id));
+                        if(photos.length > 0) await app.supabase.storage.from(BUCKET).remove(photos.map(p => p.nome_arquivo));
+                        await app.supabase.from('industrias').delete().eq('id', app.currentIndustry.id);
+                        app.closeAllModals();
+                        app.showToast("Loja Eliminada");
+                        app.navigateTo('home');
+                        await app.fetchData();
+                    } catch(e) { app.showToast("Erro ao eliminar"); }
+                };
+            },
+
+            saveIndustry: async function() {
+                const name = document.getElementById('newIndName').value; if(!name) return;
+                const category = document.getElementById('newIndCategory').value; 
+
+                const payload = { nome: name, categoria: category };
+                
+                try {
+                    app.showToast("A guardar...");
+                    if (app.coverFile) {
+                        const fName = `covers/${Date.now()}.jpg`;
+                        await app.supabase.storage.from(BUCKET).upload(fName, app.coverFile, { contentType: 'image/jpeg' });
+                        payload.cover_url = app.supabase.storage.from(BUCKET).getPublicUrl(fName).data.publicUrl;
+                    }
+                    if (app.currentIndustry) await app.supabase.from('industrias').update(payload).eq('id', app.currentIndustry.id);
+                    else await app.supabase.from('industrias').insert(payload);
+                    
+                    app.setCategoryFilter(category);
+                    
+                    app.coverFile = null; app.handleBack(); await app.fetchData();
+                } catch(e) { app.showToast("Erro ao guardar"); }
+            }
+        };
+
+        window.onload = () => app.init();
+        /* --- FIM DO CONTEÚDO script.js --- */
+    </script>
+</body>
+</html>
+
+
