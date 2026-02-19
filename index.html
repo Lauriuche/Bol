@@ -861,14 +861,14 @@
                 const categoria = app.currentIndustry.categoria || 'freelancer';
                 
                 let report = `🚨 *RELATÓRIO DE VALIDADES* 🚨\n\n`;
-                report += `🛒 *${nomeLoja}*\n`;
-                report += `👨‍💼 *Promotor* - Vagner\n`;
+                report += `> 🛒 *${nomeLoja}*\n`;
+                report += `> 👨‍💼 *Promotor* - Vagner\n`;
                 
                 if (categoria === 'merchandising') {
-                    report += `👩‍💼 *Supervisora* - Roberta\n`;
+                    report += `> 👩‍💼 *Supervisora* - Roberta\n`;
                 }
                 
-                report += `🗓️ *Data* - ${diaStr}/${mesStr}/${anoStr}\n`;
+                report += `> 🗓️ *Data* - ${diaStr}/${mesStr}/${anoStr}\n\n\n`;
                 report += `--------------------------------\n`;
 
                 app.validades.forEach(item => {
@@ -887,10 +887,10 @@
                     const dateStr = valDate.toLocaleDateString('pt-PT');
                     
                     report += `${statusIcon} *${item.produto}*\n`;
-                    report += `   📅 Vencimento: ${dateStr}\n`;
-                    if(item.quantidade) report += `   📦 Qtd: ${item.quantidade}\n`;
-                    if(item.sku) report += `   🏷️ SKU: ${item.sku}\n`;
-                    if(item.codigo_barras) report += `   barcode: ${item.codigo_barras}\n`;
+                    report += `         •  📅 Vencimento: ${dateStr}\n`;
+                    if(item.quantidade) report += `         •  📦 Qtd: ${item.quantidade}\n`;
+                    if(item.sku) report += `         •  🏷️ SKU: ${item.sku}\n`;
+                    if(item.codigo_barras) report += `         •  barcode: ${item.codigo_barras}\n`;
                     report += `--------------------------------\n`;
                 });
 
@@ -1348,3 +1348,5 @@
     </script>
 </body>
 </html>
+
+
