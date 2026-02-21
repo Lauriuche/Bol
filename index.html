@@ -194,14 +194,20 @@
         .status-good { background-color: #DCFCE7; color: #16A34A; }
         .dark .status-good { background-color: #052e16; color: #86efac; }
 
-        .fab {
+        .fab-container {
             position: fixed; bottom: calc(90px + var(--safe-bottom)); right: 20px;
-            width: 56px; height: 56px; background-color: var(--primary); color: white;
-            border-radius: 18px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 90;
-            font-size: 20px; transition: transform 0.1s;
+            display: flex; gap: 12px; z-index: 90;
         }
-        .fab:active { transform: scale(0.95); }
+        .fab-container.hidden { display: none !important; }
+        .fab, .fab-secondary {
+            width: 56px; height: 56px;
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            font-size: 20px; transition: transform 0.1s; border: none; cursor: pointer; outline: none;
+        }
+        .fab { background-color: var(--primary); color: white; }
+        .fab-secondary { background-color: var(--surface); color: var(--text-main); border: 1px solid var(--border-color); }
+        .fab:active, .fab-secondary:active { transform: scale(0.95); }
 
         .modal-overlay {
             position: fixed; inset: 0; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
@@ -397,10 +403,15 @@
         </section>
     </main>
 
-    <!-- FAB INTELIGENTE -->
-    <button onclick="app.handleFabAction()" class="fab" id="fabAdd">
-        <i class="fas fa-plus"></i>
-    </button>
+    <!-- FAB INTELIGENTE (AGORA CONTAINER COM DOIS BOTÕES) -->
+    <div id="fabContainer" class="fab-container">
+        <button onclick="app.forceSync()" class="fab-secondary" id="fabSync">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button onclick="app.handleFabAction()" class="fab" id="fabAdd">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
 
     <!-- BARRA DE SELEÇÃO FLUTUANTE -->
     <div id="selectionBar" class="fixed bottom-24 left-6 right-6 bg-zinc-900 dark:bg-zinc-800 text-white p-4 rounded-2xl flex items-center justify-between shadow-2xl transition-transform duration-300 translate-y-[250%] z-[120] border border-white/10">
@@ -604,6 +615,24 @@
                     app.openValidadeModal();
                 } else {
                     app.saveNewIndustry();
+                }
+            },
+
+            forceSync: async function() {
+                app.showToast("A sincronizar dados...");
+                const syncIcon = document.querySelector('#fabSync i');
+                if (syncIcon) syncIcon.classList.add('fa-spin'); // Adiciona animação de giro
+                
+                try {
+                    await app.fetchData();
+                    if (app.currentView === 'validade-items') {
+                        await app.fetchValidades();
+                    }
+                    app.showToast("Sincronizado com sucesso!");
+                } catch (e) {
+                    app.showToast("Erro ao sincronizar");
+                } finally {
+                    if (syncIcon) syncIcon.classList.remove('fa-spin'); // Remove animação
                 }
             },
 
@@ -1076,9 +1105,13 @@
                 const showBack = view !== 'home' && view !== 'validades' && view !== 'reports';
                 document.getElementById('backBtn').classList.toggle('hidden', !showBack);
                 
-                document.getElementById('fabAdd').classList.toggle('hidden', 
-                    view !== 'home' && view !== 'gallery' && view !== 'validade-items'
-                );
+                // FAB aparece na home, galeria e lista de itens de validade
+                const fabContainer = document.getElementById('fabContainer');
+                if (fabContainer) {
+                    fabContainer.classList.toggle('hidden', 
+                        view !== 'home' && view !== 'gallery' && view !== 'validade-items'
+                    );
+                }
                 
                 if (view === 'dates') app.renderCalendar();
                 if (view === 'gallery') app.renderGallery();
