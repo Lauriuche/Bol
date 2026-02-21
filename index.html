@@ -241,12 +241,11 @@
 <body class="no-scrollbar">
 
     <!-- INPUT OCULTO PARA CÂMERA -->
-    <input type="file" id="fabCameraInput" capture="environment" accept="image/jpeg" class="hidden" onchange="app.handleUpload(this)">
+    <input type="file" id="fabCameraInput" capture="environment" accept="image/*" class="hidden" onchange="app.handleUpload(this)">
 
     <!-- CABEÇALHO -->
     <header>
         <div class="max-w-xl mx-auto flex items-center px-6">
-            <!-- Botão Voltar: Contraste ajustado -->
             <button id="backBtn" onclick="app.handleBack()" class="hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-700 dark:text-white mr-2 transition-colors border border-transparent dark:border-zinc-600">
                 <i class="fas fa-chevron-left text-sm"></i>
             </button>
@@ -255,7 +254,6 @@
                 <p id="headerSubtitle" class="text-[10px] font-bold opacity-60 uppercase tracking-widest text-blue-600 dark:text-blue-400">Painel Operacional</p>
             </div>
             <div class="flex gap-2">
-                <!-- Botões de Cabeçalho -->
                 <button onclick="app.openModal('settings')" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-700 dark:text-white transition-colors border border-transparent dark:border-zinc-600">
                     <i class="fas fa-info text-sm"></i>
                 </button>
@@ -331,12 +329,12 @@
                 <label class="android-card flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-blue-200 dark:border-blue-900 py-6 active:scale-95 transition-transform">
                     <i class="fas fa-camera text-2xl text-blue-500"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest">Câmera</span>
-                    <input type="file" capture="environment" accept="image/jpeg" class="hidden" onchange="app.handleUpload(this)">
+                    <input type="file" capture="environment" accept="image/*" class="hidden" onchange="app.handleUpload(this)">
                 </label>
                 <label class="android-card flex flex-col items-center gap-2 cursor-pointer border-2 border-dashed border-gray-200 dark:border-zinc-700 py-6 active:scale-95 transition-transform">
                     <i class="fas fa-images text-2xl text-gray-400"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest">Galeria</span>
-                    <input type="file" accept="image/jpeg" class="hidden" onchange="app.handleUpload(this)">
+                    <input type="file" accept="image/*" class="hidden" onchange="app.handleUpload(this)">
                 </label>
             </div>
         </section>
@@ -438,7 +436,7 @@
             <div class="android-card bg-gray-50 dark:bg-zinc-800/50 mb-6 flex flex-col gap-3">
                 <div class="flex justify-between items-center border-b border-gray-200 dark:border-zinc-700 pb-3">
                     <span class="text-xs font-bold uppercase opacity-60">Versão</span>
-                    <span class="text-xs font-bold">3.0.0 (Calendar Fixed)</span>
+                    <span class="text-xs font-bold">3.3.0 (Full Restore)</span>
                 </div>
                 <div class="text-[10px] opacity-40 text-center pt-2">
                     Sistema multi-categoria (Free/Merch).
@@ -516,7 +514,8 @@
                     <i class="fas fa-camera text-3xl mb-2"></i>
                     <span class="text-[10px] font-black uppercase">Foto de Capa</span>
                 </div>
-                <input type="file" accept="image/jpeg" class="absolute inset-0 opacity-0 cursor-pointer" onchange="app.handleCoverPreview(this)">
+                <!-- TAMBÉM ATUALIZADO PARA ACEITAR TODAS AS IMAGENS -->
+                <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="app.handleCoverPreview(this)">
             </div>
 
             <div class="flex gap-3">
@@ -559,15 +558,7 @@
         </div>
     </div>
 
-    <!-- 
-        *** INSTRUÇÕES PARA SEPARAÇÃO (JS) ***
-        Para usar um arquivo separado:
-        1. Crie um arquivo 'script.js'.
-        2. Mova todo o conteúdo de dentro da tag <script> abaixo para o 'script.js'.
-        3. Adicione esta linha no final do body, antes de fechar: <script src="script.js"></script>
-    -->
     <script>
-        /* --- INICIO DO CONTEÚDO script.js --- */
         const SUPABASE_URL = 'https://hluxaxbjdpbezvffisns.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsdXhheGJqZHBiZXp2ZmZpc25zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMTg3NDgsImV4cCI6MjA4MDU5NDc0OH0.lia_McknZ7SD2EGlNchRVZ9d359bFkk7hSJXJYhJzig';
         const BUCKET = 'galeria';
@@ -637,7 +628,6 @@
                 } catch(e) { app.showToast("Erro de Ligação"); }
             },
 
-            // --- NOVA FUNÇÃO: Buscar Validades da Loja Atual ---
             fetchValidades: async function() {
                 if(!app.currentIndustry) return;
                 try {
@@ -726,7 +716,6 @@
                 });
             },
 
-            // --- NOVA FUNÇÃO: Renderizar itens de validade na lista ---
             renderValidadeItems: function() {
                 const list = document.getElementById('validadeItemsList');
                 if(!list) return;
@@ -759,7 +748,6 @@
                     const div = document.createElement('div');
                     div.className = 'validade-row';
                     
-                    // Renderiza SKU, Código e Quantidade
                     let metaInfo = "";
                     if(item.quantidade) metaInfo += `<span class="mr-2 text-purple-500 font-bold"><i class="fas fa-cubes text-[9px]"></i> Qtd: ${item.quantidade}</span>`;
                     if(item.sku) metaInfo += `<span class="mr-2"><i class="fas fa-tag text-[9px]"></i> ${item.sku}</span>`;
@@ -798,30 +786,22 @@
                 app.fetchValidades(); // Carrega do Banco de Dados
             },
 
-            // --- NOVA FUNÇÃO: SCANNER DE CÓDIGO DE BARRAS ---
             startBarcodeScan: function() {
                 const scannerContainer = document.getElementById('scanner-container');
                 scannerContainer.classList.remove('hidden');
                 
-                // Inicializa scanner se ainda não existir
                 if(!app.html5QrCode) {
                     app.html5QrCode = new Html5Qrcode("reader");
                 }
                 
-                // Configuração da câmera
                 const config = { fps: 10, qrbox: { width: 250, height: 150 }, aspectRatio: 1.77 };
                 
                 app.html5QrCode.start({ facingMode: "environment" }, config, (decodedText, decodedResult) => {
                     console.log(`Code matched = ${decodedText}`, decodedResult);
-                    
                     document.getElementById('valItemBarcode').value = decodedText;
-                    
-                    // Dispara o autopreenchimento pelo código escaneado
                     app.autoFillByBarcode(decodedText);
-
                     app.stopBarcodeScan();
                     app.showToast("Código Lido!");
-                    
                 }, (errorMessage) => {
                     // Ignora erros de frame
                 }).catch(err => {
@@ -844,7 +824,6 @@
                 }
             },
 
-            // --- NOVA FUNÇÃO: RELATÓRIO DE VALIDADES PARA WHATSAPP ---
             shareValidadeReport: function() {
                 if (!app.validades || app.validades.length === 0) {
                     app.showToast("Lista vazia!");
@@ -898,15 +877,11 @@
                 window.open(`https://wa.me/?text=${encodedText}`, '_blank');
             },
 
-            // --- NOVA FUNÇÃO: AUTO-FILL POR CÓDIGO DE BARRAS ---
             autoFillByBarcode: async function(barcode) {
                 if (!barcode || barcode.length < 3) return;
 
                 const nameField = document.getElementById('valItemName');
                 const skuField = document.getElementById('valItemSku');
-
-                // Só preenche se o campo de nome estiver vazio para não sobrescrever trabalho manual
-                // OU se o usuário acabou de escanear (contexto de uso)
                 
                 try {
                     const { data } = await app.supabase
@@ -918,7 +893,6 @@
                         .maybeSingle();
 
                     if (data) {
-                        // Preenche se encontrou
                         if (data.produto) nameField.value = data.produto;
                         if (data.sku) skuField.value = data.sku;
                         app.showToast("Produto encontrado!");
@@ -928,7 +902,6 @@
                 }
             },
 
-            // --- NOVA FUNÇÃO: AUTO-FILL POR NOME DO PRODUTO (REVERSO) ---
             autoFillProductData: async function(productName) {
                 if (!productName || productName.length < 3) return; 
 
@@ -963,7 +936,54 @@
                 }
             },
 
-            // --- RESTORED UTILITY FUNCTIONS ---
+            handleUpload: async function(input) {
+                const file = input.files[0];
+                if (!file || !app.currentIndustry) {
+                    if(input) input.value = "";
+                    return;
+                }
+                
+                app.showToast("A enviar para Storage (1/2)...");
+                const now = new Date();
+                const targetDate = app.currentDateFolder || now.toISOString().split('T')[0];
+                
+                const ext = file.name.split('.').pop() || 'jpg';
+                const fileName = `${app.currentIndustry.id}/${Date.now()}.${ext}`;
+
+                try {
+                    const { error: uploadError } = await app.supabase.storage.from(BUCKET).upload(fileName, file, { 
+                        contentType: file.type || 'image/jpeg',
+                        upsert: false
+                    });
+                    
+                    if (uploadError) throw new Error(`Erro Storage: ${uploadError.message}`);
+
+                    app.showToast("A guardar registo no BD (2/2)...");
+
+                    const { data: urlData } = app.supabase.storage.from(BUCKET).getPublicUrl(fileName);
+
+                    const { error: dbError } = await app.supabase.from('fotos').insert({
+                        created_at: new Date(targetDate + "T12:00:00Z").toISOString(),
+                        nome_arquivo: fileName, 
+                        url_publica: urlData.publicUrl,
+                        industria_id: app.currentIndustry.id, 
+                        descricao: ""
+                    });
+                    
+                    if (dbError) throw new Error(`Erro BD: ${dbError.message}`);
+
+                    app.showToast("Guardado com sucesso!");
+                    await app.fetchData();
+                    app.navigateTo('gallery');
+
+                } catch(e) { 
+                    console.error("ERRO UPLOAD COMPLETO:", e);
+                    app.showToast(e.message || "Erro desconhecido ao enviar"); 
+                } finally {
+                    input.value = ""; 
+                }
+            },
+
             toggleDarkMode: function() {
                 const isDark = document.documentElement.classList.toggle('dark');
                 document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
@@ -986,12 +1006,10 @@
 
             changeMonth: function(d) { app.calendarCursor.setMonth(app.calendarCursor.getMonth() + d); app.renderCalendar(); },
 
-            // REINSERIDO AQUI: renderCalendar
             renderCalendar: function() {
                 const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
                 const y = app.calendarCursor.getFullYear(), m = app.calendarCursor.getMonth();
                 
-                // Mês em Português
                 const monthName = new Intl.DateTimeFormat('pt-PT', { month: 'long', year: 'numeric' }).format(app.calendarCursor);
                 document.getElementById('calendarMonth').innerText = monthName.charAt(0).toUpperCase() + monthName.slice(1);
                 
@@ -1005,13 +1023,10 @@
                 const total = new Date(y, m + 1, 0).getDate();
                 const activeDates = new Set();
                 
-                // Filtra fotos da loja atual para marcar dias
                 app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry.id)).forEach(p => activeDates.add(p.created_at.split('T')[0]));
                 
-                // Células vazias antes do dia 1
                 for(let i=0; i<first; i++) grid.innerHTML += `<div></div>`;
                 
-                // Dias do mês
                 for(let d=1; d<=total; d++) {
                     const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                     const active = activeDates.has(iso);
@@ -1024,7 +1039,6 @@
                 }
             },
 
-            // REINSERIDO AQUI: renderGallery
             renderGallery: function() {
                 const c = document.getElementById('galleryContainer'); c.innerHTML = '';
                 const photos = app.allPhotos.filter(p => String(p.industria_id) === String(app.currentIndustry.id) && p.created_at.startsWith(app.currentDateFolder));
@@ -1062,7 +1076,6 @@
                 const showBack = view !== 'home' && view !== 'validades' && view !== 'reports';
                 document.getElementById('backBtn').classList.toggle('hidden', !showBack);
                 
-                // FAB aparece na home, galeria e lista de itens de validade
                 document.getElementById('fabAdd').classList.toggle('hidden', 
                     view !== 'home' && view !== 'gallery' && view !== 'validade-items'
                 );
@@ -1074,12 +1087,9 @@
                 app.currentView = view;
             },
 
-            // REINSERIDO AQUI
             handleBack: function() { window.history.back(); },
 
-            // --- NOVA FUNÇÃO: Abrir Modal de Edição/Criação ---
             openValidadeModal: function(itemId = null) {
-                // Reseta scanner por segurança
                 app.stopBarcodeScan();
 
                 if(itemId) {
@@ -1088,10 +1098,9 @@
                     document.getElementById('validadeFormTitle').innerText = "Editar Item";
                     document.getElementById('valItemName').value = item.produto;
                     document.getElementById('valItemDate').value = item.data_validade;
-                    // Preenche SKU e Barcode se existirem
                     document.getElementById('valItemSku').value = item.sku || "";
                     document.getElementById('valItemBarcode').value = item.codigo_barras || "";
-                    document.getElementById('valItemQtd').value = item.quantidade || ""; // Carrega quantidade
+                    document.getElementById('valItemQtd').value = item.quantidade || ""; 
                 } else {
                     app.currentValidadeItem = null;
                     document.getElementById('validadeFormTitle').innerText = "Novo Item";
@@ -1099,18 +1108,17 @@
                     document.getElementById('valItemDate').value = "";
                     document.getElementById('valItemSku').value = "";
                     document.getElementById('valItemBarcode').value = "";
-                    document.getElementById('valItemQtd').value = ""; // Limpa quantidade
+                    document.getElementById('valItemQtd').value = ""; 
                 }
                 app.openModal('validadeItem');
             },
 
-            // --- NOVA FUNÇÃO: Salvar no Supabase (Upsert) ---
             saveValidadeItem: async function() {
                 const produto = document.getElementById('valItemName').value;
                 const dataValidade = document.getElementById('valItemDate').value;
                 const sku = document.getElementById('valItemSku').value;
                 const barcode = document.getElementById('valItemBarcode').value;
-                const quantidade = document.getElementById('valItemQtd').value; // Pega quantidade
+                const quantidade = document.getElementById('valItemQtd').value; 
                 
                 if(!produto || !dataValidade) {
                     app.showToast("Preencha todos os campos obrigatórios"); return;
@@ -1122,7 +1130,7 @@
                     data_validade: dataValidade,
                     sku: sku,
                     codigo_barras: barcode,
-                    quantidade: quantidade ? parseInt(quantidade) : null // Salva como número
+                    quantidade: quantidade ? parseInt(quantidade) : null 
                 };
 
                 if(app.currentValidadeItem) {
@@ -1135,15 +1143,14 @@
                     if(error) throw error;
                     
                     app.showToast(app.currentValidadeItem ? "Item Atualizado" : "Item Criado");
-                    app.handleBack(); // Fecha modal
-                    app.fetchValidades(); // Recarrega lista
+                    app.handleBack(); 
+                    app.fetchValidades(); 
                 } catch(e) { 
                     console.error(e);
                     app.showToast("Erro ao salvar no banco"); 
                 }
             },
 
-            // --- NOVA FUNÇÃO: Deletar do Supabase ---
             confirmDeleteValidade: function(itemId) {
                 app.openModal('confirm');
                 document.getElementById('confirmActionBtn').onclick = async () => {
@@ -1152,7 +1159,7 @@
                         const { error } = await app.supabase.from('validades').delete().eq('id', itemId);
                         if(error) throw error;
                         
-                        app.closeAllModals(); // Fecha modal confirm
+                        app.closeAllModals(); 
                         app.showToast("Item Removido");
                         app.fetchValidades();
                     } catch(e) {
@@ -1162,8 +1169,6 @@
             },
 
             prepareReport: function() {
-                // ... (Report logic moved to shareValidadeReport mostly, but kept for legacy report tab)
-                // Reuse logic if needed or keep existing
                 const hoje = new Date();
                 const dia = String(hoje.getDate()).padStart(2, '0');
                 const mes = String(hoje.getMonth() + 1).padStart(2, '0');
@@ -1176,9 +1181,9 @@
                 let msg = "";
 
                 if (categoria === 'merchandising') {
-                    msg = `> 🛒 *Loja 438* - Camiño Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🗓️ *Data* - ${dataFormatada}`;
+                    msg = `> 🛒 *${nomeLoja}*\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🗓️ *Data* - ${dataFormatada}`;
                 } else {
-                    msg = `> 🛒 *Loja 438* - Camiño Grajaú\n> 👨‍💼 *Promotor* - Vagner\n> 🗓️ *Data* - ${dataFormatada}`;
+                    msg = `> 🛒 *${nomeLoja}*\n> 👨‍💼 *Promotor* - Vagner\n> 🗓️ *Data* - ${dataFormatada}`;
                 }
 
                 document.getElementById('previewMessageText').innerText = msg;
@@ -1329,9 +1334,11 @@
                 try {
                     app.showToast("A guardar...");
                     if (app.coverFile) {
-                        const fName = `covers/${Date.now()}.jpg`;
-                        await app.supabase.storage.from(BUCKET).upload(fName, app.coverFile, { contentType: 'image/jpeg' });
-                        payload.cover_url = app.supabase.storage.from(BUCKET).getPublicUrl(fName).data.publicUrl;
+                        const ext = app.coverFile.name.split('.').pop() || 'jpg';
+                        const fName = `covers/${Date.now()}.${ext}`;
+                        await app.supabase.storage.from(BUCKET).upload(fName, app.coverFile, { contentType: app.coverFile.type || 'image/jpeg' });
+                        const { data: urlData } = app.supabase.storage.from(BUCKET).getPublicUrl(fName);
+                        payload.cover_url = urlData.publicUrl;
                     }
                     if (app.currentIndustry) await app.supabase.from('industrias').update(payload).eq('id', app.currentIndustry.id);
                     else await app.supabase.from('industrias').insert(payload);
@@ -1344,9 +1351,6 @@
         };
 
         window.onload = () => app.init();
-        /* --- FIM DO CONTEÚDO script.js --- */
     </script>
 </body>
 </html>
-
-
