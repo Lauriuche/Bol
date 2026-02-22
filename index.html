@@ -711,7 +711,12 @@ CREATE POLICY "Public Update" ON storage.objects FOR UPDATE TO public USING (buc
                 filtered.forEach(ind => {
                     const d = document.createElement('div');
                     d.className = 'img-card shadow-sm cursor-pointer active:opacity-80 transition-opacity';
-                    d.onclick = () => { app.vibrate(30); app.currentIndustry = ind; app.navigateTo('dates'); };
+                    d.onclick = () => { 
+                        app.vibrate(30); 
+                        app.currentIndustry = ind; 
+                        app.currentDateFolder = null; // Reseta a data para evitar conflitos de dias anteriores
+                        app.navigateTo('dates'); 
+                    };
                     d.innerHTML = `
                         <div class="w-full h-full flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-200">
                              ${ind.cover_url ? `<img src="${ind.cover_url}" class="w-full h-full object-cover" loading="lazy">` : `<i class="fas fa-store text-3xl"></i>`}
@@ -1056,14 +1061,19 @@ CREATE POLICY "Public Update" ON storage.objects FOR UPDATE TO public USING (buc
                     
                     app.showLoader("A enviar (1/2)...");
 
-                    const now = new Date();
-                    const year = now.getFullYear();
-                    const month = String(now.getMonth() + 1).padStart(2, '0');
-                    const day = String(now.getDate()).padStart(2, '0');
-                    const localDateString = `${year}-${month}-${day}`;
-                    
-                    app.currentDateFolder = app.currentDateFolder || localDateString;
-                    const targetDate = app.currentDateFolder;
+                    let targetDate;
+                    // Se o utilizador estiver DENTRO da galeria de um dia específico, usa esse dia.
+                    // Caso contrário (se clicou no botão da câmara na página da loja), FORÇA a data de HOJE.
+                    if (app.currentView === 'gallery' && app.currentDateFolder) {
+                        targetDate = app.currentDateFolder;
+                    } else {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        targetDate = `${year}-${month}-${day}`;
+                        app.currentDateFolder = targetDate; // Define a data para abrir a galeria certa logo a seguir
+                    }
                     
                     const ext = fileToUpload.name.split('.').pop() || 'jpg';
                     const fileName = `${app.currentIndustry.id}/${Date.now()}.${ext}`;
