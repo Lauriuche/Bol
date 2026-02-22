@@ -901,7 +901,7 @@ CREATE POLICY "Public Update" ON storage.objects FOR UPDATE TO public USING (buc
                 const categoria = app.currentIndustry.categoria || 'freelancer';
                 
                 let report = `🚨 *RELATÓRIO DE VALIDADES* 🚨\n\n`;
-                report += `> 🛒 *${nomeLoja}*\n`;
+                report += `> 🛒 *Loja 438* - Camino Grajau\n`;
                 report += `> 👨‍💼 *Promotor* - Vagner\n`;
                 
                 if (categoria === 'merchandising') {
@@ -1354,9 +1354,9 @@ CREATE POLICY "Public Update" ON storage.objects FOR UPDATE TO public USING (buc
                 let msg = "";
 
                 if (categoria === 'merchandising') {
-                    msg = `> 🛒 *${nomeLoja}*\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🗓️ *Data* - ${dataFormatada}`;
+                    msg = `> 🛒 *Loja 438* - Camino Grajau\n> 👨‍💼 *Promotor* - Vagner\n> 👩‍💼 *Supervisora* - Roberta\n> 🗓️ *Data* - ${dataFormatada}`;
                 } else {
-                    msg = `> 🛒 *${nomeLoja}*\n> 👨‍💼 *Promotor* - Vagner\n> 🗓️ *Data* - ${dataFormatada}`;
+                    msg = `> 🛒 *Loja 438* - Camino Grajau\n> 👨‍💼 *Promotor* - Vagner\n> 🗓️ *Data* - ${dataFormatada}`;
                 }
 
                 const msgEl = document.getElementById('previewMessageText');
